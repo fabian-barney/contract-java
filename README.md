@@ -1,2 +1,2 @@
-# contract-spring-boot-starter
-Declarative method contracts for Spring Boot.
+# contract-java
+Declarative contracts for Java.
