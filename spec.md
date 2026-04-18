@@ -12,6 +12,8 @@ Version 1 of this specification focuses on method and constructor contracts:
 
 Spring Boot is an optional integration layer for convenient dependency management. The contract model itself is framework-agnostic and is intended to work in any Java project.
 
+Nullness is explicitly out of scope for this framework. Projects should use dedicated nullness tooling such as JSpecify for nullness annotations and NullAway for compile-time null checking.
+
 ### Contracts vs. Validation
 
 | Aspect | Jakarta Bean Validation | Contracts (this framework) |
@@ -20,19 +22,13 @@ Spring Boot is an optional integration layer for convenient dependency managemen
 | Violation means | Bad data, expected and recoverable | Bug in calling or called code |
 | Exception type | `ConstraintViolationException` | Standard JDK `RuntimeException` subtypes |
 | Typical location | Controller or API boundary | Internal method and constructor boundaries |
-| Analogy | Input sanitization | `Objects.requireNonNull()`, Guava `Preconditions`, assertions |
+| Analogy | Input sanitization | Guava `Preconditions`, assertions, explicit invariant checks |
 
 Jakarta Bean Validation answers "is this data acceptable?". This framework answers "is this code correct?".
 
 ### Design Lineage
 
-This framework is the declarative counterpart to imperative contract utilities:
-
-- `Objects.requireNonNull(obj)` - JDK, throws `NullPointerException`
-- `Preconditions.checkNotNull(obj)` - Guava, throws `NullPointerException`
-- `Preconditions.checkArgument(expr)` - Guava, throws `IllegalArgumentException`
-- `Preconditions.checkState(expr)` - Guava, throws `IllegalStateException`
-- `Assert.notNull(obj, msg)` - Spring, throws `IllegalArgumentException`
+This framework is the declarative counterpart to imperative contract utilities that check arguments, state, size, ranges, and other semantic invariants inside method bodies.
 
 Instead of imperative checks in each method body, contracts are declared through annotations and enforced automatically.
 
@@ -44,7 +40,7 @@ Instead of imperative checks in each method body, contracts are declared through
 
 `Contract` is a Java annotation type (`@interface`) with two roles:
 
-1. Namespace - all built-in contract annotations are nested inside `Contract`, such as `@Contract.NotNull` and `@Contract.Positive`.
+1. Namespace - all built-in contract annotations are nested inside `Contract`, such as `@Contract.Positive` and `@Contract.Pattern`.
 2. Meta-annotation - `@Contract` may be placed on custom annotation types to mark them as contract annotations.
 
 ```java
@@ -69,47 +65,32 @@ A single import, `import <package>.Contract;`, gives access to the built-in cont
 | `ANNOTATION_TYPE` | Enables custom composed contract annotations | Supported |
 
 ```java
-@Contract.NotNull
+@Contract.Pattern(regexp = "USR-[0-9]+")
 public String findUser(
         @Contract.Positive Integer limit,
-        @Contract.Nullable @Contract.Positive Integer softLimit) {
+        @Contract.Size(min = 1, max = 32) String tenant) {
     // ...
 }
 ```
 
 In the example above:
 
-- the method-level `@Contract.NotNull` is a postcondition,
-- `limit` is non-null by default and must be positive,
-- `softLimit` is nullable, and if it is non-null it must be positive.
+- the method-level `@Contract.Pattern` is a postcondition on the return value,
+- `limit` must be positive when non-null,
+- `tenant` must have a size within the declared bounds when non-null.
 
-### 2.3 Nullability Model
+All semantic contracts in this framework are null-safe for object values:
 
-Nullability is defined independently from all other contract semantics.
+- semantic contract evaluation runs only for non-null object values,
+- `null` is never itself a contract violation,
+- projects that need nullness constraints should use dedicated nullness tooling outside this framework.
 
-- Parameters and non-void return values are non-null by default.
-- `@Contract.NotNull` explicitly declares non-null behavior.
-- `@Contract.Nullable` explicitly declares nullable behavior.
-- Direct JSpecify `@org.jspecify.annotations.NonNull` and `@org.jspecify.annotations.Nullable` on parameter types and return types are treated as first-class nullness inputs with the same meaning as `@Contract.NotNull` and `@Contract.Nullable`.
-- JSpecify `@NullMarked` and `@NullUnmarked` are not part of v1 contract semantics and do not affect generated checks.
-- If nullability declarations conflict, compilation must fail.
-- Only nullability declarations decide whether `null` is accepted or rejected.
-- All non-nullability contracts are null-safe for object types: if the value is `null`, those contracts are skipped and the nullability rule decides the outcome.
+### 2.3 Built-in Contract Annotations
 
-Examples:
-
-- `@Contract.Positive Integer amount` means `amount` must be non-null and positive because the default nullability is non-null.
-- `@Contract.Nullable @Contract.Positive Integer amount` means `null` is allowed, and positive is checked only when `amount` is non-null.
-- `public @org.jspecify.annotations.Nullable String findUser(...)` means the return value may be `null` without using `@Contract.Nullable`.
-
-### 2.4 Built-in Contract Annotations
-
-#### Nullability and Confidentiality
+#### Confidentiality
 
 | Annotation | Applies to | Semantics |
 |---|---|---|
-| `@Contract.NotNull` | Any reference type | The value must not be `null` |
-| `@Contract.Nullable` | Any reference type | The value may be `null` |
 | `@Contract.Mask` | Any value that may appear in a generated violation message | The raw value must not appear in generated exception messages |
 
 `@Contract.Mask` is not itself a validity check. It modifies exception-message rendering for the annotated value. It may be used directly or as a meta-annotation in a custom contract.
@@ -121,7 +102,7 @@ Examples:
 | `@Contract.NotEmpty` | `String`, `CharSequence`, `Collection`, `Map`, arrays | If non-null, the value must not be empty |
 | `@Contract.NotBlank` | `String`, `CharSequence` | If non-null, the value must contain at least one non-whitespace character |
 
-`@Contract.NotEmpty` and `@Contract.NotBlank` do not define null behavior. If the value is `null`, the nullability rule applies first and the content check is skipped.
+For object values, `null` is ignored by these contracts and therefore passes.
 
 #### Numeric Checks
 
@@ -140,7 +121,7 @@ Examples:
 @Contract.InRange(min = 0, max = 100, minInclusive = true, maxInclusive = false)
 ```
 
-For wrapper types, `null` is handled only by the nullability rule. The numeric contract runs only when the wrapper value is non-null.
+For numeric wrapper types, `null` is ignored and therefore passes. Numeric checks run only when the wrapper value is non-null.
 
 #### Size Checks
 
@@ -152,7 +133,7 @@ For wrapper types, `null` is handled only by the nullability rule. The numeric c
 @Contract.Size(min = 1, max = 255)
 ```
 
-`@Contract.Size` does not imply non-null.
+For object values, `null` is ignored and therefore passes.
 
 #### Pattern Checks
 
@@ -164,15 +145,14 @@ For wrapper types, `null` is handled only by the nullability rule. The numeric c
 void setEmail(@Contract.Pattern(regexp = "^[^@]+@[^@]+$") String email)
 ```
 
-`@Contract.Pattern` does not imply non-null.
+For object values, `null` is ignored and therefore passes.
 
-### 2.5 Custom Contract Annotations
+### 2.4 Custom Contract Annotations
 
 Users may define their own contract annotations by composing built-in annotations and marking them with `@Contract`.
 
 ```java
 @Contract
-@Contract.NotNull
 @Contract.Positive
 @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
 @Retention(RUNTIME)
@@ -192,7 +172,7 @@ public void deleteUser(@ValidId Long userId) {
 
 The annotation processor detects annotations meta-annotated with `@Contract` and enforces their composed contract semantics on supported targets.
 
-### 2.6 Common Annotation Attributes
+### 2.5 Common Annotation Attributes
 
 Every built-in contract annotation that can fail exposes:
 
@@ -204,7 +184,7 @@ When `message` is non-empty, that message replaces the generated contract descri
 
 `@Contract.Mask` additionally exposes an optional renderer attribute for a custom mask renderer type. The framework-provided default renderer must be conservative and must not reveal the original value or any sensitive information (e.g. substring or size/length) of it.
 
-### 2.7 Annotation Definition Summary
+### 2.6 Annotation Definition Summary
 
 All built-in contract annotations are documented and retained at runtime.
 
@@ -228,21 +208,13 @@ Contract violations throw standard JDK exceptions.
 
 | Condition | Exception |
 |---|---|
-| Nullability rule failed for a parameter | `NullPointerException` |
-| Any non-nullability precondition failed | `IllegalArgumentException` |
-
-Nullability-rule failures include:
-
-- the implicit non-null default,
-- `@Contract.NotNull`,
-- direct JSpecify `@NonNull`,
-- null rejection that is implied when a parameter is non-null by default.
+| Any parameter contract failed | `IllegalArgumentException` |
 
 #### Postcondition Violations
 
 | Condition | Exception |
 |---|---|
-| Any method postcondition failed, including a nullability rule | `IllegalStateException` |
+| Any method postcondition failed | `IllegalStateException` |
 
 ### 3.2 Exception Messages
 
@@ -256,9 +228,9 @@ Generated exception messages include:
 Unmasked examples:
 
 ```text
-Parameter 'id' of method 'com.example.UserService.findUser' must not be null
-
 Parameter 'limit' of method 'com.example.UserService.findUser' must be positive, but was: -3
+
+Parameter 'tenant' of method 'com.example.UserService.findUser' must have size within [1, 32], but was: ""
 ```
 
 Masked examples:
@@ -303,7 +275,7 @@ Contracts are enforced by a compile-time annotation processor that generates che
 - works for plain Java applications and is not limited to Spring,
 - has no runtime reflection or proxy requirement,
 - works for constructors, private methods, and self-invocation,
-- generates unconditional checks, similar in spirit to Lombok's generated null checks.
+- generates unconditional semantic checks for supported contracts.
 
 Version 1 enforcement is limited to supported parameter and method targets. Field annotations are part of the public annotation model but are not enforced directly as field invariants in v1.
 
@@ -314,45 +286,36 @@ The annotation processor generates code equivalent to manual precondition checks
 Source:
 
 ```java
-@Contract.NotNull
+@Contract.Pattern(regexp = "USR-[0-9]+")
 public String findUser(
         @Contract.Positive Integer limit,
-        @Contract.Nullable @Contract.Positive Integer softLimit) {
-    return repository.find(limit, softLimit);
+        @Contract.Size(min = 1, max = 32) String tenant) {
+    return repository.find(limit, tenant);
 }
 ```
 
 Equivalent after processing:
 
 ```java
-public String findUser(Integer limit, Integer softLimit) {
-    // Generated nullability check from the implicit non-null default
-    if (limit == null) {
-        throw new NullPointerException(
-            "Parameter 'limit' of method 'com.example.UserService.findUser' must not be null");
-    }
-
-    // Generated semantic contract checks
-    if (limit <= 0) {
+public String findUser(Integer limit, String tenant) {
+    if (limit != null && limit <= 0) {
         throw new IllegalArgumentException(
             "Parameter 'limit' of method 'com.example.UserService.findUser' must be positive, but was: " + limit);
     }
-    if (softLimit != null && softLimit <= 0) {
+    if (tenant != null && (tenant.length() < 1 || tenant.length() > 32)) {
         throw new IllegalArgumentException(
-            "Parameter 'softLimit' of method 'com.example.UserService.findUser' must be positive, but was: " + softLimit);
+            "Parameter 'tenant' of method 'com.example.UserService.findUser' must have size within [1, 32], but was: " + tenant);
     }
 
-    String $result = repository.find(limit, softLimit);
+    String $result = repository.find(limit, tenant);
 
-    if ($result == null) {
+    if ($result != null && !$result.matches("USR-[0-9]+")) {
         throw new IllegalStateException(
-            "Postcondition of method 'com.example.UserService.findUser' violated: return value must not be null, but was: null");
+            "Postcondition of method 'com.example.UserService.findUser' violated: return value must match the required pattern, but was: " + $result);
     }
     return $result;
 }
 ```
-
-If `contracts.defaultNotNull=false`, the generated null check for `limit` in the example above would be omitted unless null rejection were declared explicitly through `@Contract.NotNull` or direct JSpecify `@NonNull`.
 
 ### 4.3 Annotation Processor Options
 
@@ -361,7 +324,6 @@ The annotation processor supports compiler options for behavior control.
 | Option | Default | Description |
 |---|---|---|
 | `contracts.enabled` | `true` | Master switch to enable or disable code generation |
-| `contracts.defaultNotNull` | `true` | Makes parameters and non-void return values non-null by default |
 
 Options are passed through the build tool.
 
@@ -370,7 +332,6 @@ Maven:
 ```xml
 <compilerArgs>
     <arg>-Acontracts.enabled=true</arg>
-    <arg>-Acontracts.defaultNotNull=true</arg>
 </compilerArgs>
 ```
 
@@ -379,7 +340,6 @@ Gradle (Kotlin DSL):
 ```kotlin
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("-Acontracts.enabled=true")
-    options.compilerArgs.add("-Acontracts.defaultNotNull=true")
 }
 ```
 
@@ -387,41 +347,31 @@ tasks.withType<JavaCompile> {
 
 The annotation processor must reject invalid annotation usage with compiler errors, including:
 
-- `@Contract.NotNull` or `@Contract.Nullable` on a primitive parameter or primitive return type,
 - `@Contract.Positive` on a `String`,
 - `@Contract.NotBlank` on a `Collection`,
-- any method contract on a `void` method,
-- conflicting nullability declarations on the same parameter or return value, such as `@Contract.Nullable` together with `@Contract.NotNull`,
-- conflicting framework and direct JSpecify nullability declarations on the same parameter or return value.
+- any method contract on a `void` method.
 
-### 4.5 Null-Safe Evaluation and Wrapper Types
+### 4.5 Null-Safe Evaluation
 
-For object types, non-nullability contracts never decide null acceptance. Their evaluation rules are:
+For object types, semantic contracts never reject `null`. Their evaluation rules are:
 
 - If the value is non-null, the contract is evaluated normally.
 - If the value is `null`, the contract is skipped.
-- The nullability rule then determines whether `null` is allowed.
+- `null` therefore passes all semantic contracts in this framework.
 
-For numeric wrapper types such as `Integer`, `Long`, `Double`, and `BigDecimal`:
-
-- `@Contract.Positive`, `@Contract.InRange`, and other numeric contracts may be applied even when the value is nullable.
-- `null` passes the numeric contract when the parameter or return value is nullable.
-- `null` fails only when the parameter or return value is non-null by default or declared non-null explicitly.
+Numeric wrapper types such as `Integer`, `Long`, `Double`, and `BigDecimal` follow the same rule: semantic checks run only for non-null wrapper values.
 
 ---
 
 ## 5. Compatibility
 
-### 5.1 JSpecify Compatibility
+### 5.1 Nullness Tooling
 
-JSpecify is a first-class nullability input for this framework, but only at direct parameter and return declarations in v1.
+Nullness is out of scope for this framework.
 
-- Direct `@org.jspecify.annotations.Nullable` is treated the same as `@Contract.Nullable`.
-- Direct `@org.jspecify.annotations.NonNull` is treated the same as `@Contract.NotNull`.
-- `@NullMarked` and `@NullUnmarked` are outside the v1 contract model and do not drive code generation.
-- JSpecify remains optional. Projects that do not depend on JSpecify can use the framework-native nullability annotations only.
-
-This allows downstream projects to use JSpecify annotations for null handling while continuing to use `@Contract.*` for semantic contracts such as positivity, size, and pattern matching.
+- Use JSpecify for nullness annotations and nullness intent.
+- Use NullAway for compile-time null checking.
+- This framework does not define nullness contracts, nullness defaults, or runtime nullness enforcement semantics.
 
 ### 5.2 Lombok Compatibility
 
@@ -496,4 +446,3 @@ The contract model itself does not depend on Spring and remains usable through `
 - Java 17+
 - Maven 3.9+ or Gradle 8+
 - Spring Boot starter support is limited to Spring Boot release lines with current OSS support
-
