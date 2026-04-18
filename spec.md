@@ -202,7 +202,7 @@ String message() default "";
 
 When `message` is non-empty, that message replaces the generated contract description.
 
-`@Contract.Mask` additionally exposes an optional renderer attribute for a custom mask renderer type. The framework-provided default renderer must be conservative and must not reveal the original value or any sensitive substring of it.
+`@Contract.Mask` additionally exposes an optional renderer attribute for a custom mask renderer type. The framework-provided default renderer must be conservative and must not reveal the original value or any sensitive information (e.g. substring or size/length) of it.
 
 ### 2.7 Annotation Definition Summary
 
