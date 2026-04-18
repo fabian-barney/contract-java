@@ -1,4 +1,4 @@
-# Java Contracts Specification
+# contract-java Specification
 
 ## 1. Introduction
 
