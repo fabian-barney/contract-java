@@ -25,4 +25,32 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <contract.version>${project.version}</contract.version>
+            <maven.dependency.plugin.version>${maven.dependency.plugin.version}</maven.dependency.plugin.version>
+            <maven.install.plugin.version>${maven.install.plugin.version}</maven.install.plugin.version>
+            <reactor.root>${maven.multiModuleProjectDirectory}</reactor.root>
+            <spring.boot.35.version>${spring.boot.35.version}</spring.boot.35.version>
+            <spring.boot.40.version>${spring.boot.40.version}</spring.boot.40.version>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <id>spring-boot-dependency-smoke-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
