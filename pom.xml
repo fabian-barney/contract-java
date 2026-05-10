@@ -48,7 +48,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <crap-java.version>0.4.1</crap-java.version>
+    <crap-java.version>0.5.0</crap-java.version>
     <cognitive-java.version>0.4.0</cognitive-java.version>
     <junit.version>6.0.3</junit.version>
     <jacoco.version>0.8.14</jacoco.version>
