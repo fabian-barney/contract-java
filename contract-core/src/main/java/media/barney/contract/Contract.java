@@ -36,7 +36,7 @@ public @interface Contract {
     }
 
     /**
-     * Requires a string, collection, map, or array value to be non-empty when non-null.
+     * Requires a character sequence, collection, map, or array value to be non-empty when non-null.
      */
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
@@ -128,7 +128,7 @@ public @interface Contract {
     }
 
     /**
-     * Requires a string, collection, map, or array value size to be in range when non-null.
+     * Requires a character sequence, collection, map, or array value size to be in range when non-null.
      */
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})

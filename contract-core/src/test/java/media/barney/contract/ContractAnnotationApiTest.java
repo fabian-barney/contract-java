@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
@@ -36,6 +37,7 @@ class ContractAnnotationApiTest {
         assertArrayEquals(new java.lang.annotation.ElementType[] {ANNOTATION_TYPE},
                 Contract.class.getAnnotation(Target.class).value());
         assertEquals(RUNTIME, Contract.class.getAnnotation(Retention.class).value());
+        assertTrue(Contract.class.isAnnotationPresent(Documented.class));
     }
 
     @Test
@@ -49,6 +51,7 @@ class ContractAnnotationApiTest {
 
             assertEquals(expected, actual, annotationType.getName());
             assertEquals(RUNTIME, annotationType.getAnnotation(Retention.class).value());
+            assertTrue(annotationType.isAnnotationPresent(Documented.class), annotationType.getName());
         }
     }
 
