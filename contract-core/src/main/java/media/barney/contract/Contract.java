@@ -35,7 +35,7 @@ public @interface Contract {
     }
 
     /**
-     * Requires a non-null string, collection, map, or array value to be non-empty.
+     * Requires a string, collection, map, or array value to be non-empty when non-null.
      */
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -46,7 +46,7 @@ public @interface Contract {
     }
 
     /**
-     * Requires a non-null character sequence to contain non-whitespace content.
+     * Requires a character sequence to contain non-whitespace content when non-null.
      */
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -120,7 +120,7 @@ public @interface Contract {
     }
 
     /**
-     * Requires a non-null string, collection, map, or array value size to be in range.
+     * Requires a string, collection, map, or array value size to be in range when non-null.
      */
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -135,7 +135,7 @@ public @interface Contract {
     }
 
     /**
-     * Requires a non-null character sequence to match the configured regular expression.
+     * Requires a character sequence to match the configured regular expression when non-null.
      */
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
