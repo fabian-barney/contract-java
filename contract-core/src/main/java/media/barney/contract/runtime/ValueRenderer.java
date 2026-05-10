@@ -40,9 +40,6 @@ final class ValueRenderer {
         if (throwable instanceof VirtualMachineError error) {
             throw error;
         }
-        if (throwable instanceof ThreadDeath error) {
-            throw error;
-        }
     }
 
     private static MaskRenderer newRenderer(Class<? extends MaskRenderer> maskRenderer) {
