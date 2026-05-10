@@ -1,2 +1,181 @@
 # contract-java
-Declarative contracts for Java.
+
+Declarative preconditions and postconditions for Java 17+ applications.
+
+`contract-java` lets application code declare semantic contracts with
+annotations and enforces them at compile time through a javac annotation
+processor. Contract violations are programming errors: parameter precondition
+failures throw `IllegalArgumentException`, and return-value postcondition
+failures throw `IllegalStateException`.
+
+## Modules
+
+| Artifact | Purpose |
+| --- | --- |
+| `media.barney:contract-core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
+| `media.barney:contract-spring-boot-starter` | Thin Spring Boot starter that brings in `contract-core` for supported Boot lines. |
+
+## Installation
+
+Use `contract-core` directly in plain Java projects:
+
+```xml
+<dependency>
+  <groupId>media.barney</groupId>
+  <artifactId>contract-core</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+Use the Spring Boot starter in Boot applications:
+
+```xml
+<dependency>
+  <groupId>media.barney</groupId>
+  <artifactId>contract-spring-boot-starter</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+The starter is intentionally thin. It does not add Spring proxies or runtime
+auto-configuration; it provides a Spring-friendly dependency entry point while
+the compile-time processor remains in `contract-core`.
+
+## Maven Compiler Setup
+
+The processor is enabled by default when javac discovers it on the annotation
+processor path or compile classpath. Keep parameter names and pass processor
+options through the Maven compiler plugin:
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <release>17</release>
+    <parameters>true</parameters>
+    <compilerArgs>
+      <arg>-Acontracts.enabled=true</arg>
+    </compilerArgs>
+  </configuration>
+</plugin>
+```
+
+The current processor rewrites javac trees and therefore needs access to
+`jdk.compiler` internals while it runs. For Maven Wrapper builds, add these
+exports to `.mvn/jvm.config`:
+
+```text
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+```
+
+Disable generation for a build with:
+
+```xml
+<arg>-Acontracts.enabled=false</arg>
+```
+
+## Annotation Examples
+
+```java
+import media.barney.contract.Contract;
+
+class UserService {
+
+    @Contract.Pattern(regexp = "USR-[0-9]+")
+    String findUser(
+            @Contract.Positive Integer limit,
+            @Contract.Size(min = 1, max = 32) String tenant) {
+        return "USR-42";
+    }
+}
+```
+
+Contracts are null-safe for object values. `null` is not a violation; use
+dedicated nullness tooling such as JSpecify and NullAway when nullness matters.
+
+Built-in contracts include:
+
+- `@Contract.NotEmpty`
+- `@Contract.NotBlank`
+- `@Contract.Positive`
+- `@Contract.Negative`
+- `@Contract.NonNegative`
+- `@Contract.NonPositive`
+- `@Contract.InRange`
+- `@Contract.Size`
+- `@Contract.Pattern`
+
+Custom composed annotations are supported:
+
+```java
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import media.barney.contract.Contract;
+
+@Contract
+@Contract.Positive
+@Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+@Retention(RUNTIME)
+public @interface ValidId {
+    String message() default "must be a valid ID";
+}
+```
+
+## Masking
+
+Use `@Contract.Mask` when a violating value must not appear in generated
+exception messages:
+
+```java
+void login(@Contract.Mask @Contract.Pattern(regexp = "[0-9]+") String token) {
+    // ...
+}
+```
+
+The default mask renderer emits `[MASKED]` and intentionally avoids revealing
+length, substrings, or type-specific details. Custom renderers can be supplied
+through `@Contract.Mask(renderer = MyRenderer.class)`, but they should remain
+non-sensitive by design.
+
+## Lombok
+
+Field contracts are supported as metadata so Lombok can copy them to generated
+constructors, setters, getters, and builders. Add the annotations you use to
+`lombok.config`:
+
+```properties
+lombok.copyableAnnotations += media.barney.contract.Contract.NotBlank
+lombok.copyableAnnotations += media.barney.contract.Contract.NotEmpty
+lombok.copyableAnnotations += media.barney.contract.Contract.Positive
+lombok.copyableAnnotations += media.barney.contract.Contract.Size
+lombok.copyableAnnotations += media.barney.contract.Contract.Pattern
+```
+
+Field declarations are not directly enforced in version 1. Contracts copied by
+Lombok onto supported method, constructor, or parameter targets are enforced.
+
+## Spring Boot
+
+`contract-spring-boot-starter` currently supports Spring Boot `4.0.x` and
+`3.5.x` as documented in
+`ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md`.
+
+Use the starter with a supported Spring Boot BOM or parent. The starter does not
+require Spring at runtime and only depends on `contract-core`.
+
+## Local Development
+
+See `CONTRIBUTING.md` for local build, quality gate, and release-skeleton
+commands.
