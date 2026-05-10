@@ -38,7 +38,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run Maven verify
-        run: ./mvnw -B -ntp verify
+        run: ./mvnw -B -ntp -P!quality-gates-all verify
 
   crap-java:
     name: crap-java Gate
