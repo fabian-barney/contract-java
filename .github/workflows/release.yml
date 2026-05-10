@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Deploy artifacts after validation
+        required: true
+        default: false
+        type: boolean
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+
+    env:
+      MAVEN_RELEASE_REPOSITORY_URL: ${{ vars.MAVEN_RELEASE_REPOSITORY_URL }}
+      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Verify release candidate
+        run: ./mvnw -B -ntp verify
+
+      - name: Package release artifacts
+        run: ./mvnw -B -ntp -Prelease -DskipTests -Dgpg.skip=true package
+
+      - name: Verify publish configuration
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        run: |
+          test -n "$MAVEN_RELEASE_REPOSITORY_URL"
+          test -n "$MAVEN_USERNAME"
+          test -n "$MAVEN_PASSWORD"
+
+      - name: Publish release artifacts
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        run: >
+          ./mvnw -B -ntp -Prelease -DskipTests -Dgpg.skip=true
+          -s .github/maven-settings.xml
+          -DaltDeploymentRepository=release::default::${MAVEN_RELEASE_REPOSITORY_URL}
+          deploy

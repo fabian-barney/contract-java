@@ -11,6 +11,11 @@ public final class ContractCore {
         throw new AssertionError("No instances.");
     }
 
+    /**
+     * Returns the Maven artifact identifier for this module.
+     *
+     * @return the artifact identifier
+     */
     public static String artifactId() {
         return ARTIFACT_ID;
     }
