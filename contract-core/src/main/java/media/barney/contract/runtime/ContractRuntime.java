@@ -41,6 +41,76 @@ public final class ContractRuntime {
         }
     }
 
+    public static void requireParameterValue(
+            Object value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments = new ContractArguments(
+                min,
+                max,
+                minInclusive,
+                maxInclusive,
+                sizeMin,
+                sizeMax,
+                regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(
+                    methodName,
+                    parameterName,
+                    rule,
+                    value,
+                    maskRenderer);
+        }
+    }
+
+    public static <T> T requireReturnValue(
+            T value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments = new ContractArguments(
+                min,
+                max,
+                minInclusive,
+                maxInclusive,
+                sizeMin,
+                sizeMax,
+                regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(
+                    methodName,
+                    rule,
+                    value,
+                    maskRenderer);
+        }
+
+        return value;
+    }
+
     public static boolean isNotEmpty(Object value) {
         return ContractChecks.isNotEmpty(value);
     }
