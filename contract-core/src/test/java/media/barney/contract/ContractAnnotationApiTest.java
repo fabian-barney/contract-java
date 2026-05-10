@@ -53,6 +53,13 @@ class ContractAnnotationApiTest {
     }
 
     @Test
+    void builtInContractsAreContractMetaAnnotations() {
+        for (Class<? extends Annotation> annotationType : allBuiltInAnnotations()) {
+            assertTrue(annotationType.isAnnotationPresent(Contract.class), annotationType.getName());
+        }
+    }
+
+    @Test
     void failingBuiltInsExposeMessageAttribute() throws Exception {
         for (Class<? extends Annotation> annotationType : FAILING_CONTRACTS) {
             Method message = annotationType.getDeclaredMethod("message");
@@ -87,9 +94,7 @@ class ContractAnnotationApiTest {
         assertTrue(ValidIdentifier.class.isAnnotationPresent(Contract.Positive.class));
     }
 
-    @SafeVarargs
-    private static Set<Class<? extends Annotation>> allBuiltInAnnotations(
-            Class<? extends Annotation>... ignored) {
+    private static Set<Class<? extends Annotation>> allBuiltInAnnotations() {
         return Set.of(
                 Contract.Mask.class,
                 Contract.NotEmpty.class,

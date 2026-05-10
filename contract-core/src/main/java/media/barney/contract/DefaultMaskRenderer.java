@@ -5,7 +5,7 @@ package media.barney.contract;
  */
 public final class DefaultMaskRenderer implements MaskRenderer {
 
-    public static final String MASKED_VALUE = "[MASKED]";
+    private static final String MASKED_VALUE = "[MASKED]";
 
     @Override
     public String render(Object value) {

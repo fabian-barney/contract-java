@@ -26,6 +26,7 @@ public @interface Contract {
     /**
      * Marks a value as confidential for generated violation messages.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -37,6 +38,7 @@ public @interface Contract {
     /**
      * Requires a string, collection, map, or array value to be non-empty when non-null.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -48,6 +50,7 @@ public @interface Contract {
     /**
      * Requires a character sequence to contain non-whitespace content when non-null.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -59,6 +62,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be greater than zero.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -70,6 +74,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be less than zero.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -81,6 +86,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be greater than or equal to zero.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -92,6 +98,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be less than or equal to zero.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -103,6 +110,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to fall within the configured range.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -122,6 +130,7 @@ public @interface Contract {
     /**
      * Requires a string, collection, map, or array value size to be in range when non-null.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
@@ -137,6 +146,7 @@ public @interface Contract {
     /**
      * Requires a character sequence to match the configured regular expression when non-null.
      */
+    @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
