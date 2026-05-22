@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
           if-no-files-found: error
 
       - name: Upload build outputs
@@ -80,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
 
       - name: Download build outputs
         uses: actions/download-artifact@v8
@@ -124,7 +124,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
 
       - name: Download build outputs
         uses: actions/download-artifact@v8
@@ -160,7 +160,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
 
       - name: Download build outputs
         uses: actions/download-artifact@v8
@@ -201,7 +201,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
 
       - name: Download build outputs
         uses: actions/download-artifact@v8
@@ -242,7 +242,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
 
       - name: Download build outputs
         uses: actions/download-artifact@v8
