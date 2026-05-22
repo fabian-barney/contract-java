@@ -25,10 +25,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -41,14 +41,14 @@ jobs:
         run: ./mvnw -B -ntp -P!quality-gates-all -DskipTests install
 
       - name: Upload Maven repository
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: maven-repository
           path: ~/.m2/repository
           if-no-files-found: error
 
       - name: Upload build outputs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-targets
           path: |
@@ -64,10 +64,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -77,22 +77,22 @@ jobs:
         run: chmod +x mvnw
 
       - name: Download Maven repository
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: maven-repository
           path: ~/.m2/repository
 
       - name: Download build outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-targets
           path: .
 
       - name: Run unit tests
-        run: ./mvnw -B -ntp -P!quality-gates-all -o verify
+        run: ./mvnw -B -ntp -P!quality-gates-all verify
 
       - name: Upload JaCoCo reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-reports
           path: |
@@ -109,10 +109,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -121,19 +121,19 @@ jobs:
         run: chmod +x mvnw
 
       - name: Download Maven repository
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: maven-repository
           path: ~/.m2/repository
 
       - name: Download build outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-targets
           path: .
 
       - name: Run package build
-        run: ./mvnw -B -ntp -P!quality-gates-all -o -DskipTests package
+        run: ./mvnw -B -ntp -P!quality-gates-all -DskipTests package
 
   quality-crap-contract-core:
     name: verify / quality-crap-contract-core
@@ -144,10 +144,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -157,25 +157,25 @@ jobs:
         run: chmod +x mvnw
 
       - name: Download Maven repository
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: maven-repository
           path: ~/.m2/repository
 
       - name: Download build outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-targets
           path: .
 
       - name: Download JaCoCo reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jacoco-reports
           path: .
 
       - name: Run crap-java gate for contract-core
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-core -o -DskipTests verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-core -DskipTests verify
 
   quality-crap-contract-spring-boot-starter:
     name: verify / quality-crap-contract-spring-boot-starter
@@ -186,10 +186,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -198,25 +198,25 @@ jobs:
         run: chmod +x mvnw
 
       - name: Download Maven repository
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: maven-repository
           path: ~/.m2/repository
 
       - name: Download build outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-targets
           path: .
 
       - name: Download JaCoCo reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jacoco-reports
           path: .
 
       - name: Run crap-java gate for contract-spring-boot-starter
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-spring-boot-starter -o -DskipTests verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-spring-boot-starter -DskipTests verify
 
   quality-cognitive-contract-core:
     name: verify / quality-cognitive-contract-core
@@ -227,10 +227,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -239,25 +239,25 @@ jobs:
         run: chmod +x mvnw
 
       - name: Download Maven repository
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: maven-repository
           path: ~/.m2/repository
 
       - name: Download build outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-targets
           path: .
 
       - name: Download JaCoCo reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jacoco-reports
           path: .
 
       - name: Run cognitive-java gate for contract-core
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-core -o -DskipTests verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-core -DskipTests verify
 
   quality-cognitive-contract-spring-boot-starter:
     name: verify / quality-cognitive-contract-spring-boot-starter
@@ -268,10 +268,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -280,22 +280,22 @@ jobs:
         run: chmod +x mvnw
 
       - name: Download Maven repository
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: maven-repository
           path: ~/.m2/repository
 
       - name: Download build outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-targets
           path: .
 
       - name: Download JaCoCo reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jacoco-reports
           path: .
 
       - name: Run cognitive-java gate for contract-spring-boot-starter
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-spring-boot-starter -o -DskipTests verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-spring-boot-starter -DskipTests verify
