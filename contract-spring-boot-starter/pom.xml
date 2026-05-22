@@ -7,6 +7,7 @@
     <groupId>media.barney</groupId>
     <artifactId>contract-java</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>contract-spring-boot-starter</artifactId>
