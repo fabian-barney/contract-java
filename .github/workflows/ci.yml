@@ -19,8 +19,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-test:
-    name: Build and Test
+  build:
+    name: build
     runs-on: ubuntu-latest
 
     steps:
@@ -37,12 +37,30 @@ jobs:
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
 
-      - name: Run Maven verify
-        run: ./mvnw -B -ntp -P!quality-gates-all verify
+      - name: Build
+        run: ./mvnw -B -ntp -P!quality-gates-all -DskipTests install
 
-  crap-java:
-    name: crap-java Gate
+      - name: Upload Maven repository
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
+          if-no-files-found: error
+
+      - name: Upload build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-targets
+          path: |
+            contract-core/target
+            contract-spring-boot-starter/target
+          if-no-files-found: error
+
+  test-unit:
+    name: test / unit
     runs-on: ubuntu-latest
+    needs:
+      - build
 
     steps:
       - name: Checkout
@@ -58,12 +76,71 @@ jobs:
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
 
-      - name: Run crap-java gate
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap verify
+      - name: Download Maven repository
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
 
-  cognitive-java:
-    name: cognitive-java Gate
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: build-targets
+          path: .
+
+      - name: Run unit tests
+        run: ./mvnw -B -ntp -P!quality-gates-all -o verify
+
+      - name: Upload JaCoCo reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-reports
+          path: |
+            contract-core/target/site/jacoco
+            contract-spring-boot-starter/target/site/jacoco
+          if-no-files-found: error
+
+  package:
+    name: package
     runs-on: ubuntu-latest
+    needs:
+      - build
+      - test-unit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Download Maven repository
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
+
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: build-targets
+          path: .
+
+      - name: Run package build
+        run: ./mvnw -B -ntp -P!quality-gates-all -o -DskipTests package
+
+  quality-crap-contract-core:
+    name: verify / quality-crap-contract-core
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test-unit
 
     steps:
       - name: Checkout
@@ -79,5 +156,146 @@ jobs:
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
 
-      - name: Run cognitive-java gate
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive verify
+      - name: Download Maven repository
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
+
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: build-targets
+          path: .
+
+      - name: Download JaCoCo reports
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-reports
+          path: .
+
+      - name: Run crap-java gate for contract-core
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-core -o -DskipTests verify
+
+  quality-crap-contract-spring-boot-starter:
+    name: verify / quality-crap-contract-spring-boot-starter
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test-unit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Download Maven repository
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
+
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: build-targets
+          path: .
+
+      - name: Download JaCoCo reports
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-reports
+          path: .
+
+      - name: Run crap-java gate for contract-spring-boot-starter
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-spring-boot-starter -o -DskipTests verify
+
+  quality-cognitive-contract-core:
+    name: verify / quality-cognitive-contract-core
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test-unit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Download Maven repository
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
+
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: build-targets
+          path: .
+
+      - name: Download JaCoCo reports
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-reports
+          path: .
+
+      - name: Run cognitive-java gate for contract-core
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-core -o -DskipTests verify
+
+  quality-cognitive-contract-spring-boot-starter:
+    name: verify / quality-cognitive-contract-spring-boot-starter
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test-unit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Download Maven repository
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repository
+          path: ~/.m2/repository
+
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: build-targets
+          path: .
+
+      - name: Download JaCoCo reports
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-reports
+          path: .
+
+      - name: Run cognitive-java gate for contract-spring-boot-starter
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-spring-boot-starter -o -DskipTests verify

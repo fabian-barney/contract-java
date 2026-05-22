@@ -6,7 +6,7 @@
   <parent>
     <groupId>media.barney</groupId>
     <artifactId>contract-java</artifactId>
-    <version>${revision}</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>contract-spring-boot-starter</artifactId>
