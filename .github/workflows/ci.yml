@@ -299,3 +299,52 @@ jobs:
 
       - name: Run cognitive-java gate for contract-spring-boot-starter
         run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-spring-boot-starter -DskipTests -Djacoco.skip=true verify
+
+  build-and-test-compat:
+    name: Build and Test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test-unit
+      - package
+
+    steps:
+      - name: Fail when the build or test pipeline failed
+        if: ${{ needs.build.result != 'success' || needs.test-unit.result != 'success' || needs.package.result != 'success' }}
+        run: exit 1
+
+      - name: Confirm legacy build-and-test gate
+        run: echo "Build and test stages succeeded."
+
+  quality-crap-compat:
+    name: crap-java Gate
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs:
+      - quality-crap-contract-core
+      - quality-crap-contract-spring-boot-starter
+
+    steps:
+      - name: Fail when a CRAP gate failed
+        if: ${{ needs.quality-crap-contract-core.result != 'success' || needs.quality-crap-contract-spring-boot-starter.result != 'success' }}
+        run: exit 1
+
+      - name: Confirm legacy CRAP gate
+        run: echo "All CRAP gates succeeded."
+
+  quality-cognitive-compat:
+    name: cognitive-java Gate
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs:
+      - quality-cognitive-contract-core
+      - quality-cognitive-contract-spring-boot-starter
+
+    steps:
+      - name: Fail when a cognitive gate failed
+        if: ${{ needs.quality-cognitive-contract-core.result != 'success' || needs.quality-cognitive-contract-spring-boot-starter.result != 'success' }}
+        run: exit 1
+
+      - name: Confirm legacy cognitive gate
+        run: echo "All cognitive gates succeeded."
