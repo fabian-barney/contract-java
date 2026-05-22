@@ -283,7 +283,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: maven-repository
-          path: ${{ runner.home }}/.m2/repository
+          path: /home/runner/.m2/repository
 
       - name: Download build outputs
         uses: actions/download-artifact@v8
