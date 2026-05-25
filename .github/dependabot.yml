@@ -11,9 +11,6 @@ updates:
       - fabian-barney
     open-pull-requests-limit: 10
     groups:
-      spring-boot:
-        patterns:
-          - org.springframework.boot:*
       build-plugins:
         patterns:
           - org.apache.maven.plugins:*
@@ -21,6 +18,7 @@ updates:
       test-tooling:
         patterns:
           - org.junit:*
+          - org.junit.jupiter:*
           - media.barney:crap-java-maven-plugin
           - media.barney:cognitive-java-maven-plugin
   - package-ecosystem: github-actions
