@@ -2,10 +2,10 @@
 
 ## Local Checks
 
-Run the same verification as the default CI gate:
+Run the formatter check and the same verification as the default CI gate:
 
 ```sh
-./mvnw -B -ntp verify
+./mvnw -B -ntp spotless:check verify
 ```
 
 Run build and tests without quality gates:
