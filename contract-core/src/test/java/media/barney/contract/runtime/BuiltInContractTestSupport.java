@@ -10,8 +10,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 import media.barney.contract.Contract;
 import media.barney.contract.MaskRenderer;
 
@@ -67,27 +65,23 @@ final class BuiltInContractTestSupport {
         void amount(@Contract.Positive(message = "transfer amount must be positive") BigDecimal amount) {}
 
         @Contract.Mask
-        @Contract.NotBlank
-        String maskedNotBlank() {
+        @Contract.NotBlank String maskedNotBlank() {
             return "";
         }
 
         @Contract.Mask(renderer = ThrowingMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+")
-        String throwingMask() {
+        @Contract.Pattern(regexp = "[0-9]+") String throwingMask() {
             return "";
         }
 
         @Contract.Mask(renderer = LinkageErrorMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+")
-        String linkageMask() {
+        @Contract.Pattern(regexp = "[0-9]+") String linkageMask() {
             return "";
         }
     }
 
     @Contract
-    @Contract.Positive
-    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+    @Contract.Positive @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     private @interface ValidId {
 
@@ -96,8 +90,7 @@ final class BuiltInContractTestSupport {
 
     @Contract
     @Contract.Mask(renderer = TextMaskRenderer.class)
-    @Contract.Pattern(regexp = "[0-9]+")
-    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+    @Contract.Pattern(regexp = "[0-9]+") @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     private @interface SensitivePattern {}
 

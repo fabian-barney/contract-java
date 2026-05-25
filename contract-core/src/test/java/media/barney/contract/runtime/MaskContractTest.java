@@ -13,7 +13,9 @@ class MaskContractTest {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
                 () -> ContractRuntime.requireReturn(
-                        "", "com.example.TokenService.issue", BuiltInContractTestSupport.methodAnnotations("maskedNotBlank")));
+                        "",
+                        "com.example.TokenService.issue",
+                        BuiltInContractTestSupport.methodAnnotations("maskedNotBlank")));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
