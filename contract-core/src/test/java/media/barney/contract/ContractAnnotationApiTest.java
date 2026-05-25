@@ -34,7 +34,8 @@ class ContractAnnotationApiTest {
 
     @Test
     void contractIsRuntimeMetaAnnotation() {
-        assertArrayEquals(new java.lang.annotation.ElementType[] {ANNOTATION_TYPE},
+        assertArrayEquals(
+                new java.lang.annotation.ElementType[] {ANNOTATION_TYPE},
                 Contract.class.getAnnotation(Target.class).value());
         assertEquals(RUNTIME, Contract.class.getAnnotation(Retention.class).value());
         assertTrue(Contract.class.isAnnotationPresent(Documented.class));
@@ -74,14 +75,17 @@ class ContractAnnotationApiTest {
 
     @Test
     void rangeDefaultsAreInclusive() throws Exception {
-        assertEquals(true, Contract.InRange.class.getDeclaredMethod("minInclusive").getDefaultValue());
-        assertEquals(true, Contract.InRange.class.getDeclaredMethod("maxInclusive").getDefaultValue());
+        assertEquals(
+                true, Contract.InRange.class.getDeclaredMethod("minInclusive").getDefaultValue());
+        assertEquals(
+                true, Contract.InRange.class.getDeclaredMethod("maxInclusive").getDefaultValue());
     }
 
     @Test
     void sizeDefaultsAllowAnyNonNegativeSize() throws Exception {
         assertEquals(0, Contract.Size.class.getDeclaredMethod("min").getDefaultValue());
-        assertEquals(Integer.MAX_VALUE, Contract.Size.class.getDeclaredMethod("max").getDefaultValue());
+        assertEquals(
+                Integer.MAX_VALUE, Contract.Size.class.getDeclaredMethod("max").getDefaultValue());
     }
 
     @Test
@@ -112,9 +116,7 @@ class ContractAnnotationApiTest {
     }
 
     @Contract
-    @Contract.Positive
-    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+    @Contract.Positive @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
-    private @interface ValidIdentifier {
-    }
+    private @interface ValidIdentifier {}
 }

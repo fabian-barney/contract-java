@@ -19,9 +19,7 @@ class ContractCoreTest {
         Constructor<ContractCore> constructor = ContractCore.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
-        InvocationTargetException exception = assertThrows(
-                InvocationTargetException.class,
-                constructor::newInstance);
+        InvocationTargetException exception = assertThrows(InvocationTargetException.class, constructor::newInstance);
 
         assertEquals(AssertionError.class, exception.getCause().getClass());
     }

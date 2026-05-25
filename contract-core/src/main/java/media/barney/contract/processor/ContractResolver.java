@@ -12,7 +12,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -98,13 +97,13 @@ final class ContractResolver {
     }
 
     private Optional<ProcessorContract> builtInContract(
-            AnnotationMirror annotation,
-            Optional<String> messageOverride,
-            String maskRenderer) {
+            AnnotationMirror annotation, Optional<String> messageOverride, String maskRenderer) {
         Optional<String> message = messageOverride.or(() -> message(annotation));
         ContractFactory factory = BUILT_INS.get(annotationName(annotation));
 
-        return factory == null ? Optional.empty() : Optional.of(factory.create(this, annotation, message, maskRenderer));
+        return factory == null
+                ? Optional.empty()
+                : Optional.of(factory.create(this, annotation, message, maskRenderer));
     }
 
     private Optional<String> maskRenderer(List<? extends AnnotationMirror> annotations) {
@@ -142,19 +141,13 @@ final class ContractResolver {
     }
 
     private ProcessorContract rangeContract(
-            AnnotationMirror annotation,
-            Optional<String> message,
-            String maskRenderer) {
+            AnnotationMirror annotation, Optional<String> message, String maskRenderer) {
         long min = longValue(annotation, "min", 0L);
         long max = longValue(annotation, "max", 0L);
         boolean minInclusive = booleanValue(annotation, "minInclusive", true);
         boolean maxInclusive = booleanValue(annotation, "maxInclusive", true);
-        String defaultDescription = "must be within "
-                + (minInclusive ? "[" : "(")
-                + min
-                + ", "
-                + max
-                + (maxInclusive ? "]" : ")");
+        String defaultDescription =
+                "must be within " + (minInclusive ? "[" : "(") + min + ", " + max + (maxInclusive ? "]" : ")");
 
         return new ProcessorContract(
                 RuntimeContract.IN_RANGE,
@@ -170,10 +163,7 @@ final class ContractResolver {
                 null);
     }
 
-    private ProcessorContract sizeContract(
-            AnnotationMirror annotation,
-            Optional<String> message,
-            String maskRenderer) {
+    private ProcessorContract sizeContract(AnnotationMirror annotation, Optional<String> message, String maskRenderer) {
         int min = intValue(annotation, "min", 0);
         int max = intValue(annotation, "max", Integer.MAX_VALUE);
 
@@ -192,9 +182,7 @@ final class ContractResolver {
     }
 
     private ProcessorContract patternContract(
-            AnnotationMirror annotation,
-            Optional<String> message,
-            String maskRenderer) {
+            AnnotationMirror annotation, Optional<String> message, String maskRenderer) {
         return new ProcessorContract(
                 RuntimeContract.PATTERN,
                 message.orElse("must match the required pattern"),
@@ -210,10 +198,7 @@ final class ContractResolver {
     }
 
     private static ProcessorContract contract(
-            RuntimeContract kind,
-            String defaultDescription,
-            Optional<String> message,
-            String maskRenderer) {
+            RuntimeContract kind, String defaultDescription, Optional<String> message, String maskRenderer) {
         return new ProcessorContract(
                 kind,
                 message.orElse(defaultDescription),
@@ -229,11 +214,8 @@ final class ContractResolver {
     }
 
     private static ContractFactory simple(RuntimeContract kind, String defaultDescription) {
-        return (resolver, annotation, message, maskRenderer) -> contract(
-                kind,
-                defaultDescription,
-                message,
-                maskRenderer);
+        return (resolver, annotation, message, maskRenderer) ->
+                contract(kind, defaultDescription, message, maskRenderer);
     }
 
     private boolean supportsSize(TypeMirror valueType) {
@@ -328,9 +310,6 @@ final class ContractResolver {
     private interface ContractFactory {
 
         ProcessorContract create(
-                ContractResolver resolver,
-                AnnotationMirror annotation,
-                Optional<String> message,
-                String maskRenderer);
+                ContractResolver resolver, AnnotationMirror annotation, Optional<String> message, String maskRenderer);
     }
 }

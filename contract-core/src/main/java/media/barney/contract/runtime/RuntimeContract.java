@@ -44,11 +44,7 @@ public enum RuntimeContract {
         @Override
         boolean isValid(Object value, ContractArguments arguments) {
             return ContractChecks.isInRange(
-                    value,
-                    arguments.min(),
-                    arguments.max(),
-                    arguments.minInclusive(),
-                    arguments.maxInclusive());
+                    value, arguments.min(), arguments.max(), arguments.minInclusive(), arguments.maxInclusive());
         }
     },
     SIZE {

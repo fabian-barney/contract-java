@@ -10,19 +10,14 @@ import media.barney.contract.MaskRenderer;
 
 final class ContractAnnotations {
 
-    private ContractAnnotations() {
-    }
+    private ContractAnnotations() {}
 
     static ContractEvaluation evaluate(Object value, Annotation[] annotations) {
         Class<? extends MaskRenderer> maskRenderer = findMaskRenderer(annotations);
 
         for (Annotation annotation : annotations) {
-            ContractEvaluation evaluation = evaluateAnnotation(
-                    value,
-                    annotation,
-                    Optional.empty(),
-                    maskRenderer,
-                    new HashSet<>());
+            ContractEvaluation evaluation =
+                    evaluateAnnotation(value, annotation, Optional.empty(), maskRenderer, new HashSet<>());
             if (!evaluation.valid()) {
                 return evaluation;
             }
@@ -60,12 +55,8 @@ final class ContractAnnotations {
                 continue;
             }
 
-            ContractEvaluation evaluation = evaluateAnnotation(
-                    value,
-                    metaAnnotation,
-                    messageOverride,
-                    maskRenderer,
-                    visited);
+            ContractEvaluation evaluation =
+                    evaluateAnnotation(value, metaAnnotation, messageOverride, maskRenderer, visited);
             if (!evaluation.valid()) {
                 return evaluation;
             }
@@ -75,9 +66,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> directRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         return contentRule(value, annotation, messageOverride)
                 .or(() -> numericRule(value, annotation, messageOverride))
                 .or(() -> rangeRule(value, annotation, messageOverride))
@@ -86,17 +75,13 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> contentRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         return notEmptyRule(value, annotation, messageOverride)
                 .or(() -> notBlankRule(value, annotation, messageOverride));
     }
 
     private static Optional<ContractRule> notEmptyRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         if (annotation instanceof Contract.NotEmpty contract && !ContractChecks.isNotEmpty(value)) {
             return Optional.of(rule("must not be empty", contract.message(), messageOverride));
         }
@@ -105,9 +90,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> notBlankRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         if (annotation instanceof Contract.NotBlank contract && !ContractChecks.isNotBlank(value)) {
             return Optional.of(rule("must not be blank", contract.message(), messageOverride));
         }
@@ -116,9 +99,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> numericRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         return positiveRule(value, annotation, messageOverride)
                 .or(() -> negativeRule(value, annotation, messageOverride))
                 .or(() -> nonNegativeRule(value, annotation, messageOverride))
@@ -126,9 +107,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> positiveRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         if (annotation instanceof Contract.Positive contract && !ContractChecks.isPositive(value)) {
             return Optional.of(rule("must be positive", contract.message(), messageOverride));
         }
@@ -137,9 +116,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> negativeRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         if (annotation instanceof Contract.Negative contract && !ContractChecks.isNegative(value)) {
             return Optional.of(rule("must be negative", contract.message(), messageOverride));
         }
@@ -148,9 +125,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> nonNegativeRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         if (annotation instanceof Contract.NonNegative contract && !ContractChecks.isNonNegative(value)) {
             return Optional.of(rule("must be non-negative", contract.message(), messageOverride));
         }
@@ -159,9 +134,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> nonPositiveRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
         if (annotation instanceof Contract.NonPositive contract && !ContractChecks.isNonPositive(value)) {
             return Optional.of(rule("must be non-positive", contract.message(), messageOverride));
         }
@@ -170,15 +143,10 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> rangeRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
-        if (annotation instanceof Contract.InRange contract && !ContractChecks.isInRange(
-                value,
-                contract.min(),
-                contract.max(),
-                contract.minInclusive(),
-                contract.maxInclusive())) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
+        if (annotation instanceof Contract.InRange contract
+                && !ContractChecks.isInRange(
+                        value, contract.min(), contract.max(), contract.minInclusive(), contract.maxInclusive())) {
             return Optional.of(rule(rangeDescription(contract), contract.message(), messageOverride));
         }
 
@@ -186,10 +154,9 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> sizeRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
-        if (annotation instanceof Contract.Size contract && !ContractChecks.hasSize(value, contract.min(), contract.max())) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
+        if (annotation instanceof Contract.Size contract
+                && !ContractChecks.hasSize(value, contract.min(), contract.max())) {
             return Optional.of(rule(sizeDescription(contract), contract.message(), messageOverride));
         }
 
@@ -197,10 +164,9 @@ final class ContractAnnotations {
     }
 
     private static Optional<ContractRule> patternRule(
-            Object value,
-            Annotation annotation,
-            Optional<String> messageOverride) {
-        if (annotation instanceof Contract.Pattern contract && !ContractChecks.matchesPattern(value, contract.regexp())) {
+            Object value, Annotation annotation, Optional<String> messageOverride) {
+        if (annotation instanceof Contract.Pattern contract
+                && !ContractChecks.matchesPattern(value, contract.regexp())) {
             return Optional.of(rule("must match the required pattern", contract.message(), messageOverride));
         }
 
@@ -208,9 +174,7 @@ final class ContractAnnotations {
     }
 
     private static ContractRule rule(
-            String defaultDescription,
-            String annotationMessage,
-            Optional<String> messageOverride) {
+            String defaultDescription, String annotationMessage, Optional<String> messageOverride) {
         Optional<String> description = messageOverride.or(() -> nonBlank(annotationMessage));
         return description
                 .map(message -> new ContractRule(message, true))
@@ -229,8 +193,7 @@ final class ContractAnnotations {
     }
 
     private static Optional<Class<? extends MaskRenderer>> findMaskRenderer(
-            Annotation annotation,
-            Set<Class<? extends Annotation>> visited) {
+            Annotation annotation, Set<Class<? extends Annotation>> visited) {
         if (annotation instanceof Contract.Mask mask) {
             return Optional.of(mask.renderer());
         }
@@ -250,9 +213,7 @@ final class ContractAnnotations {
         return Optional.empty();
     }
 
-    private static boolean isComposedContract(
-            Annotation annotation,
-            Set<Class<? extends Annotation>> visited) {
+    private static boolean isComposedContract(Annotation annotation, Set<Class<? extends Annotation>> visited) {
         Class<? extends Annotation> annotationType = annotation.annotationType();
         return !isBuiltIn(annotation)
                 && annotationType.isAnnotationPresent(Contract.class)

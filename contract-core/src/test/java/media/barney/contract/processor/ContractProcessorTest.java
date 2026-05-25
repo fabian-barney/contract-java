@@ -32,8 +32,7 @@ class ContractProcessorTest {
 
     @Test
     void injectsParameterPreconditions() throws Exception {
-        Compilation compilation = compile(
-                source("example.Preconditions", """
+        Compilation compilation = compile(source("example.Preconditions", """
                         package example;
                         import java.util.List;
                         import java.util.Map;
@@ -62,12 +61,7 @@ class ContractProcessorTest {
         Class<?> type = compilation.load("example.Preconditions");
         Method positive = type.getMethod("positive", Integer.class);
         Method ranged = type.getMethod("ranged", long.class);
-        Method sized = type.getMethod(
-                "sized",
-                String.class,
-                List.class,
-                Map.class,
-                String[].class);
+        Method sized = type.getMethod("sized", String.class, List.class, Map.class, String[].class);
         Method customMessage = type.getMethod("customMessage", int.class);
 
         assertDoesNotThrow(() -> positive.invoke(null, 1));
@@ -86,8 +80,7 @@ class ContractProcessorTest {
 
     @Test
     void injectsConstructorAndPrivateMethodPreconditions() throws Exception {
-        Compilation compilation = compile(
-                source("example.EntryChecks", """
+        Compilation compilation = compile(source("example.EntryChecks", """
                         package example;
                         import media.barney.contract.Contract;
                         public class EntryChecks {
@@ -112,13 +105,11 @@ class ContractProcessorTest {
 
     @Test
     void injectsPostconditionsBeforeEveryReturn() throws Exception {
-        Compilation compilation = compile(
-                source("example.Postconditions", """
+        Compilation compilation = compile(source("example.Postconditions", """
                         package example;
                         import media.barney.contract.Contract;
                         public class Postconditions {
-                            @Contract.Pattern(regexp = "USR-[0-9]+")
-                            public static String find(boolean valid) {
+                            @Contract.Pattern(regexp = "USR-[0-9]+") public static String find(boolean valid) {
                                 if (valid) {
                                     return "USR-42";
                                 }
@@ -138,8 +129,7 @@ class ContractProcessorTest {
 
     @Test
     void supportsCustomComposedContractsAndMasking() throws Exception {
-        Compilation compilation = compile(
-                source("example.CustomContracts", """
+        Compilation compilation = compile(source("example.CustomContracts", """
                         package example;
                         import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
                         import static java.lang.annotation.ElementType.FIELD;
@@ -155,8 +145,7 @@ class ContractProcessorTest {
                             public static void login(@Contract.Mask @Contract.Pattern(regexp = "[0-9]+") String password) {
                             }
                             @Contract
-                            @Contract.Positive
-                            @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+                            @Contract.Positive @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
                             @Retention(RUNTIME)
                             public @interface ValidId {
                                 String message() default "must be a valid ID";
@@ -179,9 +168,8 @@ class ContractProcessorTest {
 
     @Test
     void disabledProcessorOptionSkipsInjection() throws Exception {
-        Compilation compilation = compile(
-                List.of("-Acontracts.enabled=false"),
-                source("example.DisabledContracts", """
+        Compilation compilation =
+                compile(List.of("-Acontracts.enabled=false"), source("example.DisabledContracts", """
                         package example;
                         import media.barney.contract.Contract;
                         public class DisabledContracts {
@@ -199,15 +187,13 @@ class ContractProcessorTest {
 
     @Test
     void rejectsUnsupportedTypesAndVoidPostconditions() throws Exception {
-        Compilation compilation = compile(
-                source("example.InvalidContracts", """
+        Compilation compilation = compile(source("example.InvalidContracts", """
                         package example;
                         import media.barney.contract.Contract;
                         public class InvalidContracts {
                             public static void badType(@Contract.Positive String value) {
                             }
-                            @Contract.NotBlank
-                            public static void badReturn() {
+                            @Contract.NotBlank public static void badReturn() {
                             }
                         }
                         """));
@@ -238,13 +224,8 @@ class ContractProcessorTest {
                     "17"));
             options.addAll(extraOptions);
 
-            JavaCompiler.CompilationTask task = compiler.getTask(
-                    null,
-                    fileManager,
-                    diagnostics,
-                    options,
-                    null,
-                    Arrays.asList(sources));
+            JavaCompiler.CompilationTask task =
+                    compiler.getTask(null, fileManager, diagnostics, options, null, Arrays.asList(sources));
             task.setProcessors(List.of(new ContractProcessor()));
             boolean succeeded = Boolean.TRUE.equals(task.call());
             return new Compilation(succeeded, diagnostics.getDiagnostics(), outputDirectory);
@@ -266,9 +247,7 @@ class ContractProcessorTest {
     }
 
     private record Compilation(
-            boolean succeeded,
-            List<Diagnostic<? extends JavaFileObject>> diagnostics,
-            Path outputDirectory) {
+            boolean succeeded, List<Diagnostic<? extends JavaFileObject>> diagnostics, Path outputDirectory) {
 
         String diagnosticsText() {
             StringBuilder messages = new StringBuilder();
@@ -280,7 +259,8 @@ class ContractProcessorTest {
 
         Class<?> load(String className) throws Exception {
             URL[] urls = {outputDirectory.toUri().toURL()};
-            try (URLClassLoader loader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader())) {
+            try (URLClassLoader loader =
+                    new URLClassLoader(urls, Thread.currentThread().getContextClassLoader())) {
                 return Class.forName(className, true, loader);
             }
         }

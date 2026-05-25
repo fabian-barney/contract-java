@@ -9,8 +9,7 @@ final class ContractChecks {
     private static final int MAX_PATTERN_CACHE_SIZE = 256;
     private static final ConcurrentMap<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
 
-    private ContractChecks() {
-    }
+    private ContractChecks() {}
 
     static boolean isNotEmpty(Object value) {
         if (value == null) {
@@ -67,12 +66,7 @@ final class ContractChecks {
         return NumericComparison.isSupported(comparison) && comparison <= 0;
     }
 
-    static boolean isInRange(
-            Object value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
+    static boolean isInRange(Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         if (value == null) {
             return true;
         }

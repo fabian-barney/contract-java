@@ -13,19 +13,12 @@ public final class ContractRuntime {
     }
 
     public static void requireParameter(
-            Object value,
-            String methodName,
-            String parameterName,
-            Annotation... annotations) {
+            Object value, String methodName, String parameterName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
 
         if (!evaluation.valid()) {
             throw ContractMessages.preconditionViolation(
-                    methodName,
-                    parameterName,
-                    evaluation.rule(),
-                    value,
-                    evaluation.maskRenderer());
+                    methodName, parameterName, evaluation.rule(), value, evaluation.maskRenderer());
         }
     }
 
@@ -34,10 +27,7 @@ public final class ContractRuntime {
 
         if (!evaluation.valid()) {
             throw ContractMessages.postconditionViolation(
-                    methodName,
-                    evaluation.rule(),
-                    value,
-                    evaluation.maskRenderer());
+                    methodName, evaluation.rule(), value, evaluation.maskRenderer());
         }
     }
 
@@ -57,22 +47,11 @@ public final class ContractRuntime {
             int sizeMax,
             String regexp) {
         ContractRule rule = new ContractRule(description, customDescription);
-        ContractArguments arguments = new ContractArguments(
-                min,
-                max,
-                minInclusive,
-                maxInclusive,
-                sizeMin,
-                sizeMax,
-                regexp);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
 
         if (!contract.isValid(value, arguments)) {
-            throw ContractMessages.preconditionViolation(
-                    methodName,
-                    parameterName,
-                    rule,
-                    value,
-                    maskRenderer);
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
         }
     }
 
@@ -91,21 +70,11 @@ public final class ContractRuntime {
             int sizeMax,
             String regexp) {
         ContractRule rule = new ContractRule(description, customDescription);
-        ContractArguments arguments = new ContractArguments(
-                min,
-                max,
-                minInclusive,
-                maxInclusive,
-                sizeMin,
-                sizeMax,
-                regexp);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
 
         if (!contract.isValid(value, arguments)) {
-            throw ContractMessages.postconditionViolation(
-                    methodName,
-                    rule,
-                    value,
-                    maskRenderer);
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
         }
 
         return value;
@@ -135,12 +104,7 @@ public final class ContractRuntime {
         return ContractChecks.isNonPositive(value);
     }
 
-    public static boolean isInRange(
-            Object value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
+    public static boolean isInRange(Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         return ContractChecks.isInRange(value, min, max, minInclusive, maxInclusive);
     }
 
@@ -152,9 +116,7 @@ public final class ContractRuntime {
         return ContractChecks.matchesPattern(value, regexp);
     }
 
-    public static String renderValue(
-            Object value,
-            Class<? extends MaskRenderer> maskRenderer) {
+    public static String renderValue(Object value, Class<? extends MaskRenderer> maskRenderer) {
         return ValueRenderer.render(value, maskRenderer);
     }
 }

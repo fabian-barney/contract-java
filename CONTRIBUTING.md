@@ -21,6 +21,12 @@ Run quality gates in isolation:
 ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive verify
 ```
 
+Apply the repository formatter before committing Java changes:
+
+```sh
+./mvnw -B -ntp spotless:apply
+```
+
 When using `clean`, do not run multiple Maven builds in parallel in the same
 workspace. Parallel `clean` executions can race while deleting `target`
 directories.

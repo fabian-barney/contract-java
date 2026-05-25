@@ -6,8 +6,7 @@ import java.util.Map;
 
 final class ValueSize {
 
-    private ValueSize() {
-    }
+    private ValueSize() {}
 
     static int sizeOf(Object value) {
         if (value instanceof CharSequence sequence) {

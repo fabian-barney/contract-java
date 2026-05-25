@@ -37,6 +37,9 @@ jobs:
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
 
+      - name: Run Spotless check
+        run: ./mvnw -B -ntp spotless:check
+
       - name: Build
         run: ./mvnw -B -ntp -P!quality-gates-all -DskipTests install
 

@@ -61,6 +61,8 @@
     <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
     <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
     <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+    <spotless.version>3.4.0</spotless.version>
+    <palantir.java.format.version>2.91.0</palantir.java.format.version>
     <gpg.skip>true</gpg.skip>
     <spring.boot.35.version>3.5.14</spring.boot.35.version>
     <spring.boot.40.version>4.0.6</spring.boot.40.version>
@@ -109,6 +111,25 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <includes>
+              <include>src/main/java/**/*.java</include>
+              <include>src/test/java/**/*.java</include>
+            </includes>
+            <removeUnusedImports/>
+            <palantirJavaFormat>
+              <version>${palantir.java.format.version}</version>
+              <formatJavadoc>false</formatJavadoc>
+            </palantirJavaFormat>
+            <formatAnnotations/>
+          </java>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

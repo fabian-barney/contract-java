@@ -4,8 +4,7 @@ import media.barney.contract.MaskRenderer;
 
 final class ContractMessages {
 
-    private ContractMessages() {
-    }
+    private ContractMessages() {}
 
     static IllegalArgumentException preconditionViolation(
             String methodName,
@@ -13,19 +12,11 @@ final class ContractMessages {
             ContractRule rule,
             Object value,
             Class<? extends MaskRenderer> maskRenderer) {
-        return new IllegalArgumentException(parameterMessage(
-                methodName,
-                parameterName,
-                rule,
-                value,
-                maskRenderer));
+        return new IllegalArgumentException(parameterMessage(methodName, parameterName, rule, value, maskRenderer));
     }
 
     static IllegalStateException postconditionViolation(
-            String methodName,
-            ContractRule rule,
-            Object value,
-            Class<? extends MaskRenderer> maskRenderer) {
+            String methodName, ContractRule rule, Object value, Class<? extends MaskRenderer> maskRenderer) {
         return new IllegalStateException(returnMessage(methodName, rule, value, maskRenderer));
     }
 
@@ -48,10 +39,7 @@ final class ContractMessages {
     }
 
     private static String returnMessage(
-            String methodName,
-            ContractRule rule,
-            Object value,
-            Class<? extends MaskRenderer> maskRenderer) {
+            String methodName, ContractRule rule, Object value, Class<? extends MaskRenderer> maskRenderer) {
         return "Postcondition of method '"
                 + methodName
                 + "' violated: "

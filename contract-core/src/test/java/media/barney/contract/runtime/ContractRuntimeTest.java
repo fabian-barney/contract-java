@@ -37,10 +37,7 @@ class ContractRuntimeTest {
         assertTrue(ContractRuntime.matchesPattern(null, "[0-9]+"));
 
         assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "limit",
-                parameterAnnotations("positive", Integer.class)));
+                null, "com.example.UserService.findUser", "limit", parameterAnnotations("positive", Integer.class)));
     }
 
     @Test
@@ -107,9 +104,7 @@ class ContractRuntimeTest {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
                 () -> ContractRuntime.requireReturn(
-                        "",
-                        "com.example.TokenService.issue",
-                        methodAnnotations("maskedNotBlank")));
+                        "", "com.example.TokenService.issue", methodAnnotations("maskedNotBlank")));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -155,9 +150,7 @@ class ContractRuntimeTest {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
                 () -> ContractRuntime.requireReturn(
-                        "raw-secret",
-                        "com.example.TokenService.issue",
-                        methodAnnotations("throwingMask")));
+                        "raw-secret", "com.example.TokenService.issue", methodAnnotations("throwingMask")));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -171,9 +164,7 @@ class ContractRuntimeTest {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
                 () -> ContractRuntime.requireReturn(
-                        "raw-secret",
-                        "com.example.TokenService.issue",
-                        methodAnnotations("linkageMask")));
+                        "raw-secret", "com.example.TokenService.issue", methodAnnotations("linkageMask")));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -231,43 +222,34 @@ class ContractRuntimeTest {
     @SuppressWarnings({"unused", "PMD.UnusedPrivateMethod"})
     private static final class Fixture {
 
-        void positive(@Contract.Positive Integer limit) {
-        }
+        void positive(@Contract.Positive Integer limit) {}
 
-        void tenant(@Contract.Size(min = 1, max = 32) String tenant) {
-        }
+        void tenant(@Contract.Size(min = 1, max = 32) String tenant) {}
 
-        void validId(@ValidId Long userId) {
-        }
+        void validId(@ValidId Long userId) {}
 
-        void sensitivePattern(@SensitivePattern String password) {
-        }
+        void sensitivePattern(@SensitivePattern String password) {}
 
-        void amount(@Contract.Positive(message = "transfer amount must be positive") BigDecimal amount) {
-        }
+        void amount(@Contract.Positive(message = "transfer amount must be positive") BigDecimal amount) {}
 
         @Contract.Mask
-        @Contract.NotBlank
-        String maskedNotBlank() {
+        @Contract.NotBlank String maskedNotBlank() {
             return "";
         }
 
         @Contract.Mask(renderer = ThrowingMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+")
-        String throwingMask() {
+        @Contract.Pattern(regexp = "[0-9]+") String throwingMask() {
             return "";
         }
 
         @Contract.Mask(renderer = LinkageErrorMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+")
-        String linkageMask() {
+        @Contract.Pattern(regexp = "[0-9]+") String linkageMask() {
             return "";
         }
     }
 
     @Contract
-    @Contract.Positive
-    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+    @Contract.Positive @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     private @interface ValidId {
 
@@ -276,11 +258,9 @@ class ContractRuntimeTest {
 
     @Contract
     @Contract.Mask(renderer = TextMaskRenderer.class)
-    @Contract.Pattern(regexp = "[0-9]+")
-    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+    @Contract.Pattern(regexp = "[0-9]+") @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
-    private @interface SensitivePattern {
-    }
+    private @interface SensitivePattern {}
 
     public static final class TextMaskRenderer implements MaskRenderer {
 
