@@ -58,6 +58,10 @@ final class NumericComparison {
             return UNSUPPORTED;
         }
 
+        if (value == 0.0d) {
+            return 0;
+        }
+
         return Double.compare(value, 0.0d);
     }
 
@@ -78,8 +82,16 @@ final class NumericComparison {
             return false;
         }
 
-        return lowerBound(Double.compare(value, min), minInclusive)
-                && upperBound(Double.compare(value, max), maxInclusive);
+        return lowerBound(compareDoubleToBound(value, min), minInclusive)
+                && upperBound(compareDoubleToBound(value, max), maxInclusive);
+    }
+
+    private static int compareDoubleToBound(double value, long bound) {
+        if (value == 0.0d && bound == 0L) {
+            return 0;
+        }
+
+        return Double.compare(value, bound);
     }
 
     private static boolean inLongRange(long value, long min, long max, boolean minInclusive, boolean maxInclusive) {
