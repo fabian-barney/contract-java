@@ -10,7 +10,9 @@ Version 1 of this specification focuses on method and constructor contracts:
 - Method contracts are enforced as postconditions on non-void return values.
 - Field annotations are supported for metadata reuse and Lombok propagation, but field invariants are not enforced directly in v1.
 
-Spring Boot is an optional integration layer for convenient dependency management. The contract model itself is framework-agnostic and is intended to work in any Java project.
+Spring Boot is an optional integration layer for Boot auto-configuration and
+small opt-in runtime integrations. The contract model itself is
+framework-agnostic and is intended to work in any Java project.
 
 Nullness is explicitly out of scope for this framework. Projects should use dedicated nullness tooling such as JSpecify for nullness annotations and NullAway for compile-time null checking.
 
@@ -399,7 +401,7 @@ The public packaging model consists of two user-facing deliverables:
 | Deliverable | Purpose |
 |---|---|
 | `contract-core` | Framework-agnostic contract annotations and enforcement support for any Java project |
-| `contract-spring-boot-starter` | Spring Boot wrapper that brings in the contract framework with Spring-friendly dependency management |
+| `contract-spring-boot-starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of the contract framework |
 
 The internal implementation may still use more than two modules, but the public specification is defined in terms of these two deliverables.
 
@@ -437,7 +439,26 @@ As of April 18, 2026, that means Spring Boot `4.0.x` and `3.5.x`. This dated not
 
 During implementation, the concrete supported Spring Boot lines should be captured in an ADR so that the codebase and release process can be updated when Spring changes its support window.
 
-The contract model itself does not depend on Spring and remains usable through `contract-core` in non-Spring projects.
+The contract model itself does not depend on Spring and remains usable through
+`contract-core` in non-Spring projects.
+
+The starter contributes the following optional behavior:
+
+- Boot auto-configuration metadata for `media.barney.contract.spring`
+- an opt-in servlet exception resolver controlled by
+  `contract.spring.web-exception-handler.enabled`
+- an actuator `InfoContributor` controlled by
+  `contract.spring.actuator-info.enabled`
+
+The default property values are:
+
+- `contract.spring.web-exception-handler.enabled=false`
+- `contract.spring.actuator-info.enabled=true`
+
+When the web exception handler is enabled, generated `IllegalArgumentException`
+precondition failures map to HTTP `400` and generated `IllegalStateException`
+postcondition failures map to HTTP `500`. Non-contract exceptions are not
+handled by the starter.
 
 ---
 

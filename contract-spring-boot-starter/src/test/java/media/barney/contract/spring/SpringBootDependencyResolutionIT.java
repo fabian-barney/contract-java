@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.zip.ZipFile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,6 +25,10 @@ class SpringBootDependencyResolutionIT {
 
         installProjectArtifact(localRepository, reactorRoot, contractVersion, "contract-core");
         installProjectArtifact(localRepository, reactorRoot, contractVersion, "contract-spring-boot-starter");
+        assertAutoConfigurationImports(reactorRoot
+                .resolve("contract-spring-boot-starter")
+                .resolve("target")
+                .resolve("contract-spring-boot-starter-" + contractVersion + ".jar"));
 
         resolveSmokeProject(localRepository, "3.5", requiredProperty("spring.boot.35.version"));
         resolveSmokeProject(localRepository, "4.0", requiredProperty("spring.boot.40.version"));
@@ -57,14 +62,44 @@ class SpringBootDependencyResolutionIT {
         String dependency = "";
         if ("contract-spring-boot-starter".equals(artifactId)) {
             dependency = """
+                    <dependencyManagement>
+                      <dependencies>
+                        <dependency>
+                          <groupId>org.springframework.boot</groupId>
+                          <artifactId>spring-boot-dependencies</artifactId>
+                          <version>%s</version>
+                          <type>pom</type>
+                          <scope>import</scope>
+                        </dependency>
+                      </dependencies>
+                    </dependencyManagement>
                     <dependencies>
                       <dependency>
                         <groupId>media.barney</groupId>
                         <artifactId>contract-core</artifactId>
                         <version>%s</version>
                       </dependency>
+                      <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-autoconfigure</artifactId>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-webmvc</artifactId>
+                        <optional>true</optional>
+                      </dependency>
+                      <dependency>
+                        <groupId>jakarta.servlet</groupId>
+                        <artifactId>jakarta.servlet-api</artifactId>
+                        <optional>true</optional>
+                      </dependency>
+                      <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-actuator</artifactId>
+                        <optional>true</optional>
+                      </dependency>
                     </dependencies>
-                    """.formatted(contractVersion);
+                    """.formatted(requiredProperty("spring.boot.40.version"), contractVersion);
         }
 
         return """
@@ -98,6 +133,19 @@ class SpringBootDependencyResolutionIT {
         assertTrue(
                 result.output().contains("org.springframework.boot:spring-boot:jar:" + bootVersion),
                 () -> String.format("Spring Boot was not resolved for %s:%n%s", bootVersion, result.output()));
+        assertTrue(
+                result.output().contains("org.springframework.boot:spring-boot-autoconfigure:jar:" + bootVersion),
+                () -> String.format(
+                        "Spring Boot auto-configuration was not aligned to %s:%n%s", bootVersion, result.output()));
+    }
+
+    private static void assertAutoConfigurationImports(Path jar) throws IOException {
+        try (ZipFile zipFile = new ZipFile(jar.toFile())) {
+            assertTrue(
+                    zipFile.getEntry("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+                            != null,
+                    () -> String.format("Starter jar is missing AutoConfiguration.imports: %s", jar));
+        }
     }
 
     private static String smokePom(String bootVersion) {
