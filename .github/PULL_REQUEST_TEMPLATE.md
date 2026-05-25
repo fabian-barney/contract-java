@@ -13,5 +13,5 @@
 ## Checklist
 
 - [ ] Tests added or updated as needed.
-- [ ] Release notes or `CHANGELOG.md` entry added if user-facing behavior changed.
+- [ ] Release notes updated if user-facing behavior changed.
 - [ ] Documentation updated if usage or behavior changed.
