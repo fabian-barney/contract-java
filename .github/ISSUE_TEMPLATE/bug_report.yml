@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a defect or regression in contract-java
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please include enough detail for us to
+        reproduce the problem.
+  - type: input
+    id: version
+    attributes:
+      label: Affected version
+      description: Which release, snapshot, or commit is affected?
+      placeholder: "0.1.0-SNAPSHOT"
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+      placeholder: Describe the observed behavior and the expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide minimal steps, code, or a sample project.
+      placeholder: |
+        1. Configure ...
+        2. Run ...
+        3. Observe ...
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include JDK, build tool, OS, and framework versions.
+      placeholder: |
+        JDK:
+        Maven/Gradle:
+        OS:
+        Spring Boot (if relevant):
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Logs, stack traces, screenshots, or related context.
