@@ -13,8 +13,10 @@ import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -143,9 +145,34 @@ public final class ContractProcessor extends AbstractProcessor {
         }
     }
 
-    private JCStatement statement(String source) {
+    private JCStatement statement(String source, int position) {
         JavacParser parser = parserFactory.newParser(source, false, false, false);
-        return parser.parseStatement();
+        return relocate(parser.parseStatement(), position);
+    }
+
+    private <T extends JCTree> T relocate(T tree, int position) {
+        int sourcePosition = position == Position.NOPOS ? Position.FIRSTPOS : position;
+        new PositionTranslator(sourcePosition).scan(tree);
+        return tree;
+    }
+
+    private static final class PositionTranslator extends TreeScanner {
+
+        private final int position;
+
+        PositionTranslator(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void scan(JCTree tree) {
+            if (tree == null) {
+                return;
+            }
+
+            tree.pos = position;
+            super.scan(tree);
+        }
     }
 
     private final class ContractTranslator extends TreeTranslator {
@@ -180,7 +207,8 @@ public final class ContractProcessor extends AbstractProcessor {
                 String parameterName = parameterName(parameter, parameterIndex);
                 for (ProcessorContract contract : resolver.semanticContracts(parameter.sym)) {
                     statements.add(statement(
-                            contract.parameterStatement(parameter.getName().toString(), methodName, parameterName)));
+                            contract.parameterStatement(parameter.getName().toString(), methodName, parameterName),
+                            sourcePosition(parameter, method)));
                 }
                 parameterIndex++;
             }
@@ -217,6 +245,11 @@ public final class ContractProcessor extends AbstractProcessor {
 
             return name;
         }
+
+        private int sourcePosition(JCTree tree, JCTree fallback) {
+            int position = tree.getStartPosition();
+            return position == Position.NOPOS ? fallback.getStartPosition() : position;
+        }
     }
 
     private final class ReturnTranslator extends TreeTranslator {
@@ -236,7 +269,7 @@ public final class ContractProcessor extends AbstractProcessor {
                 return;
             }
 
-            result = statement("return " + returnExpression(tree.expr) + ";");
+            result = statement("return " + returnExpression(tree.expr) + ";", tree.getStartPosition());
         }
 
         @Override
