@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Europe/Berlin
+    reviewers:
+      - fabian-barney
+    open-pull-requests-limit: 10
+    groups:
+      build-plugins:
+        patterns:
+          - org.apache.maven.plugins:*
+          - org.jacoco:*
+      test-tooling:
+        patterns:
+          - org.junit:*
+          - org.junit.jupiter:*
+          - media.barney:crap-java-maven-plugin
+          - media.barney:cognitive-java-maven-plugin
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Europe/Berlin
+    reviewers:
+      - fabian-barney
