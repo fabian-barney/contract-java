@@ -1,0 +1,30 @@
+name: Question
+description: Ask for clarification about usage, behavior, or design
+title: "[Question]: "
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask a focused question and include any code or configuration needed for
+        context.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What do you need help understanding?
+      placeholder: Describe the question or point of confusion.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Include relevant code, configuration, or environment details.
+      render: shell
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you have already tried
+      description: Document any docs, examples, or experiments you checked first.
