@@ -7,8 +7,7 @@ final class NumericComparison {
 
     private static final int UNSUPPORTED = Integer.MIN_VALUE;
 
-    private NumericComparison() {
-    }
+    private NumericComparison() {}
 
     static int compareToZero(Object value) {
         if (value instanceof BigDecimal number) {
@@ -34,12 +33,7 @@ final class NumericComparison {
         return comparison != UNSUPPORTED;
     }
 
-    static boolean isInRange(
-            Object value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
+    static boolean isInRange(Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         if (value instanceof BigDecimal number) {
             return inBigDecimalRange(number, min, max, minInclusive, maxInclusive);
         }
@@ -68,31 +62,18 @@ final class NumericComparison {
     }
 
     private static boolean inBigDecimalRange(
-            BigDecimal value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
+            BigDecimal value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         return lowerBound(value.compareTo(BigDecimal.valueOf(min)), minInclusive)
                 && upperBound(value.compareTo(BigDecimal.valueOf(max)), maxInclusive);
     }
 
     private static boolean inBigIntegerRange(
-            BigInteger value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
+            BigInteger value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         return lowerBound(value.compareTo(BigInteger.valueOf(min)), minInclusive)
                 && upperBound(value.compareTo(BigInteger.valueOf(max)), maxInclusive);
     }
 
-    private static boolean inDoubleRange(
-            double value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
+    private static boolean inDoubleRange(double value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         if (Double.isNaN(value)) {
             return false;
         }
@@ -101,14 +82,8 @@ final class NumericComparison {
                 && upperBound(Double.compare(value, max), maxInclusive);
     }
 
-    private static boolean inLongRange(
-            long value,
-            long min,
-            long max,
-            boolean minInclusive,
-            boolean maxInclusive) {
-        return lowerBound(Long.compare(value, min), minInclusive)
-                && upperBound(Long.compare(value, max), maxInclusive);
+    private static boolean inLongRange(long value, long min, long max, boolean minInclusive, boolean maxInclusive) {
+        return lowerBound(Long.compare(value, min), minInclusive) && upperBound(Long.compare(value, max), maxInclusive);
     }
 
     private static boolean lowerBound(int comparison, boolean inclusive) {

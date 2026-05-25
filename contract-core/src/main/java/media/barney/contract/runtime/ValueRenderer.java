@@ -16,8 +16,7 @@ final class ValueRenderer {
             '\r', "\\r",
             '\t', "\\t");
 
-    private ValueRenderer() {
-    }
+    private ValueRenderer() {}
 
     static String render(Object value, Class<? extends MaskRenderer> maskRenderer) {
         if (maskRenderer != null) {

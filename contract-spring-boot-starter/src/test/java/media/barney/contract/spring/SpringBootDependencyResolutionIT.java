@@ -30,13 +30,9 @@ class SpringBootDependencyResolutionIT {
     }
 
     private static void installProjectArtifact(
-            Path localRepository,
-            Path reactorRoot,
-            String contractVersion,
-            String artifactId) throws Exception {
-        Path jar = reactorRoot.resolve(artifactId)
-                .resolve("target")
-                .resolve(artifactId + "-" + contractVersion + ".jar");
+            Path localRepository, Path reactorRoot, String contractVersion, String artifactId) throws Exception {
+        Path jar =
+                reactorRoot.resolve(artifactId).resolve("target").resolve(artifactId + "-" + contractVersion + ".jar");
         Path pom = writeInstalledPom(localRepository, contractVersion, artifactId);
 
         assertTrue(Files.isRegularFile(jar), () -> String.format("Missing packaged artifact: %s", jar));
@@ -85,14 +81,13 @@ class SpringBootDependencyResolutionIT {
                 """.formatted(artifactId, contractVersion, dependency);
     }
 
-    private static void resolveSmokeProject(Path localRepository, String bootLine, String bootVersion) throws Exception {
+    private static void resolveSmokeProject(Path localRepository, String bootLine, String bootVersion)
+            throws Exception {
         Path projectDirectory = Files.createTempDirectory(localRepository.getParent(), "boot-" + bootLine + "-");
         Files.writeString(projectDirectory.resolve("pom.xml"), smokePom(bootVersion), StandardCharsets.UTF_8);
 
-        ProcessResult result = runMaven(
-                projectDirectory,
-                "-Dmaven.repo.local=" + localRepository,
-                dependencyResolveGoal());
+        ProcessResult result =
+                runMaven(projectDirectory, "-Dmaven.repo.local=" + localRepository, dependencyResolveGoal());
 
         assertTrue(
                 result.output().contains("media.barney:contract-spring-boot-starter:jar:" + contractVersion()),
@@ -167,9 +162,11 @@ class SpringBootDependencyResolutionIT {
 
     private static List<String> mavenCommand() {
         Path root = Path.of(requiredProperty("reactor.root"));
-        boolean windows = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+        boolean windows =
+                System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
         if (windows) {
-            return new java.util.ArrayList<>(List.of("cmd.exe", "/c", root.resolve("mvnw.cmd").toString()));
+            return new java.util.ArrayList<>(
+                    List.of("cmd.exe", "/c", root.resolve("mvnw.cmd").toString()));
         }
 
         return new java.util.ArrayList<>(List.of(root.resolve("mvnw").toString()));
@@ -199,6 +196,5 @@ class SpringBootDependencyResolutionIT {
         return value;
     }
 
-    private record ProcessResult(String output) {
-    }
+    private record ProcessResult(String output) {}
 }

@@ -164,10 +164,7 @@ public final class ContractProcessor extends AbstractProcessor {
             result = method;
         }
 
-        private JCBlock rewriteReturns(
-                JCBlock body,
-                String methodName,
-                List<ProcessorContract> returnContracts) {
+        private JCBlock rewriteReturns(JCBlock body, String methodName, List<ProcessorContract> returnContracts) {
             if (returnContracts.isEmpty()) {
                 return body;
             }
@@ -182,10 +179,8 @@ public final class ContractProcessor extends AbstractProcessor {
             for (JCVariableDecl parameter : method.params) {
                 String parameterName = parameterName(parameter, parameterIndex);
                 for (ProcessorContract contract : resolver.semanticContracts(parameter.sym)) {
-                    statements.add(statement(contract.parameterStatement(
-                            parameter.getName().toString(),
-                            methodName,
-                            parameterName)));
+                    statements.add(statement(
+                            contract.parameterStatement(parameter.getName().toString(), methodName, parameterName)));
                 }
                 parameterIndex++;
             }
@@ -194,8 +189,7 @@ public final class ContractProcessor extends AbstractProcessor {
         }
 
         private com.sun.tools.javac.util.List<JCStatement> prepend(
-                List<JCStatement> prefix,
-                com.sun.tools.javac.util.List<JCStatement> original) {
+                List<JCStatement> prefix, com.sun.tools.javac.util.List<JCStatement> original) {
             com.sun.tools.javac.util.List<JCStatement> updated = original;
             for (int index = prefix.size() - 1; index >= 0; index--) {
                 updated = updated.prepend(prefix.get(index));

@@ -2,10 +2,10 @@
 
 ## Local Checks
 
-Run the same verification as the default CI gate:
+Run the formatter check and the same verification as the default CI gate:
 
 ```sh
-./mvnw -B -ntp verify
+./mvnw -B -ntp spotless:check verify
 ```
 
 Run build and tests without quality gates:
@@ -19,6 +19,12 @@ Run quality gates in isolation:
 ```sh
 ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap verify
 ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive verify
+```
+
+Apply the repository formatter before committing Java changes:
+
+```sh
+./mvnw -B -ntp spotless:apply
 ```
 
 When using `clean`, do not run multiple Maven builds in parallel in the same

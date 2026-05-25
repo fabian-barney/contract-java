@@ -25,9 +25,7 @@ class ContractSpringBootStarterTest {
         Constructor<ContractSpringBootStarter> constructor = ContractSpringBootStarter.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
-        InvocationTargetException exception = assertThrows(
-                InvocationTargetException.class,
-                constructor::newInstance);
+        InvocationTargetException exception = assertThrows(InvocationTargetException.class, constructor::newInstance);
 
         assertEquals(AssertionError.class, exception.getCause().getClass());
     }
