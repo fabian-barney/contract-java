@@ -93,6 +93,13 @@ jobs:
             exit 1
           fi
 
+      - name: Verify release tag exists
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null
+
       - name: Build and verify release artifacts
         run: >
           ./mvnw -B -ntp -Prelease
@@ -162,7 +169,7 @@ jobs:
           RELEASE_TAG: v${{ needs.release.outputs.revision }}
         run: |
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
+            gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
           fi
 
           gh release upload "$RELEASE_TAG" target/release-assets/sbom/* --clobber

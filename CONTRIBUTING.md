@@ -148,9 +148,10 @@ The `Release` GitHub Actions workflow is manual/tag-triggered and does not run
 for pull requests. It always imports the configured GPG key, signs release
 artifacts, and uploads the generated SBOM bundle and detached signatures as a
 workflow artifact. On tag pushes, or on manual runs with `publish=true`, it also
-attaches the SBOMs and signatures to the matching GitHub Release. Central
-publication is disabled unless the manual `publish` input is set and repository
-credentials are configured.
+attaches the SBOMs and signatures to the matching GitHub Release. Manual publish
+runs require the matching `vX.Y.Z` tag to already exist; the workflow will not
+create release tags implicitly. Central publication is disabled unless the
+manual `publish` input is set and repository credentials are configured.
 
 Expected publishing configuration:
 
