@@ -78,15 +78,17 @@ options through the Maven compiler plugin:
 
 The current processor rewrites javac trees and therefore needs access to
 `jdk.compiler` internals while it runs. For Maven Wrapper builds, add these
-exports to `.mvn/jvm.config`:
+exports to `.mvn/jvm.config`. The targets cover classpath processor usage
+(`ALL-UNNAMED`) and JPMS processor-module-path usage
+(`media.barney.contract.core`):
 
 ```text
---add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED,media.barney.contract.core
 ```
 
 Disable generation for a build with:
