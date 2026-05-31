@@ -1,4 +1,4 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -8,11 +8,11 @@ import java.util.Set;
 import media.barney.contract.Contract;
 import media.barney.contract.MaskRenderer;
 
-final class ContractAnnotations {
+public final class ContractAnnotations {
 
     private ContractAnnotations() {}
 
-    static ContractEvaluation evaluate(Object value, Annotation[] annotations) {
+    public static ContractEvaluation evaluate(Object value, Annotation[] annotations) {
         Class<? extends MaskRenderer> maskRenderer = findMaskRenderer(annotations);
 
         for (Annotation annotation : annotations) {
@@ -232,10 +232,23 @@ final class ContractAnnotations {
     private static Optional<String> messageFrom(Annotation annotation) {
         try {
             Method message = annotation.annotationType().getDeclaredMethod("message");
-            Object value = message.invoke(annotation);
-            return value instanceof String text ? nonBlank(text) : Optional.empty();
-        } catch (ReflectiveOperationException ignored) {
+            return messageValue(message, annotation)
+                    .flatMap(value -> value instanceof String text ? nonBlank(text) : Optional.empty());
+        } catch (ReflectiveOperationException | SecurityException ignored) {
             return Optional.empty();
+        }
+    }
+
+    private static Optional<Object> messageValue(Method message, Annotation annotation)
+            throws ReflectiveOperationException {
+        try {
+            return Optional.ofNullable(message.invoke(annotation));
+        } catch (IllegalAccessException exception) {
+            if (!message.trySetAccessible()) {
+                return Optional.empty();
+            }
+
+            return Optional.ofNullable(message.invoke(annotation));
         }
     }
 

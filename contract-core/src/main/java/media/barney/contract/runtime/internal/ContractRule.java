@@ -1,6 +1,6 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
-record ContractRule(String description, boolean customDescription) {
+public record ContractRule(String description, boolean customDescription) {
 
     private static final ContractRule NONE = new ContractRule("", false);
 

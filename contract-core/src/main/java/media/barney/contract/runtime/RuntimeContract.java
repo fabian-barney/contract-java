@@ -1,5 +1,8 @@
 package media.barney.contract.runtime;
 
+import media.barney.contract.runtime.internal.ContractArguments;
+import media.barney.contract.runtime.internal.ContractChecks;
+
 /**
  * Contract kinds used by generated enforcement code.
  */

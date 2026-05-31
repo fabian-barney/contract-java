@@ -1,4 +1,4 @@
-package media.barney.contract.processor;
+package media.barney.contract.processor.internal;
 
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.parser.JavacParser;

@@ -1,12 +1,12 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
 import media.barney.contract.MaskRenderer;
 
-final class ContractMessages {
+public final class ContractMessages {
 
     private ContractMessages() {}
 
-    static IllegalArgumentException preconditionViolation(
+    public static IllegalArgumentException preconditionViolation(
             String methodName,
             String parameterName,
             ContractRule rule,
@@ -15,7 +15,7 @@ final class ContractMessages {
         return new IllegalArgumentException(parameterMessage(methodName, parameterName, rule, value, maskRenderer));
     }
 
-    static IllegalStateException postconditionViolation(
+    public static IllegalStateException postconditionViolation(
             String methodName, ContractRule rule, Object value, Class<? extends MaskRenderer> maskRenderer) {
         return new IllegalStateException(returnMessage(methodName, rule, value, maskRenderer));
     }

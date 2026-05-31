@@ -1,4 +1,4 @@
-package media.barney.contract.processor;
+package media.barney.contract.processor.internal;
 
 import java.util.Map;
 import media.barney.contract.runtime.ContractRuntime;

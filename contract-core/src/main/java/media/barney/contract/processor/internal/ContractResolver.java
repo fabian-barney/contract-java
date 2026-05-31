@@ -1,4 +1,4 @@
-package media.barney.contract.processor;
+package media.barney.contract.processor.internal;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
-record ContractArguments(
+public record ContractArguments(
         long min, long max, boolean minInclusive, boolean maxInclusive, int sizeMin, int sizeMax, String regexp) {}
