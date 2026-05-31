@@ -28,8 +28,8 @@ jobs:
   release:
     name: Build Release Artifacts
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    outputs:
+      revision: ${{ steps.release-revision.outputs.revision }}
 
     env:
       CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
@@ -140,11 +140,26 @@ jobs:
           -s .github/maven-settings.xml
           deploy
 
+  publish-sbom-release-assets:
+    name: Publish SBOM Release Assets
+    needs:
+      - release
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download SBOM workflow artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-sboms-${{ needs.release.outputs.revision }}
+          path: target/release-assets/sbom
+
       - name: Upload SBOM GitHub Release assets
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+          RELEASE_TAG: v${{ needs.release.outputs.revision }}
         run: |
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
