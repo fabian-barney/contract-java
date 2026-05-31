@@ -1,6 +1,7 @@
 package media.barney.contract.spring;
 
 import java.util.Arrays;
+import java.util.Set;
 import media.barney.contract.runtime.ContractRuntime;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 final class ContractViolationHandlerExceptionResolver implements HandlerExceptionResolver, Ordered {
 
-    private static final String CONTRACT_RUNTIME_PACKAGE = "media.barney.contract.runtime.";
+    private static final Set<String> CONTRACT_RUNTIME_VIOLATION_METHODS =
+            Set.of("requireParameter", "requireReturn", "requireParameterValue", "requireReturnValue");
+    private static final Set<String> CONTRACT_MESSAGE_VIOLATION_METHODS =
+            Set.of("preconditionViolation", "postconditionViolation");
+    private static final String CONTRACT_RUNTIME_PACKAGE_PREFIX = "media.barney.contract.runtime.";
 
     @Override
     public int getOrder() {
@@ -36,11 +41,17 @@ final class ContractViolationHandlerExceptionResolver implements HandlerExceptio
         }
 
         return Arrays.stream(exception.getStackTrace())
-                .map(StackTraceElement::getClassName)
-                .anyMatch(ContractViolationHandlerExceptionResolver::isContractRuntimeFrame);
+                .anyMatch(ContractViolationHandlerExceptionResolver::isViolationFactoryFrame);
     }
 
-    private static boolean isContractRuntimeFrame(String className) {
-        return ContractRuntime.class.getName().equals(className) || className.startsWith(CONTRACT_RUNTIME_PACKAGE);
+    private static boolean isViolationFactoryFrame(StackTraceElement frame) {
+        String className = frame.getClassName();
+        if (ContractRuntime.class.getName().equals(className)) {
+            return CONTRACT_RUNTIME_VIOLATION_METHODS.contains(frame.getMethodName());
+        }
+
+        return className.startsWith(CONTRACT_RUNTIME_PACKAGE_PREFIX)
+                && className.endsWith(".ContractMessages")
+                && CONTRACT_MESSAGE_VIOLATION_METHODS.contains(frame.getMethodName());
     }
 }

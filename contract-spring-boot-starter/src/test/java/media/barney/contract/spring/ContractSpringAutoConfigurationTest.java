@@ -161,6 +161,22 @@ class ContractSpringAutoConfigurationTest {
     }
 
     @Test
+    void ignoresRuntimePackageExceptionsThatAreNotContractViolations() {
+        webContextRunner
+                .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
+                .run(context -> {
+                    HandlerExceptionResolver resolver = context.getBean(HandlerExceptionResolver.class);
+                    MockHttpServletResponse response = new MockHttpServletResponse();
+
+                    ModelAndView modelAndView = resolver.resolveException(
+                            new MockHttpServletRequest(), response, null, nonContractRuntimeException());
+
+                    assertNull(modelAndView);
+                    assertEquals(200, response.getStatus());
+                });
+    }
+
+    @Test
     void ignoresContractExceptionsWhenResponseIsCommitted() {
         webContextRunner
                 .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
@@ -221,5 +237,15 @@ class ContractSpringAutoConfigurationTest {
         }
 
         throw new AssertionError("Expected generated postcondition violation.");
+    }
+
+    private static IllegalArgumentException nonContractRuntimeException() {
+        try {
+            ContractRuntime.matchesPattern("value", "[");
+        } catch (IllegalArgumentException exception) {
+            return exception;
+        }
+
+        throw new AssertionError("Expected non-contract runtime exception.");
     }
 }
