@@ -141,7 +141,8 @@ def contractProcessorJvmArgs = [
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ['-parameters', '-Acontracts.enabled=true']
     options.fork = true
-    options.forkOptions.jvmArgs += contractProcessorJvmArgs
+    options.forkOptions.jvmArgs =
+        (options.forkOptions.jvmArgs ?: []) + contractProcessorJvmArgs
 }
 ```
 
