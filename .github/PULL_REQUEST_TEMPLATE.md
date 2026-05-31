@@ -13,5 +13,5 @@
 ## Checklist
 
 - [ ] Tests added or updated as needed.
-- [ ] `CHANGELOG.md` entry prepared, or release notes updated until the project changelog is introduced.
+- [ ] `CHANGELOG.md` entry prepared when user-visible behavior, API, or release notes changed.
 - [ ] Documentation updated if usage or behavior changed.
