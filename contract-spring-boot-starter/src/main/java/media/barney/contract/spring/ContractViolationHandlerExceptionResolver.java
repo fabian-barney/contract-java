@@ -2,7 +2,6 @@ package media.barney.contract.spring;
 
 import java.util.Arrays;
 import java.util.Set;
-import media.barney.contract.runtime.ContractRuntime;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -10,11 +9,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 final class ContractViolationHandlerExceptionResolver implements HandlerExceptionResolver, Ordered {
 
-    private static final Set<String> CONTRACT_RUNTIME_VIOLATION_METHODS =
-            Set.of("requireParameter", "requireReturn", "requireParameterValue", "requireReturnValue");
     private static final Set<String> CONTRACT_MESSAGE_VIOLATION_METHODS =
             Set.of("preconditionViolation", "postconditionViolation");
-    private static final String CONTRACT_RUNTIME_PACKAGE_PREFIX = "media.barney.contract.runtime.";
+    private static final String CONTRACT_MESSAGES_CLASS_NAME = "media.barney.contract.runtime.ContractMessages";
 
     @Override
     public int getOrder() {
@@ -31,6 +28,7 @@ final class ContractViolationHandlerExceptionResolver implements HandlerExceptio
             return null;
         }
 
+        response.resetBuffer();
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ModelAndView();
     }
@@ -45,13 +43,7 @@ final class ContractViolationHandlerExceptionResolver implements HandlerExceptio
     }
 
     private static boolean isViolationFactoryFrame(StackTraceElement frame) {
-        String className = frame.getClassName();
-        if (ContractRuntime.class.getName().equals(className)) {
-            return CONTRACT_RUNTIME_VIOLATION_METHODS.contains(frame.getMethodName());
-        }
-
-        return className.startsWith(CONTRACT_RUNTIME_PACKAGE_PREFIX)
-                && className.endsWith(".ContractMessages")
+        return CONTRACT_MESSAGES_CLASS_NAME.equals(frame.getClassName())
                 && CONTRACT_MESSAGE_VIOLATION_METHODS.contains(frame.getMethodName());
     }
 }

@@ -129,6 +129,24 @@ class ContractSpringAutoConfigurationTest {
     }
 
     @Test
+    void clearsBufferedBodyWhenMappingContractViolationsTo500() throws Exception {
+        webContextRunner
+                .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
+                .run(context -> {
+                    HandlerExceptionResolver resolver = context.getBean(HandlerExceptionResolver.class);
+                    MockHttpServletResponse response = new MockHttpServletResponse();
+                    response.getWriter().write("leaked body");
+
+                    ModelAndView modelAndView = resolver.resolveException(
+                            new MockHttpServletRequest(), response, null, generatedPreconditionViolation());
+
+                    assertNotNull(modelAndView);
+                    assertEquals(500, response.getStatus());
+                    assertEquals("", response.getContentAsString());
+                });
+    }
+
+    @Test
     void ignoresNonContractIllegalArgumentExceptions() {
         webContextRunner
                 .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
@@ -241,7 +259,21 @@ class ContractSpringAutoConfigurationTest {
 
     private static IllegalArgumentException nonContractRuntimeException() {
         try {
-            ContractRuntime.matchesPattern("value", "[");
+            ContractRuntime.requireParameterValue(
+                    "value",
+                    "example.AccountService.login",
+                    "password",
+                    RuntimeContract.PATTERN,
+                    "must match the required pattern",
+                    false,
+                    DefaultMaskRenderer.class,
+                    0L,
+                    0L,
+                    true,
+                    true,
+                    0,
+                    0,
+                    "[");
         } catch (IllegalArgumentException exception) {
             return exception;
         }
