@@ -23,6 +23,7 @@ class SpringBootDependencyResolutionIT {
         Path reactorRoot = Path.of(requiredProperty("reactor.root"));
         String contractVersion = requiredProperty("contract.version");
 
+        installParentPom(localRepository, reactorRoot);
         installProjectArtifact(localRepository, reactorRoot, contractVersion, "contract-core");
         installProjectArtifact(localRepository, reactorRoot, contractVersion, "contract-spring-boot-starter");
         assertAutoConfigurationImports(reactorRoot
@@ -38,9 +39,10 @@ class SpringBootDependencyResolutionIT {
             Path localRepository, Path reactorRoot, String contractVersion, String artifactId) throws Exception {
         Path jar =
                 reactorRoot.resolve(artifactId).resolve("target").resolve(artifactId + "-" + contractVersion + ".jar");
-        Path pom = writeInstalledPom(localRepository, contractVersion, artifactId);
+        Path pom = reactorRoot.resolve(artifactId).resolve("pom.xml");
 
         assertTrue(Files.isRegularFile(jar), () -> String.format("Missing packaged artifact: %s", jar));
+        assertTrue(Files.isRegularFile(pom), () -> String.format("Missing module POM: %s", pom));
 
         runMaven(
                 reactorRoot,
@@ -51,69 +53,18 @@ class SpringBootDependencyResolutionIT {
                 "-Dpackaging=jar");
     }
 
-    private static Path writeInstalledPom(Path localRepository, String contractVersion, String artifactId)
-            throws IOException {
-        Path pom = Files.createTempFile(localRepository, artifactId + "-", ".pom");
-        Files.writeString(pom, installedPom(contractVersion, artifactId), StandardCharsets.UTF_8);
-        return pom;
-    }
+    private static void installParentPom(Path localRepository, Path reactorRoot) throws Exception {
+        Path parentPom = reactorRoot.resolve("pom.xml");
 
-    private static String installedPom(String contractVersion, String artifactId) {
-        String dependency = "";
-        if ("contract-spring-boot-starter".equals(artifactId)) {
-            dependency = """
-                    <dependencyManagement>
-                      <dependencies>
-                        <dependency>
-                          <groupId>org.springframework.boot</groupId>
-                          <artifactId>spring-boot-dependencies</artifactId>
-                          <version>%s</version>
-                          <type>pom</type>
-                          <scope>import</scope>
-                        </dependency>
-                      </dependencies>
-                    </dependencyManagement>
-                    <dependencies>
-                      <dependency>
-                        <groupId>media.barney</groupId>
-                        <artifactId>contract-core</artifactId>
-                        <version>%s</version>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-autoconfigure</artifactId>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-webmvc</artifactId>
-                        <optional>true</optional>
-                      </dependency>
-                      <dependency>
-                        <groupId>jakarta.servlet</groupId>
-                        <artifactId>jakarta.servlet-api</artifactId>
-                        <optional>true</optional>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-actuator</artifactId>
-                        <optional>true</optional>
-                      </dependency>
-                    </dependencies>
-                    """.formatted(requiredProperty("spring.boot.40.version"), contractVersion);
-        }
+        assertTrue(Files.isRegularFile(parentPom), () -> String.format("Missing parent POM: %s", parentPom));
 
-        return """
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                  <modelVersion>4.0.0</modelVersion>
-                  <groupId>media.barney</groupId>
-                  <artifactId>%s</artifactId>
-                  <version>%s</version>
-                  <packaging>jar</packaging>
-                  %s
-                </project>
-                """.formatted(artifactId, contractVersion, dependency);
+        runMaven(
+                reactorRoot,
+                "-Dmaven.repo.local=" + localRepository,
+                installGoal(),
+                "-Dfile=" + parentPom,
+                "-DpomFile=" + parentPom,
+                "-Dpackaging=pom");
     }
 
     private static void resolveSmokeProject(Path localRepository, String bootLine, String bootVersion)
