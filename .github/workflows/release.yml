@@ -59,8 +59,8 @@ jobs:
             revision="${GITHUB_REF_NAME#v}"
           fi
 
-          if [ -z "$revision" ] || [[ "$revision" == *-SNAPSHOT ]]; then
-            echo "::error::Release revision must be non-empty and non-SNAPSHOT: $revision"
+          if [[ ! "$revision" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+            echo "::error::Release revision must match the supported X.Y.Z tag format and cannot be a snapshot."
             exit 1
           fi
 
@@ -69,7 +69,7 @@ jobs:
       - name: Build and verify release artifacts
         run: >
           ./mvnw -B -ntp -Prelease
-          -Drevision=${{ steps.release-revision.outputs.revision }}
+          "-Drevision=${{ steps.release-revision.outputs.revision }}"
           -Dgpg.skip=true
           verify
 
@@ -84,7 +84,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         run: >
           ./mvnw -B -ntp -Prelease -Dgpg.skip=true
-          -Drevision=${{ steps.release-revision.outputs.revision }}
+          "-Drevision=${{ steps.release-revision.outputs.revision }}"
           -s .github/maven-settings.xml
           -DaltDeploymentRepository=release::default::${MAVEN_RELEASE_REPOSITORY_URL}
           deploy
