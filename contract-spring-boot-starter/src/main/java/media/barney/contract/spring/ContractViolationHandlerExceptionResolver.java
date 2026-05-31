@@ -2,6 +2,7 @@ package media.barney.contract.spring;
 
 import java.util.Arrays;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -20,10 +21,10 @@ final class ContractViolationHandlerExceptionResolver implements HandlerExceptio
     }
 
     @Override
-    public ModelAndView resolveException(
+    public @Nullable ModelAndView resolveException(
             jakarta.servlet.http.HttpServletRequest request,
             jakarta.servlet.http.HttpServletResponse response,
-            Object handler,
+            @Nullable Object handler,
             Exception exception) {
         if (response.isCommitted() || !isGeneratedContractViolation(exception)) {
             return null;

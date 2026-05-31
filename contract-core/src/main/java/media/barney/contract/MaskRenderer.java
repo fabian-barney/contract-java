@@ -1,5 +1,7 @@
 package media.barney.contract;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Renders confidential values for generated contract violation messages.
  */
@@ -11,5 +13,5 @@ public interface MaskRenderer {
      * @param value the raw value
      * @return the masked representation
      */
-    String render(Object value);
+    String render(@Nullable Object value);
 }
