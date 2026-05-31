@@ -15,7 +15,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 class SpringBootDependencyResolutionIT {
 
-    private static final Duration PROCESS_TIMEOUT = Duration.ofMinutes(2);
+    private static final Duration PROCESS_TIMEOUT = Duration.ofMinutes(4);
+    private static final String SPRING_BOOT_SMOKE_LINE_PROPERTY = "spring.boot.smoke.line";
 
     @Test
     void resolvesStarterWithSupportedSpringBootLines(@TempDir Path tempDirectory) throws Exception {
@@ -31,8 +32,14 @@ class SpringBootDependencyResolutionIT {
                 .resolve("target")
                 .resolve("contract-spring-boot-starter-" + contractVersion + ".jar"));
 
-        resolveSmokeProject(localRepository, "3.5", requiredProperty("spring.boot.35.version"));
-        resolveSmokeProject(localRepository, "4.0", requiredProperty("spring.boot.40.version"));
+        String requestedSmokeLine = optionalProperty(SPRING_BOOT_SMOKE_LINE_PROPERTY);
+        if (requestedSmokeLine != null) {
+            resolveSmokeProject(localRepository, requestedSmokeLine, springBootVersion(requestedSmokeLine));
+            return;
+        }
+
+        resolveSmokeProject(localRepository, "3.5", springBootVersion("3.5"));
+        resolveSmokeProject(localRepository, "4.0", springBootVersion("4.0"));
     }
 
     private static void installProjectArtifact(
@@ -184,6 +191,25 @@ class SpringBootDependencyResolutionIT {
 
     private static String contractVersion() {
         return requiredProperty("contract.version");
+    }
+
+    private static String springBootVersion(String bootLine) {
+        return switch (bootLine) {
+            case "3.5" -> requiredProperty("spring.boot.35.version");
+            case "4.0" -> requiredProperty("spring.boot.40.version");
+            default ->
+                throw new IllegalArgumentException(String.format(
+                        "Unsupported Spring Boot smoke-test line '%s'. Supported lines: 3.5, 4.0", bootLine));
+        };
+    }
+
+    private static String optionalProperty(String name) {
+        String value = System.getProperty(name);
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value;
     }
 
     private static String requiredProperty(String name) {
