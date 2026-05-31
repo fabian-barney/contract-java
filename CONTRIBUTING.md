@@ -123,11 +123,12 @@ into the target version section, add the release date, and leave a fresh
 tagging or publishing a release. The release workflow rejects target version
 sections that still use the `TBD` date marker.
 
-The `release` Maven profile attaches source and Javadoc jars, signs artifacts
-with GPG, flattens published POMs, and configures Sonatype Central Portal
-publishing. For local release verification, make sure `gpg` is installed, a
-release signing key is available, and `MAVEN_GPG_PASSPHRASE` is set when the key
-requires a passphrase:
+The `release` Maven profile attaches source and Javadoc jars, generates
+CycloneDX XML and JSON SBOMs for published modules, signs artifacts with GPG,
+flattens published POMs, and configures Sonatype Central Portal publishing. For
+local release verification, make sure `gpg` is installed, a release signing key
+is available, and `MAVEN_GPG_PASSPHRASE` is set when the key requires a
+passphrase:
 
 ```sh
 ./mvnw -B -ntp -Prelease -Drevision=0.1.0 verify
@@ -144,9 +145,13 @@ releases, the workflow derives the revision from the tag name by removing the
 leading `v`.
 
 The `Release` GitHub Actions workflow is manual/tag-triggered and does not run
-for pull requests. It always imports the configured GPG key and signs release
-artifacts. Central publication is disabled unless the manual `publish` input is
-set and repository credentials are configured.
+for pull requests. It always imports the configured GPG key, signs release
+artifacts, and uploads the generated SBOM bundle and detached signatures as a
+workflow artifact. On tag pushes, or on manual runs with `publish=true`, it also
+attaches the SBOMs and signatures to the matching GitHub Release. Manual publish
+runs require the matching `vX.Y.Z` tag to already exist; the workflow will not
+create release tags implicitly. Central publication is disabled unless the
+manual `publish` input is set and repository credentials are configured.
 
 Expected publishing configuration:
 

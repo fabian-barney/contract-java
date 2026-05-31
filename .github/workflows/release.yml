@@ -28,6 +28,8 @@ jobs:
   release:
     name: Build Release Artifacts
     runs-on: ubuntu-latest
+    outputs:
+      revision: ${{ steps.release-revision.outputs.revision }}
 
     env:
       CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
@@ -91,11 +93,45 @@ jobs:
             exit 1
           fi
 
+      - name: Verify release tag exists
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null
+
       - name: Build and verify release artifacts
         run: >
           ./mvnw -B -ntp -Prelease
           "-Drevision=${{ steps.release-revision.outputs.revision }}"
           verify
+
+      - name: Stage SBOM release assets
+        env:
+          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
+        run: |
+          mkdir -p target/release-assets/sbom
+
+          stage_bom() {
+            module_path="$1"
+            artifact_id="$2"
+
+            cp "${module_path}/target/bom.json" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json"
+            cp "${module_path}/target/bom.json.asc" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json.asc"
+            cp "${module_path}/target/bom.xml" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml"
+            cp "${module_path}/target/bom.xml.asc" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml.asc"
+          }
+
+          stage_bom . contract-java
+          stage_bom contract-core contract-core
+          stage_bom contract-spring-boot-starter contract-spring-boot-starter
+
+      - name: Upload SBOM workflow artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: release-sboms-${{ steps.release-revision.outputs.revision }}
+          path: target/release-assets/sbom
+          if-no-files-found: error
 
       - name: Verify publish configuration
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
@@ -110,3 +146,30 @@ jobs:
           "-Drevision=${{ steps.release-revision.outputs.revision }}"
           -s .github/maven-settings.xml
           deploy
+
+  publish-sbom-release-assets:
+    name: Publish SBOM Release Assets
+    needs:
+      - release
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download SBOM workflow artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-sboms-${{ needs.release.outputs.revision }}
+          path: target/release-assets/sbom
+
+      - name: Upload SBOM GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v${{ needs.release.outputs.revision }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
+          fi
+
+          gh release upload "$RELEASE_TAG" target/release-assets/sbom/* --clobber
