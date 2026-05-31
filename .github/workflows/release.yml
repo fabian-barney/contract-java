@@ -32,10 +32,10 @@ jobs:
       revision: ${{ steps.release-revision.outputs.revision }}
 
     env:
-      CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
-      CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-      MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      MAVEN_CENTRAL_TOKEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_TOKEN_USERNAME }}
+      MAVEN_CENTRAL_TOKEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_TOKEN_PASSWORD }}
+      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
     steps:
       - name: Checkout
@@ -53,11 +53,11 @@ jobs:
 
       - name: Verify signing configuration
         run: |
-          test -n "$GPG_PRIVATE_KEY"
+          test -n "$MAVEN_GPG_PRIVATE_KEY"
           test -n "$MAVEN_GPG_PASSPHRASE"
 
       - name: Import GPG signing key
-        run: printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+        run: printf '%s' "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
 
       - name: Resolve release revision
         id: release-revision
@@ -136,8 +136,8 @@ jobs:
       - name: Verify publish configuration
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         run: |
-          test -n "$CENTRAL_TOKEN_USERNAME"
-          test -n "$CENTRAL_TOKEN_PASSWORD"
+          test -n "$MAVEN_CENTRAL_TOKEN_USERNAME"
+          test -n "$MAVEN_CENTRAL_TOKEN_PASSWORD"
 
       - name: Publish release artifacts
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}

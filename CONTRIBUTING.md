@@ -155,10 +155,10 @@ manual `publish` input is set and repository credentials are configured.
 
 Expected publishing configuration:
 
-- secret `CENTRAL_TOKEN_USERNAME`
-- secret `CENTRAL_TOKEN_PASSWORD`
-- secret `GPG_PRIVATE_KEY`
-- secret `GPG_PASSPHRASE`
+- secret `MAVEN_CENTRAL_TOKEN_USERNAME`
+- secret `MAVEN_CENTRAL_TOKEN_PASSWORD`
+- secret `MAVEN_GPG_PRIVATE_KEY`
+- secret `MAVEN_GPG_PASSPHRASE`
 
 Publish credentials must be Central Portal user-token credentials for the
 `central` Maven server id. The matching GPG public key must be published before
