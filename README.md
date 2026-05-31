@@ -271,6 +271,20 @@ Lombok onto supported method, constructor, or parameter targets are enforced.
 `3.5.x` as documented in
 `ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md`.
 
+The compatibility table follows the Spring Boot support window defined in
+[ADR-0002](ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md).
+CI verifies the listed Spring Boot lines against the canonical JDK matrix.
+
+| JDK | Spring Boot `3.5.x` | Spring Boot `4.0.x` |
+| --- | --- | --- |
+| 17 | Tested and supported | Tested and supported |
+| 21 | Tested and supported | Tested and supported |
+| 25 | Tested and supported | Tested and supported |
+| Other Java 17+ releases | Supported, not tested in CI | Supported, not tested in CI |
+
+Spring Boot lines outside ADR-0002 are not part of the starter support target,
+even if `contract-core` remains usable in non-Spring projects.
+
 The starter publishes Boot auto-configuration from
 `media.barney.contract.spring.ContractSpringAutoConfiguration` and keeps the
 contract processor in `contract-core`.
