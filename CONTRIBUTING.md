@@ -120,7 +120,8 @@ the release is published, open a dedicated snapshot-bump PR that sets
 Every release PR must update `CHANGELOG.md`: move completed `Unreleased` notes
 into the target version section, add the release date, and leave a fresh
 `Unreleased` section for the next development cycle. Review the changelog before
-tagging or publishing a release.
+tagging or publishing a release. The release workflow rejects target version
+sections that still use the `TBD` date marker.
 
 The `release` Maven profile attaches source and Javadoc jars and includes a
 GPG signing hook that is skipped by default:
