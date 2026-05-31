@@ -15,6 +15,7 @@
   <modules>
     <module>contract-core</module>
     <module>contract-spring-boot-starter</module>
+    <module>contract-examples</module>
   </modules>
 
   <licenses>

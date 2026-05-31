@@ -14,6 +14,7 @@ postcondition failures throw `IllegalStateException`.
 | --- | --- | --- |
 | `media.barney:contract-core` | `media.barney.contract.core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
 | `media.barney:contract-spring-boot-starter` | `media.barney.contract.spring.boot.starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
+| `contract-examples` | n/a | Test-scoped examples that build in CI but are skipped for Maven deploy. |
 
 ## API Surface
 
@@ -168,6 +169,17 @@ contract-java semver guarantee. Built-in contracts remain null-safe, so Lombok
 `@NonNull` checks remain responsible for null failures regardless of ordering.
 
 ## Annotation Examples
+
+The `contract-examples` module contains executable examples for built-in
+contracts, custom composed annotations, and `@Contract.Mask`. It is included in
+the reactor build so examples stay current without being published as a library
+artifact.
+
+Run the examples with:
+
+```shell
+./mvnw -pl contract-examples -am test
+```
 
 ```java
 import media.barney.contract.Contract;
