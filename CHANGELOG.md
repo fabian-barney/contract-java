@@ -7,7 +7,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
-## 0.1.0 - TBD
+## 0.1.0 - 2026-06-01
 
 ### Added
 
@@ -31,4 +31,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/main...HEAD
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...HEAD
