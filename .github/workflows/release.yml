@@ -8,6 +8,11 @@ on:
         required: true
         default: false
         type: boolean
+      revision:
+        description: Maven project revision to release
+        required: true
+        default: "0.1.0"
+        type: string
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
@@ -43,8 +48,30 @@ jobs:
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
 
+      - name: Resolve release revision
+        id: release-revision
+        env:
+          DISPATCH_REVISION: ${{ inputs.revision }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            revision="$DISPATCH_REVISION"
+          else
+            revision="${GITHUB_REF_NAME#v}"
+          fi
+
+          if [ -z "$revision" ] || [[ "$revision" == *-SNAPSHOT ]]; then
+            echo "::error::Release revision must be non-empty and non-SNAPSHOT: $revision"
+            exit 1
+          fi
+
+          echo "revision=$revision" >> "$GITHUB_OUTPUT"
+
       - name: Build and verify release artifacts
-        run: ./mvnw -B -ntp -Prelease -Dgpg.skip=true verify
+        run: >
+          ./mvnw -B -ntp -Prelease
+          -Drevision=${{ steps.release-revision.outputs.revision }}
+          -Dgpg.skip=true
+          verify
 
       - name: Verify publish configuration
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
@@ -57,6 +84,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         run: >
           ./mvnw -B -ntp -Prelease -Dgpg.skip=true
+          -Drevision=${{ steps.release-revision.outputs.revision }}
           -s .github/maven-settings.xml
           -DaltDeploymentRepository=release::default::${MAVEN_RELEASE_REPOSITORY_URL}
           deploy

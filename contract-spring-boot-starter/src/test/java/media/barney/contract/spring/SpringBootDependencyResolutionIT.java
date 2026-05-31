@@ -24,7 +24,7 @@ class SpringBootDependencyResolutionIT {
         Path reactorRoot = Path.of(requiredProperty("reactor.root"));
         String contractVersion = requiredProperty("contract.version");
 
-        installParentPom(localRepository, reactorRoot);
+        installParentPom(localRepository, reactorRoot, contractVersion);
         installProjectArtifact(localRepository, reactorRoot, contractVersion, "contract-core");
         installProjectArtifact(localRepository, reactorRoot, contractVersion, "contract-spring-boot-starter");
         assertAutoConfigurationImports(reactorRoot
@@ -46,7 +46,7 @@ class SpringBootDependencyResolutionIT {
             Path localRepository, Path reactorRoot, String contractVersion, String artifactId) throws Exception {
         Path jar =
                 reactorRoot.resolve(artifactId).resolve("target").resolve(artifactId + "-" + contractVersion + ".jar");
-        Path pom = reactorRoot.resolve(artifactId).resolve("pom.xml");
+        Path pom = resolvedPom(reactorRoot.resolve(artifactId).resolve("pom.xml"), contractVersion);
 
         assertTrue(Files.isRegularFile(jar), () -> String.format("Missing packaged artifact: %s", jar));
         assertTrue(Files.isRegularFile(pom), () -> String.format("Missing module POM: %s", pom));
@@ -60,8 +60,9 @@ class SpringBootDependencyResolutionIT {
                 "-Dpackaging=jar");
     }
 
-    private static void installParentPom(Path localRepository, Path reactorRoot) throws Exception {
-        Path parentPom = reactorRoot.resolve("pom.xml");
+    private static void installParentPom(Path localRepository, Path reactorRoot, String contractVersion)
+            throws Exception {
+        Path parentPom = resolvedPom(reactorRoot.resolve("pom.xml"), contractVersion);
 
         assertTrue(Files.isRegularFile(parentPom), () -> String.format("Missing parent POM: %s", parentPom));
 
@@ -72,6 +73,16 @@ class SpringBootDependencyResolutionIT {
                 "-Dfile=" + parentPom,
                 "-DpomFile=" + parentPom,
                 "-Dpackaging=pom");
+    }
+
+    private static Path resolvedPom(Path pom, String contractVersion) throws IOException {
+        assertTrue(Files.isRegularFile(pom), () -> String.format("Missing POM: %s", pom));
+        Path resolvedPom = Files.createTempFile("contract-java-pom-", ".xml");
+        String content = Files.readString(pom, StandardCharsets.UTF_8)
+                .replace("${revision}", contractVersion)
+                .replace("${project.version}", contractVersion);
+        Files.writeString(resolvedPom, content, StandardCharsets.UTF_8);
+        return resolvedPom;
     }
 
     private static void resolveSmokeProject(Path localRepository, String bootLine, String bootVersion)

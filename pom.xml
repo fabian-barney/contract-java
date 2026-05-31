@@ -5,7 +5,7 @@
 
   <groupId>media.barney</groupId>
   <artifactId>contract-java</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
   <name>contract-java</name>
@@ -43,6 +43,7 @@
   </scm>
 
   <properties>
+    <revision>0.1.0</revision>
     <scm.tag>HEAD</scm.tag>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

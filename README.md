@@ -70,7 +70,7 @@ Use `contract-core` directly in plain Java projects:
 <dependency>
   <groupId>media.barney</groupId>
   <artifactId>contract-core</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
@@ -80,7 +80,7 @@ Use the Spring Boot starter in Boot applications:
 <dependency>
   <groupId>media.barney</groupId>
   <artifactId>contract-spring-boot-starter</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
@@ -90,8 +90,8 @@ Gradle Kotlin DSL:
 import org.gradle.api.tasks.compile.JavaCompile
 
 dependencies {
-    implementation("media.barney:contract-core:0.1.0-SNAPSHOT")
-    annotationProcessor("media.barney:contract-core:0.1.0-SNAPSHOT")
+    implementation("media.barney:contract-core:0.1.0")
+    annotationProcessor("media.barney:contract-core:0.1.0")
 }
 
 val contractProcessorJvmArgs = listOf(
@@ -120,8 +120,8 @@ Gradle Groovy DSL:
 
 ```groovy
 dependencies {
-    implementation 'media.barney:contract-core:0.1.0-SNAPSHOT'
-    annotationProcessor 'media.barney:contract-core:0.1.0-SNAPSHOT'
+    implementation 'media.barney:contract-core:0.1.0'
+    annotationProcessor 'media.barney:contract-core:0.1.0'
 }
 
 def contractProcessorJvmArgs = [
@@ -147,7 +147,7 @@ tasks.withType(JavaCompile).configureEach {
 ```
 
 Spring Boot applications can use
-`media.barney:contract-spring-boot-starter:0.1.0-SNAPSHOT` as the
+`media.barney:contract-spring-boot-starter:0.1.0` as the
 `implementation` dependency while keeping `media.barney:contract-core` on the
 `annotationProcessor` path.
 
