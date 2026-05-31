@@ -13,7 +13,7 @@ failures throw `IllegalStateException`.
 | Artifact | Purpose |
 | --- | --- |
 | `media.barney:contract-core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
-| `media.barney:contract-spring-boot-starter` | Spring Boot auto-configuration plus optional actuator integration on top of `contract-core`. |
+| `media.barney:contract-spring-boot-starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
 
 ## Installation
 
@@ -38,8 +38,9 @@ Use the Spring Boot starter in Boot applications:
 ```
 
 The starter keeps enforcement in `contract-core`, but it now adds Boot-specific
-auto-configuration for optional actuator integration:
+auto-configuration for optional integrations:
 
+- `contract.spring.web-exception-handler.enabled=false` by default
 - `contract.spring.actuator-info.enabled=true` by default when actuator is on
   the classpath
 
@@ -177,6 +178,14 @@ Lombok onto supported method, constructor, or parameter targets are enforced.
 The starter publishes Boot auto-configuration from
 `media.barney.contract.spring.ContractSpringAutoConfiguration` and keeps the
 contract processor in `contract-core`.
+
+If `contract.spring.web-exception-handler.enabled=true`, the starter registers
+an opt-in servlet `HandlerExceptionResolver` that only handles
+contract-generated exceptions. Contract violations are programming errors, not
+recoverable request-validation failures, so generated precondition and
+postcondition violations both map to bodyless HTTP `500` responses. Use
+Jakarta Validation or another request-validation layer for expected `4xx`
+input errors.
 
 If actuator is on the classpath, `contract.spring.actuator-info.enabled=true`
 adds a small `InfoContributor` entry showing that the starter is active.

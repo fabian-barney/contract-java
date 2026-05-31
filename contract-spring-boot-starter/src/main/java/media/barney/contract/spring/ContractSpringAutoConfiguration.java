@@ -5,9 +5,12 @@ import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * Spring Boot auto-configuration for optional {@code contract-java} integrations.
@@ -36,6 +39,18 @@ public class ContractSpringAutoConfiguration {
                             "spring-boot-auto-configuration",
                             "enforcement",
                             "runtime"));
+        }
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnWebApplication(type = Type.SERVLET)
+    @ConditionalOnClass(HandlerExceptionResolver.class)
+    static class WebExceptionHandlerConfiguration {
+
+        @Bean
+        @ConditionalOnProperty(prefix = "contract.spring.web-exception-handler", name = "enabled", havingValue = "true")
+        HandlerExceptionResolver contractSpringWebExceptionHandler() {
+            return new ContractViolationHandlerExceptionResolver();
         }
     }
 }
