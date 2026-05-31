@@ -9,6 +9,7 @@ import media.barney.contract.runtime.internal.ContractEvaluation;
 import media.barney.contract.runtime.internal.ContractMessages;
 import media.barney.contract.runtime.internal.ContractRule;
 import media.barney.contract.runtime.internal.ValueRenderer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Runtime support used by generated contract checks.
@@ -20,7 +21,7 @@ public final class ContractRuntime {
     }
 
     public static void requireParameter(
-            Object value, String methodName, String parameterName, Annotation... annotations) {
+            @Nullable Object value, String methodName, String parameterName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
 
         if (!evaluation.valid()) {
@@ -29,7 +30,7 @@ public final class ContractRuntime {
         }
     }
 
-    public static void requireReturn(Object value, String methodName, Annotation... annotations) {
+    public static void requireReturn(@Nullable Object value, String methodName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
 
         if (!evaluation.valid()) {
@@ -39,20 +40,20 @@ public final class ContractRuntime {
     }
 
     public static void requireParameterValue(
-            Object value,
+            @Nullable Object value,
             String methodName,
             String parameterName,
             RuntimeContract contract,
             String description,
             boolean customDescription,
-            Class<? extends MaskRenderer> maskRenderer,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
             long min,
             long max,
             boolean minInclusive,
             boolean maxInclusive,
             int sizeMin,
             int sizeMax,
-            String regexp) {
+            @Nullable String regexp) {
         ContractRule rule = new ContractRule(description, customDescription);
         ContractArguments arguments =
                 new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
@@ -62,20 +63,20 @@ public final class ContractRuntime {
         }
     }
 
-    public static <T> T requireReturnValue(
+    public static <T extends @Nullable Object> T requireReturnValue(
             T value,
             String methodName,
             RuntimeContract contract,
             String description,
             boolean customDescription,
-            Class<? extends MaskRenderer> maskRenderer,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
             long min,
             long max,
             boolean minInclusive,
             boolean maxInclusive,
             int sizeMin,
             int sizeMax,
-            String regexp) {
+            @Nullable String regexp) {
         ContractRule rule = new ContractRule(description, customDescription);
         ContractArguments arguments =
                 new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
@@ -87,43 +88,44 @@ public final class ContractRuntime {
         return value;
     }
 
-    public static boolean isNotEmpty(Object value) {
+    public static boolean isNotEmpty(@Nullable Object value) {
         return ContractChecks.isNotEmpty(value);
     }
 
-    public static boolean isNotBlank(Object value) {
+    public static boolean isNotBlank(@Nullable Object value) {
         return ContractChecks.isNotBlank(value);
     }
 
-    public static boolean isPositive(Object value) {
+    public static boolean isPositive(@Nullable Object value) {
         return ContractChecks.isPositive(value);
     }
 
-    public static boolean isNegative(Object value) {
+    public static boolean isNegative(@Nullable Object value) {
         return ContractChecks.isNegative(value);
     }
 
-    public static boolean isNonNegative(Object value) {
+    public static boolean isNonNegative(@Nullable Object value) {
         return ContractChecks.isNonNegative(value);
     }
 
-    public static boolean isNonPositive(Object value) {
+    public static boolean isNonPositive(@Nullable Object value) {
         return ContractChecks.isNonPositive(value);
     }
 
-    public static boolean isInRange(Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
+    public static boolean isInRange(
+            @Nullable Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         return ContractChecks.isInRange(value, min, max, minInclusive, maxInclusive);
     }
 
-    public static boolean hasSize(Object value, int min, int max) {
+    public static boolean hasSize(@Nullable Object value, int min, int max) {
         return ContractChecks.hasSize(value, min, max);
     }
 
-    public static boolean matchesPattern(Object value, String regexp) {
+    public static boolean matchesPattern(@Nullable Object value, String regexp) {
         return ContractChecks.matchesPattern(value, regexp);
     }
 
-    public static String renderValue(Object value, Class<? extends MaskRenderer> maskRenderer) {
+    public static String renderValue(@Nullable Object value, @Nullable Class<? extends MaskRenderer> maskRenderer) {
         return ValueRenderer.render(value, maskRenderer);
     }
 }
