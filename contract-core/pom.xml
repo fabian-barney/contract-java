@@ -13,6 +13,14 @@
   <artifactId>contract-core</artifactId>
   <name>contract-core</name>
   <description>Framework-agnostic contract annotations and enforcement support.</description>
+  <url>https://github.com/fabian-barney/contract-java/tree/main/contract-core</url>
+
+  <scm>
+    <connection>scm:git:https://github.com/fabian-barney/contract-java.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/fabian-barney/contract-java.git</developerConnection>
+    <url>https://github.com/fabian-barney/contract-java/tree/main/contract-core</url>
+    <tag>${scm.tag}</tag>
+  </scm>
 
   <dependencies>
     <dependency>

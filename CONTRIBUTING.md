@@ -123,17 +123,20 @@ into the target version section, add the release date, and leave a fresh
 tagging or publishing a release. The release workflow rejects target version
 sections that still use the `TBD` date marker.
 
-The `release` Maven profile attaches source and Javadoc jars and includes a
-GPG signing hook that is skipped by default:
+The `release` Maven profile attaches source and Javadoc jars, signs artifacts
+with GPG, flattens published POMs, and configures Sonatype Central Portal
+publishing. For local release verification, make sure `gpg` is installed, a
+release signing key is available, and `MAVEN_GPG_PASSPHRASE` is set when the key
+requires a passphrase:
 
 ```sh
-./mvnw -B -ntp -Prelease -Drevision=0.1.0 -Dgpg.skip=true verify
+./mvnw -B -ntp -Prelease -Drevision=0.1.0 verify
 ```
 
 In PowerShell, quote dotted `-D` properties:
 
 ```powershell
-.\mvnw.cmd -B -ntp -Prelease "-Drevision=0.1.0" "-Dgpg.skip=true" verify
+.\mvnw.cmd -B -ntp -Prelease "-Drevision=0.1.0" verify
 ```
 
 The manual `Release` workflow also accepts a `revision` input. For tag-triggered
@@ -141,14 +144,17 @@ releases, the workflow derives the revision from the tag name by removing the
 leading `v`.
 
 The `Release` GitHub Actions workflow is manual/tag-triggered and does not run
-for pull requests. Publishing is disabled unless the manual `publish` input is
+for pull requests. It always imports the configured GPG key and signs release
+artifacts. Central publication is disabled unless the manual `publish` input is
 set and repository credentials are configured.
 
 Expected publishing configuration:
 
-- repository variable `MAVEN_RELEASE_REPOSITORY_URL`
-- secret `MAVEN_USERNAME`
-- secret `MAVEN_PASSWORD`
+- secret `CENTRAL_TOKEN_USERNAME`
+- secret `CENTRAL_TOKEN_PASSWORD`
+- secret `GPG_PRIVATE_KEY`
+- secret `GPG_PASSPHRASE`
 
-Signing can be enabled later by setting `gpg.skip=false` and providing the
-required GPG key handling in the release workflow.
+Publish credentials must be Central Portal user-token credentials for the
+`central` Maven server id. The matching GPG public key must be published before
+the first live release.
