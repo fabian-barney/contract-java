@@ -18,7 +18,7 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -97,6 +97,31 @@ jobs:
           "-Drevision=${{ steps.release-revision.outputs.revision }}"
           verify
 
+      - name: Stage SBOM release assets
+        env:
+          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
+        run: |
+          mkdir -p target/release-assets/sbom
+
+          stage_bom() {
+            module_path="$1"
+            artifact_id="$2"
+
+            cp "${module_path}/target/bom.json" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json"
+            cp "${module_path}/target/bom.xml" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml"
+          }
+
+          stage_bom . contract-java
+          stage_bom contract-core contract-core
+          stage_bom contract-spring-boot-starter contract-spring-boot-starter
+
+      - name: Upload SBOM workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-sboms-${{ steps.release-revision.outputs.revision }}
+          path: target/release-assets/sbom
+          if-no-files-found: error
+
       - name: Verify publish configuration
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         run: |
@@ -110,3 +135,15 @@ jobs:
           "-Drevision=${{ steps.release-revision.outputs.revision }}"
           -s .github/maven-settings.xml
           deploy
+
+      - name: Upload SBOM GitHub Release assets
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
+          fi
+
+          gh release upload "$RELEASE_TAG" target/release-assets/sbom/* --clobber

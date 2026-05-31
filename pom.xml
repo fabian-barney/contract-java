@@ -51,6 +51,7 @@
     <project.build.outputTimestamp>2026-05-31T00:00:00Z</project.build.outputTimestamp>
 
     <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
+    <cyclonedx.maven.plugin.version>2.9.1</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.0</crap-java.version>
     <cognitive-java.version>0.5.1</cognitive-java.version>
     <errorprone.version>2.49.0</errorprone.version>
@@ -383,6 +384,25 @@
                 <excludeArtifact>contract-examples</excludeArtifact>
               </excludeArtifacts>
             </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-maven-plugin</artifactId>
+            <version>${cyclonedx.maven.plugin.version}</version>
+            <configuration>
+              <outputFormat>all</outputFormat>
+              <outputName>bom</outputName>
+              <skipNotDeployed>false</skipNotDeployed>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-cyclonedx-sbom</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>makeBom</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
