@@ -1,4 +1,4 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

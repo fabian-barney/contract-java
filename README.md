@@ -15,6 +15,14 @@ postcondition failures throw `IllegalStateException`.
 | `media.barney:contract-core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
 | `media.barney:contract-spring-boot-starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
 
+## API Surface
+
+The supported library API lives in `media.barney.contract` plus the generated-code
+runtime bridge in `media.barney.contract.runtime`.
+
+Anything in a package named `internal` is unsupported implementation detail and
+may change without notice.
+
 ## Installation
 
 Use `contract-core` directly in plain Java projects:

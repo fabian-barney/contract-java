@@ -1,8 +1,8 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
 import media.barney.contract.MaskRenderer;
 
-record ContractEvaluation(boolean valid, ContractRule rule, Class<? extends MaskRenderer> maskRenderer) {
+public record ContractEvaluation(boolean valid, ContractRule rule, Class<? extends MaskRenderer> maskRenderer) {
 
     static ContractEvaluation valid(Class<? extends MaskRenderer> maskRenderer) {
         return new ContractEvaluation(true, ContractRule.none(), maskRenderer);

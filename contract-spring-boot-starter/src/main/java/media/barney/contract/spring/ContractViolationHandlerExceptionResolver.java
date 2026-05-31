@@ -11,7 +11,8 @@ final class ContractViolationHandlerExceptionResolver implements HandlerExceptio
 
     private static final Set<String> CONTRACT_MESSAGE_VIOLATION_METHODS =
             Set.of("preconditionViolation", "postconditionViolation");
-    private static final String CONTRACT_MESSAGES_CLASS_NAME = "media.barney.contract.runtime.ContractMessages";
+    private static final String CONTRACT_MESSAGES_CLASS_NAME =
+            "media.barney.contract.runtime.internal.ContractMessages";
 
     @Override
     public int getOrder() {

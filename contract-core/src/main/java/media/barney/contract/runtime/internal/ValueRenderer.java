@@ -1,12 +1,13 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Map;
 import media.barney.contract.DefaultMaskRenderer;
 import media.barney.contract.MaskRenderer;
 
-final class ValueRenderer {
+public final class ValueRenderer {
 
     private static final MaskRenderer DEFAULT_MASK_RENDERER = new DefaultMaskRenderer();
     private static final Map<Character, String> ESCAPES = Map.of(
@@ -18,7 +19,7 @@ final class ValueRenderer {
 
     private ValueRenderer() {}
 
-    static String render(Object value, Class<? extends MaskRenderer> maskRenderer) {
+    public static String render(Object value, Class<? extends MaskRenderer> maskRenderer) {
         if (maskRenderer != null) {
             return renderMasked(value, maskRenderer);
         }
@@ -43,8 +44,10 @@ final class ValueRenderer {
 
     private static MaskRenderer newRenderer(Class<? extends MaskRenderer> maskRenderer) {
         try {
-            return maskRenderer.getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException exception) {
+            Constructor<? extends MaskRenderer> constructor = maskRenderer.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
+        } catch (ReflectiveOperationException | SecurityException exception) {
             return DEFAULT_MASK_RENDERER;
         }
     }

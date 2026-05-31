@@ -1,4 +1,4 @@
-package media.barney.contract.runtime;
+package media.barney.contract.runtime.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -8,11 +8,11 @@ import java.util.Set;
 import media.barney.contract.Contract;
 import media.barney.contract.MaskRenderer;
 
-final class ContractAnnotations {
+public final class ContractAnnotations {
 
     private ContractAnnotations() {}
 
-    static ContractEvaluation evaluate(Object value, Annotation[] annotations) {
+    public static ContractEvaluation evaluate(Object value, Annotation[] annotations) {
         Class<? extends MaskRenderer> maskRenderer = findMaskRenderer(annotations);
 
         for (Annotation annotation : annotations) {
@@ -232,9 +232,10 @@ final class ContractAnnotations {
     private static Optional<String> messageFrom(Annotation annotation) {
         try {
             Method message = annotation.annotationType().getDeclaredMethod("message");
+            message.setAccessible(true);
             Object value = message.invoke(annotation);
             return value instanceof String text ? nonBlank(text) : Optional.empty();
-        } catch (ReflectiveOperationException ignored) {
+        } catch (ReflectiveOperationException | SecurityException ignored) {
             return Optional.empty();
         }
     }
