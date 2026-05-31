@@ -91,7 +91,7 @@ final class NumericComparison {
             return 0;
         }
 
-        return Double.compare(value, bound);
+        return Double.compare(value, (double) bound);
     }
 
     private static boolean inLongRange(long value, long min, long max, boolean minInclusive, boolean maxInclusive) {
