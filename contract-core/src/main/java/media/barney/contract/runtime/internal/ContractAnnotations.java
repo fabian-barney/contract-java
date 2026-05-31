@@ -232,13 +232,23 @@ public final class ContractAnnotations {
     private static Optional<String> messageFrom(Annotation annotation) {
         try {
             Method message = annotation.annotationType().getDeclaredMethod("message");
+            return messageValue(message, annotation)
+                    .flatMap(value -> value instanceof String text ? nonBlank(text) : Optional.empty());
+        } catch (ReflectiveOperationException | SecurityException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<Object> messageValue(Method message, Annotation annotation)
+            throws ReflectiveOperationException {
+        try {
+            return Optional.ofNullable(message.invoke(annotation));
+        } catch (IllegalAccessException exception) {
             if (!message.trySetAccessible()) {
                 return Optional.empty();
             }
-            Object value = message.invoke(annotation);
-            return value instanceof String text ? nonBlank(text) : Optional.empty();
-        } catch (ReflectiveOperationException | SecurityException ignored) {
-            return Optional.empty();
+
+            return Optional.ofNullable(message.invoke(annotation));
         }
     }
 

@@ -2,6 +2,7 @@ package media.barney.contract.runtime.internal;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
 import media.barney.contract.DefaultMaskRenderer;
@@ -43,6 +44,16 @@ public final class ValueRenderer {
     }
 
     private static MaskRenderer newRenderer(Class<? extends MaskRenderer> maskRenderer) {
+        try {
+            return maskRenderer.getConstructor().newInstance();
+        } catch (NoSuchMethodException | IllegalAccessException exception) {
+            return newDeclaredRenderer(maskRenderer);
+        } catch (InstantiationException | InvocationTargetException | SecurityException exception) {
+            return DEFAULT_MASK_RENDERER;
+        }
+    }
+
+    private static MaskRenderer newDeclaredRenderer(Class<? extends MaskRenderer> maskRenderer) {
         try {
             Constructor<? extends MaskRenderer> constructor = maskRenderer.getDeclaredConstructor();
             if (!constructor.trySetAccessible()) {
