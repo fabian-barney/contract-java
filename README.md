@@ -10,10 +10,10 @@ postcondition failures throw `IllegalStateException`.
 
 ## Modules
 
-| Artifact | Purpose |
-| --- | --- |
-| `media.barney:contract-core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
-| `media.barney:contract-spring-boot-starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
+| Artifact | JPMS module | Purpose |
+| --- | --- | --- |
+| `media.barney:contract-core` | `media.barney.contract.core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
+| `media.barney:contract-spring-boot-starter` | `media.barney.contract.spring.boot.starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
 
 ## API Surface
 
@@ -22,6 +22,10 @@ runtime bridge in `media.barney.contract.runtime`.
 
 Anything in a package named `internal` is unsupported implementation detail and
 may change without notice.
+
+JPMS descriptors export only the supported packages. Internal implementation
+packages remain present in the artifacts for generated checks and optional
+integrations, but they are not exported as public modules.
 
 ## Installation
 
