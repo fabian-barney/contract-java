@@ -9,4 +9,7 @@ module media.barney.contract.core {
 
     exports media.barney.contract;
     exports media.barney.contract.runtime;
+
+    provides javax.annotation.processing.Processor with
+            media.barney.contract.processor.internal.ContractProcessorProvider;
 }

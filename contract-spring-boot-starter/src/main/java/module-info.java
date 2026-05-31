@@ -7,6 +7,7 @@ module media.barney.contract.spring.boot.starter {
     requires transitive org.jspecify;
     requires spring.boot;
     requires spring.boot.autoconfigure;
+    requires spring.beans;
     requires spring.context;
     requires spring.core;
     requires static jakarta.servlet;
@@ -15,4 +16,11 @@ module media.barney.contract.spring.boot.starter {
     requires static spring.webmvc;
 
     exports media.barney.contract.spring;
+
+    opens media.barney.contract.spring to
+            spring.beans,
+            spring.boot,
+            spring.boot.autoconfigure,
+            spring.context,
+            spring.core;
 }
