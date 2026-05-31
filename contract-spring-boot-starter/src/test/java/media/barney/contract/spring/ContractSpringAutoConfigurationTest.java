@@ -117,7 +117,7 @@ class ContractSpringAutoConfigurationTest {
     }
 
     @Test
-    void ignoresNonContractExceptions() {
+    void ignoresNonContractIllegalArgumentExceptions() {
         webContextRunner
                 .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
                 .run(context -> {
@@ -126,6 +126,22 @@ class ContractSpringAutoConfigurationTest {
 
                     ModelAndView modelAndView = resolver.resolveException(
                             new MockHttpServletRequest(), response, null, new IllegalArgumentException("bad request"));
+
+                    assertNull(modelAndView);
+                    assertEquals(200, response.getStatus());
+                });
+    }
+
+    @Test
+    void ignoresNonContractIllegalStateExceptions() {
+        webContextRunner
+                .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
+                .run(context -> {
+                    HandlerExceptionResolver resolver = context.getBean(HandlerExceptionResolver.class);
+                    MockHttpServletResponse response = new MockHttpServletResponse();
+
+                    ModelAndView modelAndView = resolver.resolveException(
+                            new MockHttpServletRequest(), response, null, new IllegalStateException("bad state"));
 
                     assertNull(modelAndView);
                     assertEquals(200, response.getStatus());
