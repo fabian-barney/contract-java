@@ -83,6 +83,18 @@ class ContractSpringAutoConfigurationTest {
     }
 
     @Test
+    void backsOffWhenWebMvcClassesAreAbsent() {
+        webContextRunner
+                .withClassLoader(new FilteredClassLoader(HandlerExceptionResolver.class))
+                .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
+                .run(context -> {
+                    assertNotNull(context.getBean(ContractSpringProperties.class));
+                    assertTrue(context.getBeansOfType(HandlerExceptionResolver.class)
+                            .isEmpty());
+                });
+    }
+
+    @Test
     void mapsGeneratedPreconditionsTo500() throws Exception {
         webContextRunner
                 .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
