@@ -173,8 +173,28 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: v${{ needs.release.outputs.revision }}
         run: |
-          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
+          shopt -s nullglob
+          assets=(target/release-assets/sbom/*)
+
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "::error::No SBOM release assets were staged."
+            exit 1
           fi
 
-          gh release upload "$RELEASE_TAG" target/release-assets/sbom/* --clobber
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            existing_assets="$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')"
+            missing=0
+
+            for asset in "${assets[@]}"; do
+              asset_name="$(basename "$asset")"
+
+              if ! grep -Fxq "$asset_name" <<< "$existing_assets"; then
+                echo "::error::Release $RELEASE_TAG already exists without expected asset $asset_name."
+                missing=1
+              fi
+            done
+
+            exit "$missing"
+          fi
+
+          gh release create "$RELEASE_TAG" "${assets[@]}" --verify-tag --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
