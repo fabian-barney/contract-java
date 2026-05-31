@@ -18,7 +18,7 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
@@ -28,6 +28,8 @@ jobs:
   release:
     name: Build Release Artifacts
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
@@ -108,7 +110,9 @@ jobs:
             artifact_id="$2"
 
             cp "${module_path}/target/bom.json" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json"
+            cp "${module_path}/target/bom.json.asc" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json.asc"
             cp "${module_path}/target/bom.xml" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml"
+            cp "${module_path}/target/bom.xml.asc" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml.asc"
           }
 
           stage_bom . contract-java
@@ -116,7 +120,7 @@ jobs:
           stage_bom contract-spring-boot-starter contract-spring-boot-starter
 
       - name: Upload SBOM workflow artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-sboms-${{ steps.release-revision.outputs.revision }}
           path: target/release-assets/sbom
