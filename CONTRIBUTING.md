@@ -109,23 +109,36 @@ Version changes belong in release or snapshot-bump PRs so the changelog,
 artifact metadata, tag, and published artifacts stay auditable as one release
 unit.
 
+The reactor version is controlled by the root `pom.xml` `revision` property.
+Change it by manually editing that single property; do not use
+`versions-maven-plugin set-property` unless a future issue explicitly adds that
+workflow. Child modules should keep `${revision}` in their parent declarations.
+For a release PR, set `revision` to the release version such as `0.1.0`. After
+the release is published, open a dedicated snapshot-bump PR that sets
+`revision` to the next snapshot version such as `0.1.1-SNAPSHOT`.
+
 Every release PR must update `CHANGELOG.md`: move completed `Unreleased` notes
 into the target version section, add the release date, and leave a fresh
 `Unreleased` section for the next development cycle. Review the changelog before
-tagging or publishing a release.
+tagging or publishing a release. The release workflow rejects target version
+sections that still use the `TBD` date marker.
 
 The `release` Maven profile attaches source and Javadoc jars and includes a
 GPG signing hook that is skipped by default:
 
 ```sh
-./mvnw -B -ntp -Prelease -Dgpg.skip=true verify
+./mvnw -B -ntp -Prelease -Drevision=0.1.0 -Dgpg.skip=true verify
 ```
 
 In PowerShell, quote dotted `-D` properties:
 
 ```powershell
-.\mvnw.cmd -B -ntp -Prelease "-Dgpg.skip=true" verify
+.\mvnw.cmd -B -ntp -Prelease "-Drevision=0.1.0" "-Dgpg.skip=true" verify
 ```
+
+The manual `Release` workflow also accepts a `revision` input. For tag-triggered
+releases, the workflow derives the revision from the tag name by removing the
+leading `v`.
 
 The `Release` GitHub Actions workflow is manual/tag-triggered and does not run
 for pull requests. Publishing is disabled unless the manual `publish` input is

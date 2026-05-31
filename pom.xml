@@ -5,7 +5,7 @@
 
   <groupId>media.barney</groupId>
   <artifactId>contract-java</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
   <name>contract-java</name>
@@ -43,6 +43,7 @@
   </scm>
 
   <properties>
+    <revision>0.1.0</revision>
     <scm.tag>HEAD</scm.tag>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -65,6 +66,7 @@
     <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
     <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
     <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+    <flatten.maven.plugin.version>1.7.3</flatten.maven.plugin.version>
     <spotless.version>3.4.0</spotless.version>
     <palantir.java.format.version>2.91.0</palantir.java.format.version>
     <gpg.skip>true</gpg.skip>
@@ -145,6 +147,31 @@
             <formatAnnotations/>
           </java>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>${flatten.maven.plugin.version}</version>
+        <configuration>
+          <flattenMode>oss</flattenMode>
+          <updatePomFile>true</updatePomFile>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

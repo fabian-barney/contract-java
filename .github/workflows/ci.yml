@@ -256,7 +256,7 @@ jobs:
           path: .
 
       - name: Run crap-java gate for contract-core
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-core -DskipTests -Djacoco.skip=true verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-core -am -DskipTests -Djacoco.skip=true verify
 
   quality-crap-contract-spring-boot-starter:
     name: verify / quality-crap-contract-spring-boot-starter
@@ -297,7 +297,7 @@ jobs:
           path: .
 
       - name: Run crap-java gate for contract-spring-boot-starter
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-spring-boot-starter -DskipTests -Djacoco.skip=true verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-crap -pl contract-spring-boot-starter -am -DskipTests -Djacoco.skip=true verify
 
   quality-cognitive-contract-core:
     name: verify / quality-cognitive-contract-core
@@ -338,7 +338,7 @@ jobs:
           path: .
 
       - name: Run cognitive-java gate for contract-core
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-core -DskipTests -Djacoco.skip=true verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-core -am -DskipTests -Djacoco.skip=true verify
 
   quality-cognitive-contract-spring-boot-starter:
     name: verify / quality-cognitive-contract-spring-boot-starter
@@ -379,7 +379,7 @@ jobs:
           path: .
 
       - name: Run cognitive-java gate for contract-spring-boot-starter
-        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-spring-boot-starter -DskipTests -Djacoco.skip=true verify
+        run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-cognitive -pl contract-spring-boot-starter -am -DskipTests -Djacoco.skip=true verify
 
   build-and-test-compat:
     name: Build and Test
