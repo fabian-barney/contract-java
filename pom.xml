@@ -166,6 +166,7 @@
           </execution>
           <execution>
             <id>flatten.clean</id>
+            <phase>clean</phase>
             <goals>
               <goal>clean</goal>
             </goals>
