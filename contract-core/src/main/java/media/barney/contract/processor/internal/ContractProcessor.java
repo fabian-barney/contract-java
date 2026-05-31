@@ -117,7 +117,8 @@ public final class ContractProcessor extends AbstractProcessor {
             return true;
         }
 
-        return hasErrors | validateContracts(executable, executable.getReturnType());
+        boolean returnHasErrors = validateContracts(executable, executable.getReturnType());
+        return hasErrors || returnHasErrors;
     }
 
     private boolean validateContracts(Element element, TypeMirror valueType) {
