@@ -13,7 +13,7 @@ failures throw `IllegalStateException`.
 | Artifact | Purpose |
 | --- | --- |
 | `media.barney:contract-core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
-| `media.barney:contract-spring-boot-starter` | Thin Spring Boot starter that brings in `contract-core` for supported Boot lines. |
+| `media.barney:contract-spring-boot-starter` | Spring Boot auto-configuration plus optional actuator integration on top of `contract-core`. |
 
 ## Installation
 
@@ -37,9 +37,11 @@ Use the Spring Boot starter in Boot applications:
 </dependency>
 ```
 
-The starter is intentionally thin. It does not add Spring proxies or runtime
-auto-configuration; it provides a Spring-friendly dependency entry point while
-the compile-time processor remains in `contract-core`.
+The starter keeps enforcement in `contract-core`, but it now adds Boot-specific
+auto-configuration for optional actuator integration:
+
+- `contract.spring.actuator-info.enabled=true` by default when actuator is on
+  the classpath
 
 ## Maven Compiler Setup
 
@@ -172,8 +174,15 @@ Lombok onto supported method, constructor, or parameter targets are enforced.
 `3.5.x` as documented in
 `ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md`.
 
-Use the starter with a supported Spring Boot BOM or parent. The starter does not
-require Spring at runtime and only depends on `contract-core`.
+The starter publishes Boot auto-configuration from
+`media.barney.contract.spring.ContractSpringAutoConfiguration` and keeps the
+contract processor in `contract-core`.
+
+If actuator is on the classpath, `contract.spring.actuator-info.enabled=true`
+adds a small `InfoContributor` entry showing that the starter is active.
+
+Use the starter with a supported Spring Boot BOM or parent so the consuming
+application controls the exact Boot line.
 
 ## Local Development
 
