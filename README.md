@@ -1,5 +1,11 @@
 # contract-java
 
+[![CI](https://github.com/fabian-barney/contract-java/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fabian-barney/contract-java/actions/workflows/ci.yml?query=branch%3Amain)
+[![Maven Central](https://img.shields.io/maven-central/v/media.barney/contract-core?label=maven%20central)](https://central.sonatype.com/artifact/media.barney/contract-core)
+[![License](https://img.shields.io/github/license/fabian-barney/contract-java)](LICENSE)
+[![Javadoc](https://img.shields.io/badge/javadoc-latest-blue)](https://fabian-barney.github.io/contract-java/api/latest/)
+[![codecov](https://codecov.io/gh/fabian-barney/contract-java/branch/main/graph/badge.svg)](https://codecov.io/gh/fabian-barney/contract-java)
+
 Declarative preconditions and postconditions for Java 17+ applications.
 
 `contract-java` lets application code declare semantic contracts with
