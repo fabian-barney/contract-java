@@ -22,6 +22,10 @@ The supported library API lives in `media.barney.contract` plus the generated-co
 runtime bridge in `media.barney.contract.runtime`. The Spring Boot starter's
 supported Boot-facing API lives in `media.barney.contract.spring`.
 
+The hosted Javadoc for the latest published release is available at
+[fabian-barney.github.io/contract-java/api/latest/](https://fabian-barney.github.io/contract-java/api/latest/).
+Versioned Javadoc is published under `/api/<version>/`.
+
 Anything in a package named `internal` is unsupported implementation detail and
 may change without notice.
 

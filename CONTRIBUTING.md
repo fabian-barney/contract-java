@@ -163,3 +163,8 @@ Expected publishing configuration:
 Publish credentials must be Central Portal user-token credentials for the
 `central` Maven server id. The matching GPG public key must be published before
 the first live release.
+
+The `Javadoc Pages` workflow runs on `vX.Y.Z` tag pushes. It builds aggregate
+Javadoc with `./mvnw -B -ntp -DskipTests -Djacoco.skip=true javadoc:aggregate`,
+publishes the API reference to the `gh-pages` branch under `/api/<version>/`,
+and updates `/api/latest/` as a redirect to that version.

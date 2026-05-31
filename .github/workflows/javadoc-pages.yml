@@ -1,0 +1,110 @@
+name: Javadoc Pages
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: javadoc-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-javadoc:
+    name: Publish Javadoc
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Resolve Javadoc version
+        id: javadoc-version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+
+          if [[ ! "$version" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+            echo "::error::Javadoc version must come from a vX.Y.Z tag."
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build aggregate Javadoc
+        run: ./mvnw -B -ntp -DskipTests "-Djacoco.skip=true" javadoc:aggregate
+
+      - name: Prepare Javadoc site
+        env:
+          DOC_VERSION: ${{ steps.javadoc-version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          pages_dir="target/gh-pages"
+          stage_dir="target/javadoc-pages"
+          docs_dir="target/reports/apidocs"
+
+          if [ ! -f "${docs_dir}/index.html" ]; then
+            echo "::error::Aggregate Javadoc output is missing ${docs_dir}/index.html."
+            exit 1
+          fi
+
+          rm -rf "$pages_dir" "$stage_dir"
+          mkdir -p "$stage_dir/api/${DOC_VERSION}" "$stage_dir/api/latest"
+          cp -R "${docs_dir}/." "$stage_dir/api/${DOC_VERSION}/"
+
+          cat > "$stage_dir/api/latest/index.html" <<EOF
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0; url=../${DOC_VERSION}/">
+            <link rel="canonical" href="../${DOC_VERSION}/">
+            <title>contract-java latest Javadoc</title>
+          </head>
+          <body>
+            <p>Redirecting to <a href="../${DOC_VERSION}/">contract-java ${DOC_VERSION} Javadoc</a>.</p>
+          </body>
+          </html>
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git worktree add "$pages_dir" origin/gh-pages
+          else
+            git worktree add --detach "$pages_dir"
+            git -C "$pages_dir" checkout --orphan gh-pages
+            git -C "$pages_dir" rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          mkdir -p "$pages_dir/api"
+          rm -rf "$pages_dir/api/${DOC_VERSION}" "$pages_dir/api/latest"
+          cp -R "$stage_dir/api/${DOC_VERSION}" "$pages_dir/api/${DOC_VERSION}"
+          cp -R "$stage_dir/api/latest" "$pages_dir/api/latest"
+          touch "$pages_dir/.nojekyll"
+
+          git -C "$pages_dir" add .nojekyll api
+
+          if git -C "$pages_dir" diff --cached --quiet; then
+            echo "No Javadoc Pages changes to publish."
+            exit 0
+          fi
+
+          git -C "$pages_dir" commit -m "Publish Javadoc for ${DOC_VERSION}"
+          git -C "$pages_dir" push origin HEAD:gh-pages
