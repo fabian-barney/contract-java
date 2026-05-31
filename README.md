@@ -97,6 +97,42 @@ Disable generation for a build with:
 <arg>-Acontracts.enabled=false</arg>
 ```
 
+## Generated-Code Contract
+
+`contract-core` enforces contracts by generating calls into
+`media.barney.contract.runtime` during javac annotation processing. The runtime
+bridge package is part of the supported generated-code surface; packages named
+`internal` are not.
+
+The generated-code behavior promised within a compatible release line is:
+
+- Parameter and constructor-parameter contract failures throw
+  `IllegalArgumentException`.
+- Return-value contract failures throw `IllegalStateException`.
+- Parameter checks are inserted at executable entry before the original method
+  or constructor body observed by the contract processor.
+- Return checks are applied before every non-void return path.
+- Generated parameter checks carry source-line metadata for the annotated
+  parameter when javac exposes it, otherwise the executable declaration line is
+  used as the fallback.
+- Generated return checks carry source-line metadata for the original return
+  statement.
+- Masking must continue to prevent raw masked values from appearing in generated
+  violation messages.
+
+The semver promise does not cover exact bytecode instruction order, synthetic
+local names, javac-internal helper classes, or exact wording of generated
+messages beyond the documented exception type, method/parameter context,
+contract identity, value-rendering, and masking behavior.
+
+Lombok integration depends on Lombok copying contract annotations to generated
+constructors, setters, builders, or other generated members. Contract checks are
+injected into generated members that are visible when the contract processor
+runs. If Lombok has already emitted null checks in that body, contract checks
+are prepended before those statements; javac processor ordering itself is not a
+contract-java semver guarantee. Built-in contracts remain null-safe, so Lombok
+`@NonNull` checks remain responsible for null failures regardless of ordering.
+
 ## Annotation Examples
 
 ```java

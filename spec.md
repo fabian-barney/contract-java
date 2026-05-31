@@ -319,7 +319,37 @@ public String findUser(Integer limit, String tenant) {
 }
 ```
 
-### 4.3 Annotation Processor Options
+### 4.3 Generated-Code Compatibility Contract
+
+The supported generated-code surface is the public annotation package
+`media.barney.contract` plus the generated-code runtime bridge package
+`media.barney.contract.runtime`.
+
+The following behavior is part of the compatibility promise within a compatible
+release line:
+
+- Generated parameter and constructor-parameter checks fail with
+  `IllegalArgumentException`.
+- Generated return-value checks fail with `IllegalStateException`.
+- Generated parameter checks are placed at executable entry before the original
+  body statements observed by the contract processor.
+- Generated return checks are placed before every non-void return path.
+- Generated parameter checks preserve source-line metadata for the annotated
+  parameter when javac exposes it, otherwise they fall back to the executable
+  declaration line.
+- Generated return checks preserve source-line metadata for the original return
+  statement.
+- The runtime bridge package name and callable public bridge types are stable
+  generated-code API.
+- Masked values must not appear raw in generated violation messages.
+
+The compatibility promise does not cover exact bytecode instruction order,
+synthetic local variable names, private helper method names, javac-internal
+processor classes, packages named `internal`, or exact message wording beyond
+the documented method/parameter context, violated contract, value rendering,
+masking, and exception-type behavior.
+
+### 4.4 Annotation Processor Options
 
 The annotation processor supports compiler options for behavior control.
 
@@ -345,7 +375,7 @@ tasks.withType<JavaCompile> {
 }
 ```
 
-### 4.4 Compile-Time Validation
+### 4.5 Compile-Time Validation
 
 The annotation processor must reject invalid annotation usage with compiler errors, including:
 
@@ -353,7 +383,7 @@ The annotation processor must reject invalid annotation usage with compiler erro
 - `@Contract.NotBlank` on a `Collection`,
 - any method contract on a `void` method.
 
-### 4.5 Null-Safe Evaluation
+### 4.6 Null-Safe Evaluation
 
 For object types, semantic contracts never reject `null`. Their evaluation rules are:
 
@@ -389,6 +419,12 @@ Recommended downstream usage:
 
 - Declare contracts on fields when that is the best source of truth for Lombok-generated APIs.
 - Add the relevant contract annotations to `lombok.copyableAnnotations` so Lombok propagates them to generated code.
+- If Lombok has already generated null checks in an executable body before the
+  contract processor transforms that body, contract checks are inserted before
+  those generated statements. Processor ordering itself is build-tool and javac
+  configuration dependent and is not a contract-java compatibility guarantee.
+- Built-in contract checks are null-safe, so Lombok `@NonNull` checks remain
+  responsible for null failures regardless of processor ordering.
 
 ---
 
