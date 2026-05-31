@@ -18,7 +18,8 @@ postcondition failures throw `IllegalStateException`.
 ## API Surface
 
 The supported library API lives in `media.barney.contract` plus the generated-code
-runtime bridge in `media.barney.contract.runtime`.
+runtime bridge in `media.barney.contract.runtime`. The Spring Boot starter's
+supported Boot-facing API lives in `media.barney.contract.spring`.
 
 Anything in a package named `internal` is unsupported implementation detail and
 may change without notice.
@@ -26,6 +27,39 @@ may change without notice.
 JPMS descriptors export only the supported packages. Internal implementation
 packages remain present in the artifacts for generated checks and optional
 integrations, but they are not exported as public modules.
+
+## Versioning
+
+`contract-java` follows semantic versioning for stable releases. After `1.0.0`,
+breaking changes to maintained public API require a major version.
+
+Before `1.0.0`, the project is still in initial development. `0.x` minor
+releases may contain breaking API or generated-code changes, while patch
+releases should remain compatible unless a documented security or correctness
+fix requires otherwise.
+
+The compatibility promise covers APIs annotated with API Guardian
+`@API(status = MAINTAINED)` and the documented generated-code contract.
+Starter types annotated `@API(status = EXPERIMENTAL)` may still change in minor
+releases until promoted. Packages named `internal` are outside the compatibility
+promise.
+
+Breaking changes include:
+
+- Removing or renaming supported annotations, annotation attributes, runtime
+  bridge types, or supported JPMS exports.
+- Changing supported annotation targets, retention, or repeatability in an
+  incompatible way.
+- Changing the generated-code call shape that compiled/generated contract code
+  depends on.
+- Changing documented exception types, including parameter and
+  constructor-parameter failures no longer throwing `IllegalArgumentException`
+  or return-value failures no longer throwing `IllegalStateException`.
+
+The compatibility promise does not cover implementation details such as
+processor internals, packages named `internal`, exact bytecode instruction
+order, synthetic local names, javac-private helper classes, or message wording
+outside the documented generated-code contract.
 
 ## Installation
 
