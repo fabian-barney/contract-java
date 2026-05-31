@@ -45,7 +45,9 @@ public final class ValueRenderer {
     private static MaskRenderer newRenderer(Class<? extends MaskRenderer> maskRenderer) {
         try {
             Constructor<? extends MaskRenderer> constructor = maskRenderer.getDeclaredConstructor();
-            constructor.setAccessible(true);
+            if (!constructor.trySetAccessible()) {
+                return DEFAULT_MASK_RENDERER;
+            }
             return constructor.newInstance();
         } catch (ReflectiveOperationException | SecurityException exception) {
             return DEFAULT_MASK_RENDERER;

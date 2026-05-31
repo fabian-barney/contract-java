@@ -232,7 +232,9 @@ public final class ContractAnnotations {
     private static Optional<String> messageFrom(Annotation annotation) {
         try {
             Method message = annotation.annotationType().getDeclaredMethod("message");
-            message.setAccessible(true);
+            if (!message.trySetAccessible()) {
+                return Optional.empty();
+            }
             Object value = message.invoke(annotation);
             return value instanceof String text ? nonBlank(text) : Optional.empty();
         } catch (ReflectiveOperationException | SecurityException ignored) {
