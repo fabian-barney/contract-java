@@ -148,6 +148,22 @@ class ContractSpringAutoConfigurationTest {
                 });
     }
 
+    @Test
+    void ignoresContractExceptionsWhenResponseIsCommitted() {
+        webContextRunner
+                .withPropertyValues("contract.spring.web-exception-handler.enabled=true")
+                .run(context -> {
+                    HandlerExceptionResolver resolver = context.getBean(HandlerExceptionResolver.class);
+                    MockHttpServletResponse response = new MockHttpServletResponse();
+                    response.setCommitted(true);
+
+                    ModelAndView modelAndView = resolver.resolveException(
+                            new MockHttpServletRequest(), response, null, generatedPostconditionViolation());
+
+                    assertNull(modelAndView);
+                });
+    }
+
     private static IllegalArgumentException generatedPreconditionViolation() {
         try {
             ContractRuntime.requireParameterValue(

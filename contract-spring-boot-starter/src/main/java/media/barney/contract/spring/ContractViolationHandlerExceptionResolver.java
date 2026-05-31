@@ -22,7 +22,7 @@ final class ContractViolationHandlerExceptionResolver implements HandlerExceptio
             jakarta.servlet.http.HttpServletResponse response,
             Object handler,
             Exception exception) {
-        if (!isGeneratedContractViolation(exception)) {
+        if (response.isCommitted() || !isGeneratedContractViolation(exception)) {
             return null;
         }
 
