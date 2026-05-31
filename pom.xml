@@ -181,6 +181,17 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.javadoc.plugin.version}</version>
+        <configuration>
+          <source>${maven.compiler.release}</source>
+          <excludePackageNames>*.internal</excludePackageNames>
+          <doclint>none</doclint>
+          <failOnError>true</failOnError>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -284,7 +295,7 @@
             <version>${maven.javadoc.plugin.version}</version>
             <configuration>
               <source>${maven.compiler.release}</source>
-              <excludePackageNames>media.barney.contract.processor</excludePackageNames>
+              <excludePackageNames>*.internal</excludePackageNames>
               <doclint>none</doclint>
               <failOnError>true</failOnError>
             </configuration>
