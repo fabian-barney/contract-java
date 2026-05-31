@@ -178,7 +178,7 @@ artifact.
 Run the examples with:
 
 ```shell
-./mvnw -pl contract-examples test
+./mvnw -pl contract-examples -am test
 ```
 
 ```java

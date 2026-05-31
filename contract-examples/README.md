@@ -7,7 +7,7 @@ stay useful as CI coverage without becoming a published artifact.
 Run the examples with:
 
 ```shell
-./mvnw -pl contract-examples test
+./mvnw -pl contract-examples -am test
 ```
 
 The tests demonstrate built-in contracts, a custom composed contract annotation,
