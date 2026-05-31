@@ -138,6 +138,46 @@ jobs:
       - name: Run package build
         run: ./mvnw -B -ntp -P!quality-gates-all -DskipTests package
 
+  verify-matrix:
+    name: verify / ${{ matrix.os }} / JDK ${{ matrix.java-version }} / Boot ${{ matrix.boot-line }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        java-version:
+          - "17"
+          - "21"
+          - "25"
+        boot-line:
+          - "3.5"
+          - "4.0"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+
+      - name: Set Maven wrapper permissions
+        if: runner.os != 'Windows'
+        run: chmod +x mvnw
+
+      - name: Run matrix verification
+        if: runner.os != 'Windows'
+        run: ./mvnw -B -ntp -P!quality-gates-all -Dspring.boot.smoke.line=${{ matrix.boot-line }} spotless:check verify
+
+      - name: Run matrix verification
+        if: runner.os == 'Windows'
+        run: .\mvnw.cmd -B -ntp -P!quality-gates-all "-Dspring.boot.smoke.line=${{ matrix.boot-line }}" spotless:check verify
+
   quality-crap-contract-core:
     name: verify / quality-crap-contract-core
     runs-on: ubuntu-latest
@@ -311,10 +351,11 @@ jobs:
       - build
       - test-unit
       - package
+      - verify-matrix
 
     steps:
       - name: Fail when the build or test pipeline failed
-        if: ${{ needs.build.result != 'success' || needs.test-unit.result != 'success' || needs.package.result != 'success' }}
+        if: ${{ needs.build.result != 'success' || needs.test-unit.result != 'success' || needs.package.result != 'success' || needs.verify-matrix.result != 'success' }}
         run: exit 1
 
       - name: Confirm legacy build-and-test gate
