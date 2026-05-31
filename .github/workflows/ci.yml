@@ -64,6 +64,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
       - name: Checkout
@@ -102,6 +104,21 @@ jobs:
             contract-core/target/site/jacoco
             contract-spring-boot-starter/target/site/jacoco
           if-no-files-found: error
+
+      - name: Upload coverage to Codecov
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
+        with:
+          token: ${{ env.CODECOV_TOKEN }}
+          files: contract-core/target/site/jacoco/jacoco.xml,contract-spring-boot-starter/target/site/jacoco/jacoco.xml
+          flags: java
+          name: contract-java
+          disable_search: true
+          fail_ci_if_error: true
+
+      - name: Note skipped Codecov upload
+        if: ${{ env.CODECOV_TOKEN == '' }}
+        run: echo "CODECOV_TOKEN is not configured; JaCoCo XML remains available as the jacoco-reports artifact."
 
   package:
     name: package
