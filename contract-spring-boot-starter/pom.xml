@@ -13,6 +13,14 @@
   <artifactId>contract-spring-boot-starter</artifactId>
   <name>contract-spring-boot-starter</name>
   <description>Spring Boot auto-configuration and optional integrations for contract-core.</description>
+  <url>https://github.com/fabian-barney/contract-java/tree/main/contract-spring-boot-starter</url>
+
+  <scm>
+    <connection>scm:git:https://github.com/fabian-barney/contract-java.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/fabian-barney/contract-java.git</developerConnection>
+    <url>https://github.com/fabian-barney/contract-java/tree/main/contract-spring-boot-starter</url>
+    <tag>${scm.tag}</tag>
+  </scm>
 
   <dependencyManagement>
     <dependencies>
