@@ -84,6 +84,73 @@ Use the Spring Boot starter in Boot applications:
 </dependency>
 ```
 
+Gradle Kotlin DSL:
+
+```kotlin
+import org.gradle.api.tasks.compile.JavaCompile
+
+dependencies {
+    implementation("media.barney:contract-core:0.1.0-SNAPSHOT")
+    annotationProcessor("media.barney:contract-core:0.1.0-SNAPSHOT")
+}
+
+val contractProcessorJvmArgs = listOf(
+    "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+)
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.addAll(listOf("-parameters", "-Acontracts.enabled=true"))
+    options.isFork = true
+    options.forkOptions.jvmArgs =
+        (options.forkOptions.jvmArgs ?: emptyList()) + contractProcessorJvmArgs
+}
+```
+
+Gradle Groovy DSL:
+
+```groovy
+dependencies {
+    implementation 'media.barney:contract-core:0.1.0-SNAPSHOT'
+    annotationProcessor 'media.barney:contract-core:0.1.0-SNAPSHOT'
+}
+
+def contractProcessorJvmArgs = [
+    '--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+    '--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+    '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+    '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED',
+]
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-parameters', '-Acontracts.enabled=true']
+    options.fork = true
+    options.forkOptions.jvmArgs =
+        (options.forkOptions.jvmArgs ?: []) + contractProcessorJvmArgs
+}
+```
+
+Spring Boot applications can use
+`media.barney:contract-spring-boot-starter:0.1.0-SNAPSHOT` as the
+`implementation` dependency while keeping `media.barney:contract-core` on the
+`annotationProcessor` path.
+
 The starter keeps enforcement in `contract-core`, but it now adds Boot-specific
 auto-configuration for optional integrations:
 
