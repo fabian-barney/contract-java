@@ -2,11 +2,13 @@ package media.barney.contract.runtime;
 
 import media.barney.contract.runtime.internal.ContractArguments;
 import media.barney.contract.runtime.internal.ContractChecks;
+import org.apiguardian.api.API;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Contract kinds used by generated enforcement code.
  */
+@API(status = API.Status.MAINTAINED)
 public enum RuntimeContract {
     NOT_EMPTY {
         @Override

@@ -1,10 +1,12 @@
 package media.barney.contract.spring;
 
+import org.apiguardian.api.API;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for optional Spring Boot integrations.
  */
+@API(status = API.Status.EXPERIMENTAL)
 @ConfigurationProperties(prefix = "contract.spring")
 public class ContractSpringProperties {
 
@@ -20,6 +22,7 @@ public class ContractSpringProperties {
         return actuatorInfo;
     }
 
+    @API(status = API.Status.EXPERIMENTAL)
     public static final class WebExceptionHandlerSettings {
 
         private boolean enabled;
@@ -33,6 +36,7 @@ public class ContractSpringProperties {
         }
     }
 
+    @API(status = API.Status.EXPERIMENTAL)
     public static final class ActuatorInfoSettings {
 
         private boolean enabled = true;

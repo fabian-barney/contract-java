@@ -1,10 +1,12 @@
 package media.barney.contract;
 
+import org.apiguardian.api.API;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Renders confidential values for generated contract violation messages.
  */
+@API(status = API.Status.MAINTAINED)
 public interface MaskRenderer {
 
     /**

@@ -1,8 +1,11 @@
 package media.barney.contract;
 
+import org.apiguardian.api.API;
+
 /**
  * Core module marker for the contract framework.
  */
+@API(status = API.Status.MAINTAINED)
 public final class ContractCore {
 
     private static final String ARTIFACT_ID = "contract-core";
