@@ -9,6 +9,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import org.apiguardian.api.API;
 
 /**
  * Namespace and meta-annotation for declarative Java contracts.
@@ -18,6 +19,7 @@ import java.lang.annotation.Target;
  * and {@code @Contract.Pattern}. Custom composed annotations can be marked with
  * {@code @Contract} and may combine built-in annotations.
  */
+@API(status = API.Status.MAINTAINED)
 @Target(ANNOTATION_TYPE)
 @Retention(RUNTIME)
 @Documented
@@ -26,6 +28,7 @@ public @interface Contract {
     /**
      * Marks a value as confidential for generated violation messages.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -38,6 +41,7 @@ public @interface Contract {
     /**
      * Requires a character sequence, collection, map, or array value to be non-empty when non-null.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -50,6 +54,7 @@ public @interface Contract {
     /**
      * Requires a character sequence to contain non-whitespace content when non-null.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -62,6 +67,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be greater than zero.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -74,6 +80,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be less than zero.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -86,6 +93,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be greater than or equal to zero.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -98,6 +106,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to be less than or equal to zero.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -110,6 +119,7 @@ public @interface Contract {
     /**
      * Requires a numeric value to fall within the configured range.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -130,6 +140,7 @@ public @interface Contract {
     /**
      * Requires a character sequence, collection, map, or array value size to be in range when non-null.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -146,6 +157,7 @@ public @interface Contract {
     /**
      * Requires a character sequence to match the configured regular expression when non-null.
      */
+    @API(status = API.Status.MAINTAINED)
     @Contract
     @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RUNTIME)

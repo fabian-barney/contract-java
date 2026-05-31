@@ -1,6 +1,7 @@
 package media.barney.contract.spring;
 
 import java.util.Map;
+import org.apiguardian.api.API;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 /**
  * Spring Boot auto-configuration for optional {@code contract-java} integrations.
  */
+@API(status = API.Status.EXPERIMENTAL)
 @AutoConfiguration
 @EnableConfigurationProperties(ContractSpringProperties.class)
 public class ContractSpringAutoConfiguration {

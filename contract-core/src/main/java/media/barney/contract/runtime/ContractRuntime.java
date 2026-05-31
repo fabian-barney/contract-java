@@ -9,11 +9,13 @@ import media.barney.contract.runtime.internal.ContractEvaluation;
 import media.barney.contract.runtime.internal.ContractMessages;
 import media.barney.contract.runtime.internal.ContractRule;
 import media.barney.contract.runtime.internal.ValueRenderer;
+import org.apiguardian.api.API;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Runtime support used by generated contract checks.
  */
+@API(status = API.Status.MAINTAINED)
 public final class ContractRuntime {
 
     private ContractRuntime() {
