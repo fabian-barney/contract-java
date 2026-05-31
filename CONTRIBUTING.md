@@ -167,4 +167,5 @@ the first live release.
 The `Javadoc Pages` workflow runs on `vX.Y.Z` tag pushes. It builds aggregate
 Javadoc with `./mvnw -B -ntp -DskipTests -Djacoco.skip=true javadoc:aggregate`,
 publishes the API reference to the `gh-pages` branch under `/api/<version>/`,
-and updates `/api/latest/` as a redirect to that version.
+and updates `/api/latest/` only when that tag is the highest published semantic
+version.
