@@ -303,6 +303,45 @@ adds a small `InfoContributor` entry showing that the starter is active.
 Use the starter with a supported Spring Boot BOM or parent so the consuming
 application controls the exact Boot line.
 
+## Troubleshooting
+
+### javac internal-package access
+
+The annotation processor rewrites javac trees, so the JVM running Maven must
+export the javac internals used by the processor. If compilation fails with
+`IllegalAccessError`, `IllegalAccessException`, or a message such as
+`module jdk.compiler does not export com.sun.tools.javac.*`, add the exports to
+`.mvn/jvm.config` so every Maven Wrapper command receives them.
+
+Use this repository's `.mvn/jvm.config` entries as the Maven Wrapper baseline:
+
+```text
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED
+```
+
+When running the processor on the JPMS processor module path, also export the
+javac packages to `media.barney.contract.core` as shown in
+[Maven Compiler Setup](#maven-compiler-setup).
+
+### Common Symptoms
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Contract messages use names such as `arg0` or `arg1` instead of source parameter names. | The code was compiled without `-parameters`. | Set `<parameters>true</parameters>` in `maven-compiler-plugin` or pass javac `-parameters`, then rebuild cleanly. Enforcement still works without this flag, but messages lose source parameter names. |
+| Annotated methods compile, but no generated checks run. | Contract processing is disabled or the build does not pass `-Acontracts.enabled=true` after overriding compiler arguments. | Add `<arg>-Acontracts.enabled=true</arg>` to compiler arguments or remove any `-Acontracts.enabled=false` override. |
+| Annotated methods compile, but the processor never appears to run. | `contract-core` is missing from the compile classpath, annotation processor path, or processor module path. | Add `media.barney:contract-core` as a dependency and ensure annotation processing is enabled for the build. On toolchains where processor discovery is disabled by default, configure an explicit processor path. |
+| Lombok-generated constructors, setters, builders, or getters do not receive expected contract checks. | Lombok did not copy the contract annotations or processor ordering hides the generated member from the contract processor. | Add the relevant `media.barney.contract.Contract.*` annotations to `lombok.copyableAnnotations` and keep Lombok available before the contract processor sees generated members. Do not rely on exact Lombok null-check ordering as a compatibility guarantee. |
+
 ## Local Development
 
 See `CONTRIBUTING.md` for local build, quality gate, and release-skeleton
