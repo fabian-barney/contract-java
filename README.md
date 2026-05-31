@@ -10,10 +10,10 @@ postcondition failures throw `IllegalStateException`.
 
 ## Modules
 
-| Artifact | Purpose |
-| --- | --- |
-| `media.barney:contract-core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
-| `media.barney:contract-spring-boot-starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
+| Artifact | JPMS module | Purpose |
+| --- | --- | --- |
+| `media.barney:contract-core` | `media.barney.contract.core` | Framework-agnostic annotations, runtime checks, masking, and annotation processor. |
+| `media.barney:contract-spring-boot-starter` | `media.barney.contract.spring.boot.starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of `contract-core`. |
 
 ## API Surface
 
@@ -22,6 +22,10 @@ runtime bridge in `media.barney.contract.runtime`.
 
 Anything in a package named `internal` is unsupported implementation detail and
 may change without notice.
+
+JPMS descriptors export only the supported packages. Internal implementation
+packages remain present in the artifacts for generated checks and optional
+integrations, but they are not exported as public modules.
 
 ## Installation
 
@@ -74,15 +78,17 @@ options through the Maven compiler plugin:
 
 The current processor rewrites javac trees and therefore needs access to
 `jdk.compiler` internals while it runs. For Maven Wrapper builds, add these
-exports to `.mvn/jvm.config`:
+exports to `.mvn/jvm.config`. The targets cover classpath processor usage
+(`ALL-UNNAMED`) and JPMS processor-module-path usage
+(`media.barney.contract.core`):
 
 ```text
---add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
---add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED,media.barney.contract.core
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED,media.barney.contract.core
 ```
 
 Disable generation for a build with:

@@ -398,12 +398,14 @@ Recommended downstream usage:
 
 The public packaging model consists of two user-facing deliverables:
 
-| Deliverable | Purpose |
-|---|---|
-| `contract-core` | Framework-agnostic contract annotations and enforcement support for any Java project |
-| `contract-spring-boot-starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of the contract framework |
+| Deliverable | JPMS module | Purpose |
+|---|---|---|
+| `contract-core` | `media.barney.contract.core` | Framework-agnostic contract annotations and enforcement support for any Java project |
+| `contract-spring-boot-starter` | `media.barney.contract.spring.boot.starter` | Spring Boot auto-configuration plus optional web and actuator integrations on top of the contract framework |
 
 The internal implementation may still use more than two modules, but the public specification is defined in terms of these two deliverables.
+Published JPMS descriptors export only the supported public packages; packages
+named `internal` are implementation details and are not exported.
 
 ### 6.2 Coordinates
 
