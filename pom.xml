@@ -52,8 +52,8 @@
 
     <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
     <cyclonedx.maven.plugin.version>2.9.1</cyclonedx.maven.plugin.version>
-    <crap-java.version>0.6.0</crap-java.version>
-    <cognitive-java.version>0.5.1</cognitive-java.version>
+    <crap-java.version>0.6.1</crap-java.version>
+    <cognitive-java.version>0.6.0</cognitive-java.version>
     <errorprone.version>2.49.0</errorprone.version>
     <junit.version>6.1.0</junit.version>
     <jacoco.version>0.8.14</jacoco.version>
@@ -61,15 +61,15 @@
     <nullaway.version>0.13.4</nullaway.version>
     <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
     <maven.enforcer.plugin.version>3.6.3</maven.enforcer.plugin.version>
-    <maven.failsafe.plugin.version>3.5.5</maven.failsafe.plugin.version>
+    <maven.failsafe.plugin.version>3.5.6</maven.failsafe.plugin.version>
     <maven.install.plugin.version>3.1.4</maven.install.plugin.version>
     <maven.dependency.plugin.version>3.9.0</maven.dependency.plugin.version>
     <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
     <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
     <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
-    <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+    <maven.surefire.plugin.version>3.5.6</maven.surefire.plugin.version>
     <flatten.maven.plugin.version>1.7.3</flatten.maven.plugin.version>
-    <spotless.version>3.4.0</spotless.version>
+    <spotless.version>3.6.0</spotless.version>
     <palantir.java.format.version>2.91.0</palantir.java.format.version>
     <spring.boot.35.version>3.5.14</spring.boot.35.version>
     <spring.boot.40.version>4.0.6</spring.boot.40.version>
