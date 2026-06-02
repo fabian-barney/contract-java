@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ env.HAS_CODECOV_TOKEN == 'true' }}
-        uses: codecov/codecov-action@cddd853df119a48c5be31a973f8cd97e12e35e16
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: contract-core/target/site/jacoco/jacoco.xml,contract-spring-boot-starter/target/site/jacoco/jacoco.xml
