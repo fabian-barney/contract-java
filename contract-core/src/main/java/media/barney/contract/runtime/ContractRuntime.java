@@ -36,9 +36,9 @@ public final class ContractRuntime {
      *
      * <p>If a semantic contract fails, this method throws an
      * {@link IllegalArgumentException} whose message includes the method name,
-     * parameter name, contract description, and rendered value when rendering is
-     * allowed. If a {@code Mask} annotation applies, the value is rendered
-     * through the configured mask renderer.
+     * parameter name, contract description, and rendered value. If a
+     * {@code Mask} annotation applies, the value is rendered through the
+     * configured mask renderer.
      *
      * @param value the parameter value to evaluate; {@code null} passes
      *     semantic contracts
@@ -62,9 +62,9 @@ public final class ContractRuntime {
      *
      * <p>If a semantic contract fails, this method throws an
      * {@link IllegalStateException} whose message includes the method name,
-     * contract description, and rendered return value when rendering is allowed.
-     * If a {@code Mask} annotation applies, the value is rendered through the
-     * configured mask renderer.
+     * contract description, and rendered return value. If a {@code Mask}
+     * annotation applies, the value is rendered through the configured mask
+     * renderer.
      *
      * @param value the return value to evaluate; {@code null} passes semantic
      *     contracts

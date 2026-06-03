@@ -22,8 +22,8 @@ public class ContractSpringProperties {
      * Returns settings for the opt-in servlet exception resolver.
      *
      * <p>The resolver is disabled by default. When enabled in a servlet web
-     * application, it maps generated contract violations to bodyless HTTP 500
-     * responses.
+     * application, it maps contract-java runtime bridge violations to bodyless
+     * HTTP 500 responses.
      *
      * @return mutable web exception handler settings
      */
@@ -46,10 +46,10 @@ public class ContractSpringProperties {
     /**
      * Settings for {@code contract.spring.web-exception-handler}.
      *
-     * <p>This integration is intentionally opt-in. It handles only generated
-     * contract violations and maps them to server errors because contract
-     * violations indicate programming mistakes, not recoverable request
-     * validation failures.
+     * <p>This integration is intentionally opt-in. It handles only
+     * contract-java runtime bridge violations and maps them to server errors
+     * because contract violations indicate programming mistakes, not
+     * recoverable request validation failures.
      */
     @API(status = API.Status.EXPERIMENTAL)
     public static final class WebExceptionHandlerSettings {

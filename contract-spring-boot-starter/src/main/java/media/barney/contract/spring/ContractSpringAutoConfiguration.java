@@ -23,7 +23,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * default unless {@code contract.spring.actuator-info.enabled=false}. In
  * servlet web applications, a {@link HandlerExceptionResolver} can be opted in
  * with {@code contract.spring.web-exception-handler.enabled=true}; it maps
- * generated contract violations to bodyless HTTP 500 responses.
+ * contract-java runtime bridge violations to bodyless HTTP 500 responses.
  */
 @API(status = API.Status.EXPERIMENTAL)
 @AutoConfiguration
