@@ -4,6 +4,12 @@ import org.apiguardian.api.API;
 
 /**
  * Core module marker for the contract framework.
+ *
+ * <p>This class exposes a small stable identifier for applications and
+ * integrations that need to report the active {@code contract-core} artifact.
+ * Contract declaration and enforcement APIs are provided by
+ * {@link Contract}, {@link MaskRenderer}, and the generated-code runtime bridge
+ * in {@code media.barney.contract.runtime}.
  */
 @API(status = API.Status.MAINTAINED)
 public final class ContractCore {
