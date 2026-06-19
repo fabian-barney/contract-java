@@ -151,7 +151,7 @@ jobs:
     name: Publish SBOM Release Assets
     needs:
       - release
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
