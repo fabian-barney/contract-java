@@ -7,6 +7,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 0.1.1 - 2026-06-19
+
+### Changed
+
+- Updated org.jacoco:jacoco-maven-plugin from 0.8.14 to 0.8.15.
+- Updated com.uber.nullaway:nullaway from 0.13.4 to 0.13.6.
+- Updated com.google.errorprone:error_prone_core from 2.49.0 to 2.50.0.
+
 ## 0.1.0 - 2026-06-01
 
 ### Added
@@ -31,4 +39,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...HEAD
+[0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...HEAD
