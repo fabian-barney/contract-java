@@ -51,6 +51,7 @@
     <project.build.outputTimestamp>2026-05-31T00:00:00Z</project.build.outputTimestamp>
 
     <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
+    <central.deployment.repository.name>contract-java</central.deployment.repository.name>
     <cyclonedx.maven.plugin.version>2.9.1</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.1</crap-java.version>
     <cognitive-java.version>0.6.0</cognitive-java.version>
@@ -377,7 +378,7 @@
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
-              <deploymentName>${project.groupId}:${project.artifactId}:${project.version}</deploymentName>
+              <deploymentName>${project.groupId}:${central.deployment.repository.name}:${project.version}</deploymentName>
               <autoPublish>true</autoPublish>
               <waitUntil>published</waitUntil>
               <excludeArtifacts>
