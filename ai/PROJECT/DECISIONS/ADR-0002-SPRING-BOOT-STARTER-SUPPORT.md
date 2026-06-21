@@ -14,24 +14,28 @@ inside Spring's current OSS support window.
 Spring's published support policy maps project support dates to Spring Boot and
 states that Spring Boot minor releases receive OSS support for at least 13
 months. The current Spring Boot system requirements documentation shows Spring
-Boot 4.0.6 as the latest stable track and Spring Boot 3.5.14 as the latest 3.5
+Boot 4.1.0 as the latest stable track and Spring Boot 4.0.7 as the latest 4.0
 track. Both require Java 17 or later.
 
-Sources checked on 2026-05-10:
+Sources checked on 2026-06-21:
 
 - https://spring.io/support-policy/
 - https://docs.spring.io/spring-boot/system-requirements.html
-- https://docs.spring.io/spring-boot/3.5/system-requirements.html
+- https://endoflife.date/spring-boot
 
 ## Decision
 
-As of 2026-05-10, `contract-spring-boot-starter` supports Spring Boot `4.0.x`
-and `3.5.x` as its documented OSS-supported Spring Boot lines.
+As of 2026-06-21, `contract-spring-boot-starter` supports Spring Boot `4.0.x`
+and `4.1.x` as its documented OSS-supported Spring Boot lines.
+
+Spring Boot `3.5.x` reaches OSS end of life on 2026-06-30. Because the project
+is still in the `0.x` development line, the starter drops documented `3.5.x`
+support as part of this support-window refresh.
 
 The concrete smoke-test versions are:
 
-- Spring Boot `4.0.6`
-- Spring Boot `3.5.14`
+- Spring Boot `4.0.7`
+- Spring Boot `4.1.0`
 
 The support rule is not permanently tied to those versions. The project should
 refresh the ADR and smoke-test versions when Spring changes its OSS support

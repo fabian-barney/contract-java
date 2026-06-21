@@ -169,8 +169,8 @@ jobs:
           - "21"
           - "25"
         boot-line:
-          - "3.5"
           - "4.0"
+          - "4.1"
 
     steps:
       - name: Checkout
