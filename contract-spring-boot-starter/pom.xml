@@ -27,7 +27,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot.40.version}</version>
+        <version>${spring.boot.41.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -100,8 +100,8 @@
             <maven.dependency.plugin.version>${maven.dependency.plugin.version}</maven.dependency.plugin.version>
             <maven.install.plugin.version>${maven.install.plugin.version}</maven.install.plugin.version>
             <reactor.root>${maven.multiModuleProjectDirectory}</reactor.root>
-            <spring.boot.35.version>${spring.boot.35.version}</spring.boot.35.version>
             <spring.boot.40.version>${spring.boot.40.version}</spring.boot.40.version>
+            <spring.boot.41.version>${spring.boot.41.version}</spring.boot.41.version>
           </systemPropertyVariables>
         </configuration>
         <executions>

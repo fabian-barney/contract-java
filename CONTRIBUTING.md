@@ -85,7 +85,7 @@ directories.
 `contract-spring-boot-starter` runs a Failsafe integration smoke test during
 `verify`. It packages the current reactor artifacts, installs them into an
 isolated temporary Maven repository, and resolves small dependency projects
-against the supported Spring Boot `3.5.x` and `4.0.x` BOMs.
+against the supported Spring Boot `4.0.x` and `4.1.x` BOMs.
 
 Run only the starter and its dependencies with:
 

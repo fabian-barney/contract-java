@@ -345,14 +345,14 @@ Lombok onto supported method, constructor, or parameter targets are enforced.
 ## Spring Boot
 
 `contract-spring-boot-starter` currently supports Spring Boot `4.0.x` and
-`3.5.x` as documented in
+`4.1.x` as documented in
 `ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md`.
 
 The compatibility table follows the Spring Boot support window defined in
 [ADR-0002](ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md).
 CI verifies the listed Spring Boot lines against the canonical JDK matrix.
 
-| JDK | Spring Boot `3.5.x` | Spring Boot `4.0.x` |
+| JDK | Spring Boot `4.0.x` | Spring Boot `4.1.x` |
 | --- | --- | --- |
 | 17 | Tested and supported | Tested and supported |
 | 21 | Tested and supported | Tested and supported |

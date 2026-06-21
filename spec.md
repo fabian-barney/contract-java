@@ -473,7 +473,9 @@ Example coordinates:
 
 The Spring Boot starter supports only Spring Boot release lines that are still within active OSS support according to Spring's published support policy.
 
-As of April 18, 2026, that means Spring Boot `4.0.x` and `3.5.x`. This dated note is descriptive context, not a permanent minimum-version rule. The normative rule is to follow the current OSS support window.
+As of June 21, 2026, that means Spring Boot `4.0.x` and `4.1.x`. This dated
+note is descriptive context, not a permanent minimum-version rule. The
+normative rule is to follow the current OSS support window.
 
 During implementation, the concrete supported Spring Boot lines should be captured in an ADR so that the codebase and release process can be updated when Spring changes its support window.
 

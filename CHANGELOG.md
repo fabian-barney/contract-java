@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the Spring Boot starter support matrix to Spring Boot `4.0.x` and
+  `4.1.x`, and dropped the near-EOL `3.5.x` smoke-test line.
+
 ## 0.1.1 - 2026-06-19
 
 ### Changed
