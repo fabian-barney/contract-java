@@ -51,7 +51,7 @@
     <project.build.outputTimestamp>2026-05-31T00:00:00Z</project.build.outputTimestamp>
 
     <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
-    <cyclonedx.maven.plugin.version>2.9.1</cyclonedx.maven.plugin.version>
+    <cyclonedx.maven.plugin.version>2.9.2</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.0</crap-java.version>
     <cognitive-java.version>0.5.1</cognitive-java.version>
     <errorprone.version>2.50.0</errorprone.version>
