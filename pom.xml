@@ -67,12 +67,12 @@
     <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
     <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
     <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
-    <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+    <maven.surefire.plugin.version>3.5.6</maven.surefire.plugin.version>
     <flatten.maven.plugin.version>1.7.3</flatten.maven.plugin.version>
-    <spotless.version>3.4.0</spotless.version>
+    <spotless.version>3.7.0</spotless.version>
     <palantir.java.format.version>2.91.0</palantir.java.format.version>
-    <spring.boot.35.version>3.5.14</spring.boot.35.version>
-    <spring.boot.40.version>4.0.6</spring.boot.40.version>
+    <spring.boot.40.version>4.0.7</spring.boot.40.version>
+    <spring.boot.41.version>4.1.0</spring.boot.41.version>
     <apiguardian.version>1.1.2</apiguardian.version>
   </properties>
 
