@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 0.1.2 - 2026-06-28
+
+### Changed
+
+- Updated `com.diffplug.spotless:spotless-maven-plugin` from 3.6.0 to 3.7.0.
+
 ## 0.1.1 - 2026-06-19
 
 ### Changed
@@ -40,4 +46,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   compatibility expectations.
 
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...HEAD
+[0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...HEAD
