@@ -50,16 +50,16 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputTimestamp>2026-05-31T00:00:00Z</project.build.outputTimestamp>
 
-    <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
+    <central.publishing.maven.plugin.version>0.11.0</central.publishing.maven.plugin.version>
     <central.deployment.repository.name>contract-java</central.deployment.repository.name>
-    <cyclonedx.maven.plugin.version>2.9.1</cyclonedx.maven.plugin.version>
+    <cyclonedx.maven.plugin.version>2.9.2</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.1</crap-java.version>
     <cognitive-java.version>0.6.0</cognitive-java.version>
     <errorprone.version>2.50.0</errorprone.version>
-    <junit.version>6.1.0</junit.version>
+    <junit.version>6.1.1</junit.version>
     <jacoco.version>0.8.15</jacoco.version>
     <jspecify.version>1.0.0</jspecify.version>
-    <nullaway.version>0.13.6</nullaway.version>
+    <nullaway.version>0.13.7</nullaway.version>
     <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
     <maven.enforcer.plugin.version>3.6.3</maven.enforcer.plugin.version>
     <maven.failsafe.plugin.version>3.5.6</maven.failsafe.plugin.version>
@@ -70,7 +70,7 @@
     <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
     <maven.surefire.plugin.version>3.5.6</maven.surefire.plugin.version>
     <flatten.maven.plugin.version>1.7.3</flatten.maven.plugin.version>
-    <spotless.version>3.6.0</spotless.version>
+    <spotless.version>3.7.0</spotless.version>
     <palantir.java.format.version>2.91.0</palantir.java.format.version>
     <spring.boot.40.version>4.0.7</spring.boot.40.version>
     <spring.boot.41.version>4.1.0</spring.boot.41.version>
