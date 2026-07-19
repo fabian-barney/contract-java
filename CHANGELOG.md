@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 0.1.5 - 2026-07-19
+
+### Changed
+
+- Updated `org.junit:junit-bom` from 6.1.0 to 6.1.1.
+
 ## 0.1.4 - 2026-06-28
 
 ### Changed
@@ -61,4 +67,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/fabian-barney/contract-java/compare/v0.1.3...v0.1.4
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.4...HEAD
+[0.1.5]: https://github.com/fabian-barney/contract-java/compare/v0.1.4...v0.1.5
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.5...HEAD
