@@ -146,6 +146,20 @@ class ContractRuntimeTest {
     }
 
     @Test
+    void directMaskRendererIsAppliedWithoutRawValue() {
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> ContractRuntime.requireReturn(
+                        "secret-token", "com.example.TokenService.issue", methodAnnotations("directMaskedPattern")));
+
+        assertEquals(
+                "Postcondition of method 'com.example.TokenService.issue' violated: "
+                        + "return value must match the required pattern, but was: [text]",
+                exception.getMessage());
+        assertFalse(exception.getMessage().contains("secret-token"));
+    }
+
+    @Test
     void brokenMaskRendererFallsBackConservatively() {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
@@ -239,6 +253,11 @@ class ContractRuntimeTest {
 
         @Contract.Mask(renderer = ThrowingMaskRenderer.class)
         @Contract.Pattern(regexp = "[0-9]+") String throwingMask() {
+            return "";
+        }
+
+        @Contract.Mask(renderer = TextMaskRenderer.class)
+        @Contract.Pattern(regexp = "[0-9]+") String directMaskedPattern() {
             return "";
         }
 

@@ -15,6 +15,7 @@ class PositiveContractTest {
     void supportsPrimitiveAndBoxedNumbers() {
         assertTrue(ContractRuntime.isPositive(1));
         assertTrue(ContractRuntime.isPositive(Long.MAX_VALUE));
+        assertTrue(ContractRuntime.isPositive(1.5f));
         assertTrue(ContractRuntime.isPositive(new BigDecimal("1.5")));
 
         assertDoesNotThrow(() -> ContractRuntime.requireParameter(

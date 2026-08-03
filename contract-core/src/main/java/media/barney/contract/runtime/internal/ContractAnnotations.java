@@ -201,7 +201,12 @@ public final class ContractAnnotations {
             return Optional.empty();
         }
 
-        for (Annotation metaAnnotation : annotation.annotationType().getAnnotations()) {
+        return findMaskRendererInMetaAnnotations(annotation.annotationType().getAnnotations(), visited);
+    }
+
+    private static Optional<Class<? extends MaskRenderer>> findMaskRendererInMetaAnnotations(
+            Annotation[] annotations, Set<Class<? extends Annotation>> visited) {
+        for (Annotation metaAnnotation : annotations) {
             if (!isFrameworkMetaAnnotation(metaAnnotation)) {
                 Optional<Class<? extends MaskRenderer>> renderer = findMaskRenderer(metaAnnotation, visited);
                 if (renderer.isPresent()) {
