@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 0.1.6 - 2026-08-03
+
+### Changed
+
+- Updated `org.jspecify:jspecify` from 1.0.0 to 1.0.1.
+
 ## 0.1.5 - 2026-07-19
 
 ### Changed
@@ -68,4 +74,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/fabian-barney/contract-java/compare/v0.1.3...v0.1.4
 [0.1.5]: https://github.com/fabian-barney/contract-java/compare/v0.1.4...v0.1.5
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.5...HEAD
+[0.1.6]: https://github.com/fabian-barney/contract-java/compare/v0.1.5...v0.1.6
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.6...HEAD
