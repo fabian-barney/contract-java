@@ -50,7 +50,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputTimestamp>2026-05-31T00:00:00Z</project.build.outputTimestamp>
 
-    <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
+    <central.publishing.maven.plugin.version>0.11.0</central.publishing.maven.plugin.version>
     <central.deployment.repository.name>contract-java</central.deployment.repository.name>
     <cyclonedx.maven.plugin.version>2.9.3</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.1</crap-java.version>
