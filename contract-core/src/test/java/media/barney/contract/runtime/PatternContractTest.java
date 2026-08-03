@@ -44,4 +44,12 @@ class PatternContractTest {
                 "tenant",
                 BuiltInContractTestSupport.parameterAnnotations("patternIgnoreCase", String.class)));
     }
+
+    @Test
+    void boundsCompiledPatternCacheBeforeCompilingUncachedPattern() {
+        for (int index = 0; index <= 256; index++) {
+            String value = "value-" + index;
+            assertTrue(ContractRuntime.matchesPattern(value, value));
+        }
+    }
 }

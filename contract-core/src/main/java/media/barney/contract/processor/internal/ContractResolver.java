@@ -128,7 +128,11 @@ final class ContractResolver {
             return Optional.empty();
         }
 
-        for (AnnotationMirror metaAnnotation : annotationElement.getAnnotationMirrors()) {
+        return maskRenderer(annotationElement.getAnnotationMirrors(), visited);
+    }
+
+    private Optional<String> maskRenderer(List<? extends AnnotationMirror> annotations, Set<String> visited) {
+        for (AnnotationMirror metaAnnotation : annotations) {
             if (!isFrameworkMetaAnnotation(metaAnnotation)) {
                 Optional<String> renderer = maskRenderer(metaAnnotation, visited);
                 if (renderer.isPresent()) {
