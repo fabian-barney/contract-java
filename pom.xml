@@ -59,7 +59,7 @@
     <junit.version>6.1.2</junit.version>
     <jacoco.version>0.8.15</jacoco.version>
     <jspecify.version>1.0.1</jspecify.version>
-    <nullaway.version>0.13.7</nullaway.version>
+    <nullaway.version>0.13.8</nullaway.version>
     <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
     <maven.enforcer.plugin.version>3.6.3</maven.enforcer.plugin.version>
     <maven.failsafe.plugin.version>3.5.6</maven.failsafe.plugin.version>
