@@ -8,8 +8,11 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCLambda;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
@@ -188,8 +191,44 @@ public final class ContractProcessor extends AbstractProcessor {
             String methodName = methodName(method);
             List<ProcessorContract> returnContracts = resolver.semanticContracts(method.sym);
             method.body = rewriteReturns(method.body, methodName, returnContracts);
-            method.body.stats = prepend(parameterChecks(method, methodName), method.body.stats);
+            method.body.stats = injectParameterChecks(method, methodName);
             result = method;
+        }
+
+        private com.sun.tools.javac.util.List<JCStatement> injectParameterChecks(
+                JCMethodDecl method, String methodName) {
+            List<JCStatement> checks = parameterChecks(method, methodName);
+            if (checks.isEmpty()) {
+                return method.body.stats;
+            }
+            if (hasExplicitConstructorInvocation(method)) {
+                return insertAfterFirst(checks, method.body.stats);
+            }
+
+            return prepend(checks, method.body.stats);
+        }
+
+        private boolean hasExplicitConstructorInvocation(JCMethodDecl method) {
+            if (method.sym.getKind() != ElementKind.CONSTRUCTOR || method.body.stats.isEmpty()) {
+                return false;
+            }
+
+            return isExplicitConstructorInvocation(method.body.stats.head);
+        }
+
+        private boolean isExplicitConstructorInvocation(JCStatement statement) {
+            if (!(statement instanceof JCExpressionStatement expressionStatement)) {
+                return false;
+            }
+            if (!(expressionStatement.expr instanceof JCMethodInvocation invocation)) {
+                return false;
+            }
+            if (!(invocation.meth instanceof JCIdent identifier)) {
+                return false;
+            }
+
+            String name = identifier.name.toString();
+            return name.equals("this") || name.equals("super");
         }
 
         private JCBlock rewriteReturns(JCBlock body, String methodName, List<ProcessorContract> returnContracts) {
@@ -225,6 +264,11 @@ public final class ContractProcessor extends AbstractProcessor {
             }
 
             return updated;
+        }
+
+        private com.sun.tools.javac.util.List<JCStatement> insertAfterFirst(
+                List<JCStatement> prefix, com.sun.tools.javac.util.List<JCStatement> original) {
+            return prepend(prefix, original.tail).prepend(original.head);
         }
 
         private String methodName(JCMethodDecl method) {

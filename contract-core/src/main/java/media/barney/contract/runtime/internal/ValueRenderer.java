@@ -31,15 +31,8 @@ public final class ValueRenderer {
     private static String renderMasked(Object value, Class<? extends MaskRenderer> maskRenderer) {
         try {
             return newRenderer(maskRenderer).render(value);
-        } catch (Throwable throwable) {
-            rethrowFatal(throwable);
+        } catch (Exception exception) {
             return DEFAULT_MASK_RENDERER.render(value);
-        }
-    }
-
-    private static void rethrowFatal(Throwable throwable) {
-        if (throwable instanceof VirtualMachineError error) {
-            throw error;
         }
     }
 

@@ -44,6 +44,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
+          <!--
+            The parent configures the Maven release setting to 17 for ordinary
+            modules. This module uses javac internals and must compile with
+            explicit source/target 17 instead, so intentionally remove the inherited
+            release value while retaining the source and target values below.
+          -->
           <release combine.self="override"/>
           <source>17</source>
           <target>17</target>

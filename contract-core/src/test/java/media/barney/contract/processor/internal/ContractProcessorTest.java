@@ -27,8 +27,12 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class ContractProcessorTest {
+
+    @TempDir
+    Path tempDirectory;
 
     @Test
     void injectsParameterPreconditions() throws Exception {
@@ -101,6 +105,55 @@ class ContractProcessorTest {
 
         assertInstanceOf(IllegalArgumentException.class, invocationCause(() -> constructor.newInstance(-1)));
         assertInstanceOf(IllegalArgumentException.class, invocationCause(() -> privateCaller.invoke(null, -1)));
+    }
+
+    @Test
+    void injectsConstructorPreconditionsAfterExplicitInvocations() throws Exception {
+        Compilation compilation = compile(source("example.ExplicitConstructors", """
+                        package example;
+                        import media.barney.contract.Contract;
+                        public class ExplicitConstructors {
+                            public ExplicitConstructors(@Contract.Positive int value) {
+                                this(value, 1);
+                            }
+                            public ExplicitConstructors(@Contract.Positive int value, boolean ignored) {
+                                initialize();
+                            }
+                            private ExplicitConstructors(@Contract.Positive int value, short ignored) {
+                                Helper.initialize();
+                            }
+                            private ExplicitConstructors(@Contract.Positive int value, char ignored) {
+                                int local = value;
+                            }
+                            private ExplicitConstructors(int value, int ignored) {
+                                super();
+                            }
+                            public static class Child extends Parent {
+                                public Child(@Contract.Positive int value) {
+                                    super();
+                                }
+                            }
+                            private static void initialize() {
+                            }
+                            static class Helper {
+                                static void initialize() {
+                                }
+                            }
+                            static class Parent {
+                            }
+                        }
+                        """));
+
+        assertTrue(compilation.succeeded(), compilation.diagnosticsText());
+        Constructor<?> explicitThis =
+                compilation.load("example.ExplicitConstructors").getConstructor(int.class);
+        Constructor<?> explicitSuper =
+                compilation.load("example.ExplicitConstructors$Child").getConstructor(int.class);
+
+        assertDoesNotThrow(() -> explicitThis.newInstance(1));
+        assertDoesNotThrow(() -> explicitSuper.newInstance(1));
+        assertInstanceOf(IllegalArgumentException.class, invocationCause(() -> explicitThis.newInstance(-1)));
+        assertInstanceOf(IllegalArgumentException.class, invocationCause(() -> explicitSuper.newInstance(-1)));
     }
 
     @Test
@@ -203,14 +256,14 @@ class ContractProcessorTest {
         assertTrue(compilation.diagnosticsText().contains("void methods"));
     }
 
-    private static Compilation compile(JavaFileObject... sources) throws IOException {
+    private Compilation compile(JavaFileObject... sources) throws IOException {
         return compile(List.of(), sources);
     }
 
-    private static Compilation compile(List<String> extraOptions, JavaFileObject... sources) throws IOException {
+    private Compilation compile(List<String> extraOptions, JavaFileObject... sources) throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        Path outputDirectory = Files.createTempDirectory("contract-processor-test-");
+        Path outputDirectory = Files.createTempDirectory(tempDirectory, "contract-processor-test-");
 
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, Locale.ROOT, null)) {
             List<String> options = new ArrayList<>(List.of(

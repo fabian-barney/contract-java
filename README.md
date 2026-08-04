@@ -171,8 +171,12 @@ auto-configuration for optional integrations:
 ## Maven Compiler Setup
 
 The processor is enabled by default when javac discovers it on the annotation
-processor path or compile classpath. Keep parameter names and pass processor
-options through the Maven compiler plugin:
+processor path or compile classpath. Generated contract messages use the
+source-level parameter names exposed by javac while it compiles the AST. The
+`<parameters>true</parameters>` setting is still useful for application code
+that inspects method metadata through reflection, but it is not required for
+generated contract messages. Pass processor options through the Maven compiler
+plugin:
 
 ```xml
 <plugin>
@@ -222,7 +226,8 @@ The generated-code behavior promised within a compatible release line is:
   `IllegalArgumentException`.
 - Return-value contract failures throw `IllegalStateException`.
 - Parameter checks are inserted at executable entry before the original method
-  or constructor body observed by the contract processor.
+  body; constructor checks follow any explicit `this(...)` or `super(...)`
+  invocation required by Java.
 - Return checks are applied before every non-void return path.
 - Generated parameter checks carry source-line metadata for the annotated
   parameter when javac exposes it, otherwise the executable declaration line is
@@ -339,7 +344,8 @@ lombok.copyableAnnotations += media.barney.contract.Contract.Size
 lombok.copyableAnnotations += media.barney.contract.Contract.Pattern
 ```
 
-Field declarations are not directly enforced in version 1. Contracts copied by
+Field declarations are not directly enforced in the current `0.x` release line.
+Contracts copied by
 Lombok onto supported method, constructor, or parameter targets are enforced.
 
 ## Spring Boot
@@ -414,7 +420,7 @@ javac packages to `media.barney.contract.core` as shown in
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| Contract messages use names such as `arg0` or `arg1` instead of source parameter names. | The code was compiled without `-parameters`. | Set `<parameters>true</parameters>` in `maven-compiler-plugin` or pass javac `-parameters`, then rebuild cleanly. Enforcement still works without this flag, but messages lose source parameter names. |
+| Contract messages use names such as `arg0` or `arg1` instead of source parameter names. | The compiler did not expose a usable source parameter name to the processor. | Rebuild from normal Java source with annotation processing enabled. The processor reads names from javac's source AST; `-parameters` is for reflection metadata and does not control generated contract messages. |
 | Annotated methods compile, but no generated checks run. | Contract processing is disabled or the build does not pass `-Acontracts.enabled=true` after overriding compiler arguments. | Add `<arg>-Acontracts.enabled=true</arg>` to compiler arguments or remove any `-Acontracts.enabled=false` override. |
 | Annotated methods compile, but the processor never appears to run. | `contract-core` is missing from the compile classpath, annotation processor path, or processor module path. | Add `media.barney:contract-core` as a dependency and ensure annotation processing is enabled for the build. On toolchains where processor discovery is disabled by default, configure an explicit processor path. |
 | Lombok-generated constructors, setters, builders, or getters do not receive expected contract checks. | Lombok did not copy the contract annotations or processor ordering hides the generated member from the contract processor. | Add the relevant `media.barney.contract.Contract.*` annotations to `lombok.copyableAnnotations` and keep Lombok available before the contract processor sees generated members. Do not rely on exact Lombok null-check ordering as a compatibility guarantee. |
