@@ -261,18 +261,31 @@ Parameter 'amount' of method 'com.example.AccountService.transfer': transfer amo
 
 ### 3.3 Parameter Name Resolution
 
-For meaningful error messages, parameter names are resolved in this order:
+Parameter names for generated messages are resolved while javac is compiling
+the source, before class files are emitted. The processor reads the parameter
+identifier from javac's source AST; it does not use runtime reflection or the
+`-parameters` bytecode metadata for generated contract messages.
 
-1. The `-parameters` compiler flag, which preserves parameter names in bytecode.
-2. Fallback names such as `arg0`, `arg1`, and so on.
+Names are resolved in this order:
+
+1. The source-level parameter name exposed by javac's AST.
+2. Fallback names such as `arg0`, `arg1`, and so on when javac does not expose a
+   usable name.
+
+The `-parameters` compiler flag remains useful to application code that
+inspects compiled methods through reflection, but it is not required for the
+processor to generate source parameter names.
 
 ---
 
 ## 4. Enforcement Mechanism
 
-### 4.1 Annotation Processor
+### 4.1 javac AST Transformation
 
-Contracts are enforced by a compile-time annotation processor that generates checks directly into the relevant methods and constructors. This approach:
+Contracts are enforced during javac compilation by an annotation-processor
+entry point that uses javac's internal tree APIs. The processor inspects and
+transforms javac AST nodes before class files are emitted; it is not a
+JSR-269-only processor that rewrites already-compiled methods. This approach:
 
 - works for plain Java applications and is not limited to Spring,
 - has no runtime reflection or proxy requirement,
@@ -283,7 +296,11 @@ Version 1 enforcement is limited to supported parameter and method targets. Fiel
 
 ### 4.2 Generated Code
 
-The annotation processor generates code equivalent to manual precondition checks at the start of the method body and postcondition checks before every return path.
+During javac AST transformation, the annotation processor generates code
+equivalent to manual precondition checks at executable entry and postcondition
+checks before every return path. For constructors, parameter checks follow an
+explicit `this(...)` or `super(...)` invocation because Java requires that
+invocation to remain the first statement.
 
 Source:
 

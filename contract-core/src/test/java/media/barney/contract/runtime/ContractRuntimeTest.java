@@ -174,17 +174,13 @@ class ContractRuntimeTest {
     }
 
     @Test
-    void nonFatalMaskRendererErrorsFallBackConservatively() {
-        IllegalStateException exception = assertThrows(
-                IllegalStateException.class,
+    void maskRendererErrorsPropagate() {
+        LinkageError exception = assertThrows(
+                LinkageError.class,
                 () -> ContractRuntime.requireReturn(
                         "raw-secret", "com.example.TokenService.issue", methodAnnotations("linkageMask")));
 
-        assertEquals(
-                "Postcondition of method 'com.example.TokenService.issue' violated: "
-                        + "return value must match the required pattern, but was: [MASKED]",
-                exception.getMessage());
-        assertFalse(exception.getMessage().contains("raw-secret"));
+        assertEquals("renderer linkage failed", exception.getMessage());
     }
 
     @Test
