@@ -55,7 +55,6 @@ jobs:
       - name: Verify signing configuration
         run: |
           test -n "$MAVEN_GPG_PRIVATE_KEY"
-          test -n "$MAVEN_GPG_PASSPHRASE"
 
       - name: Import GPG signing key
         run: printf '%s' "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import

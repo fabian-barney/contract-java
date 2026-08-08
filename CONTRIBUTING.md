@@ -131,13 +131,13 @@ is available, and `MAVEN_GPG_PASSPHRASE` is set when the key requires a
 passphrase:
 
 ```sh
-./mvnw -B -ntp -Prelease -Drevision=0.1.7 verify
+./mvnw -B -ntp -Prelease -Drevision=1.2.3 verify
 ```
 
 In PowerShell, quote dotted `-D` properties:
 
 ```powershell
-.\mvnw.cmd -B -ntp -Prelease "-Drevision=0.1.7" verify
+.\mvnw.cmd -B -ntp -Prelease "-Drevision=1.2.3" verify
 ```
 
 The manual `Release` workflow requires an explicit `revision` input. For
@@ -159,7 +159,7 @@ Expected publishing configuration:
 - secret `MAVEN_CENTRAL_TOKEN_USERNAME`
 - secret `MAVEN_CENTRAL_TOKEN_PASSWORD`
 - secret `MAVEN_GPG_PRIVATE_KEY`
-- secret `MAVEN_GPG_PASSPHRASE`
+- secret `MAVEN_GPG_PASSPHRASE` when the signing key requires a passphrase
 
 Publish credentials must be Central Portal user-token credentials for the
 `central` Maven server id. The matching GPG public key must be published before
