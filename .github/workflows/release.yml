@@ -80,6 +80,14 @@ jobs:
 
           echo "revision=$revision" >> "$GITHUB_OUTPUT"
 
+      - name: Verify publish source branch
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Publication must be dispatched from protected main."
+            exit 1
+          fi
+
       - name: Verify release source
         env:
           RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
@@ -127,7 +135,6 @@ jobs:
         run: gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null
 
       - name: Verify changelog release date
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
         env:
           RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
         run: |
@@ -182,7 +189,7 @@ jobs:
     name: Create GitHub Release Draft
     needs:
       - release
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -254,7 +261,7 @@ jobs:
     needs:
       - release
       - create-release-draft
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -327,7 +334,7 @@ jobs:
     name: Publish GitHub Release
     needs:
       - publish-release-artifacts
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
