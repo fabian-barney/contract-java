@@ -113,8 +113,9 @@ The reactor version is controlled by the root `pom.xml` `revision` property.
 Change it by manually editing that single property; do not use
 `versions-maven-plugin set-property` unless a future issue explicitly adds that
 workflow. Child modules should keep `${revision}` in their parent declarations.
-For this release PR, set `revision` to `0.1.7`. After the release is published,
-open a dedicated snapshot-bump PR that sets `revision` to `0.1.8-SNAPSHOT`.
+For a release PR, set `revision` to the release version such as `1.2.3`. After
+the release is published, open a dedicated snapshot-bump PR that sets
+`revision` to the next patch snapshot such as `1.2.4-SNAPSHOT`.
 
 Every release PR must update `CHANGELOG.md`: move completed `Unreleased` notes
 into the target version section, add the release date, and leave a fresh

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Deploy artifacts after validation
+        description: Deploy artifacts after tag validation; false validates only
         required: true
         default: false
         type: boolean
@@ -28,13 +28,11 @@ jobs:
     name: Build Release Artifacts
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     outputs:
       revision: ${{ steps.release-revision.outputs.revision }}
 
     env:
-      MAVEN_CENTRAL_TOKEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_TOKEN_USERNAME }}
-      MAVEN_CENTRAL_TOKEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_TOKEN_PASSWORD }}
       MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
       MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
@@ -180,18 +178,33 @@ jobs:
           path: target/release-assets/sbom
           if-no-files-found: error
 
-      - name: Verify publish configuration
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
-        run: |
-          test -n "$MAVEN_CENTRAL_TOKEN_USERNAME"
-          test -n "$MAVEN_CENTRAL_TOKEN_PASSWORD"
+  create-release-draft:
+    name: Create GitHub Release Draft
+    needs:
+      - release
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: v${{ needs.release.outputs.revision }}
+          fetch-depth: 0
+
+      - name: Download SBOM release assets
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-sboms-${{ needs.release.outputs.revision }}
+          path: target/release-assets/sbom
 
       - name: Create GitHub Release draft
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
-          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+          RELEASE_REVISION: ${{ needs.release.outputs.revision }}
+          RELEASE_TAG: v${{ needs.release.outputs.revision }}
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -236,18 +249,84 @@ jobs:
               --notes-file "$notes_file"
           fi
 
+  publish-release-artifacts:
+    name: Publish Maven Central Artifacts
+    needs:
+      - release
+      - create-release-draft
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      revision: ${{ needs.release.outputs.revision }}
+
+    env:
+      MAVEN_CENTRAL_TOKEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_TOKEN_USERNAME }}
+      MAVEN_CENTRAL_TOKEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_TOKEN_PASSWORD }}
+      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: v${{ needs.release.outputs.revision }}
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set Maven wrapper permissions
+        run: chmod +x mvnw
+
+      - name: Verify release source
+        env:
+          RELEASE_TAG: v${{ needs.release.outputs.revision }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$(git cat-file -t "$RELEASE_TAG")" != "tag" ]]; then
+            echo "::error::Release tag ${RELEASE_TAG} must be an annotated tag."
+            exit 1
+          fi
+
+          tag_commit="$(git rev-parse "${RELEASE_TAG}^{commit}")"
+          checkout_commit="$(git rev-parse HEAD)"
+          if [[ "$checkout_commit" != "$tag_commit" ]]; then
+            echo "::error::The Central publication source does not match ${RELEASE_TAG}."
+            echo "::error::Checked out ${checkout_commit}; expected ${tag_commit}."
+            exit 1
+          fi
+
+      - name: Verify signing configuration
+        run: |
+          test -n "$MAVEN_GPG_PRIVATE_KEY"
+          test -n "$MAVEN_GPG_PASSPHRASE"
+
+      - name: Import GPG signing key
+        run: printf '%s' "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Verify publish configuration
+        run: |
+          test -n "$MAVEN_CENTRAL_TOKEN_USERNAME"
+          test -n "$MAVEN_CENTRAL_TOKEN_PASSWORD"
+
       - name: Publish release artifacts
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         run: >
           ./mvnw -B -ntp -Prelease
-          "-Drevision=${{ steps.release-revision.outputs.revision }}"
+          "-Drevision=${{ needs.release.outputs.revision }}"
           -s .github/maven-settings.xml
           deploy
 
   finalize-release:
     name: Publish GitHub Release
     needs:
-      - release
+      - publish-release-artifacts
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
     runs-on: ubuntu-latest
     permissions:
@@ -257,7 +336,7 @@ jobs:
       - name: Promote GitHub Release draft
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v${{ needs.release.outputs.revision }}
+          RELEASE_TAG: v${{ needs['publish-release-artifacts'].outputs.revision }}
         run: |
           set -euo pipefail
 
