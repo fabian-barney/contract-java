@@ -11,7 +11,6 @@ on:
       revision:
         description: Maven project revision to release
         required: true
-        default: "0.1.0"
         type: string
   push:
     tags:
@@ -28,6 +27,8 @@ jobs:
   release:
     name: Build Release Artifacts
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       revision: ${{ steps.release-revision.outputs.revision }}
 
@@ -40,6 +41,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
@@ -64,8 +67,10 @@ jobs:
         env:
           DISPATCH_REVISION: ${{ inputs.revision }}
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
-            revision="$DISPATCH_REVISION"
+          set -euo pipefail
+
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            revision="${DISPATCH_REVISION:-}"
           else
             revision="${GITHUB_REF_NAME#v}"
           fi
@@ -77,11 +82,59 @@ jobs:
 
           echo "revision=$revision" >> "$GITHUB_OUTPUT"
 
+      - name: Verify release source
+        env:
+          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
+        run: |
+          set -euo pipefail
+
+          release_tag="v${RELEASE_REVISION}"
+          git fetch --force --tags origin
+
+          if ! git rev-parse --verify "${release_tag}^{commit}" >/dev/null 2>&1; then
+            echo "::error::Release tag ${release_tag} does not exist in the checked-out repository."
+            exit 1
+          fi
+
+          if [[ "$(git cat-file -t "$release_tag")" != "tag" ]]; then
+            echo "::error::Release tag ${release_tag} must be an annotated tag."
+            exit 1
+          fi
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF_NAME" != "$release_tag" ]]; then
+            echo "::error::The pushed ref does not match the resolved release tag."
+            exit 1
+          fi
+
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            git checkout --detach "$release_tag"
+          fi
+
+          tag_commit="$(git rev-parse "${release_tag}^{commit}")"
+          checkout_commit="$(git rev-parse HEAD)"
+
+          if [[ "$checkout_commit" != "$tag_commit" ]]; then
+            echo "::error::The release build source does not match ${release_tag}."
+            echo "::error::Checked out ${checkout_commit}; expected ${tag_commit}."
+            exit 1
+          fi
+
+          echo "Building ${release_tag} from ${checkout_commit}."
+
+      - name: Verify remote release tag
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null
+
       - name: Verify changelog release date
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
         env:
           RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
         run: |
+          set -euo pipefail
+
           if grep -Fxq "## ${RELEASE_REVISION} - TBD" CHANGELOG.md; then
             echo "::error::CHANGELOG.md must replace the target release TBD marker before tagging or publishing."
             exit 1
@@ -93,13 +146,6 @@ jobs:
             exit 1
           fi
 
-      - name: Verify release tag exists
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
-        run: gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null
-
       - name: Build and verify release artifacts
         run: >
           ./mvnw -B -ntp -Prelease
@@ -110,6 +156,7 @@ jobs:
         env:
           RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
         run: |
+          set -euo pipefail
           mkdir -p target/release-assets/sbom
 
           stage_bom() {
@@ -139,6 +186,56 @@ jobs:
           test -n "$MAVEN_CENTRAL_TOKEN_USERNAME"
           test -n "$MAVEN_CENTRAL_TOKEN_PASSWORD"
 
+      - name: Create GitHub Release draft
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
+          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          assets=(target/release-assets/sbom/*)
+          if [[ "${#assets[@]}" -eq 0 ]]; then
+            echo "::error::No SBOM release assets were staged."
+            exit 1
+          fi
+
+          notes_file="$RUNNER_TEMP/release-notes.md"
+          awk -v prefix="## ${RELEASE_REVISION} - " '
+            index($0, prefix) == 1 { in_section=1 }
+            in_section && $0 ~ /^## / && index($0, prefix) != 1 { exit }
+            in_section && substr($0, 1, 1) == "[" && index($0, "]:") > 0 { exit }
+            in_section { print }
+          ' CHANGELOG.md > "$notes_file"
+
+          if [[ ! -s "$notes_file" ]]; then
+            echo "::error::No release notes were found for ${RELEASE_TAG}."
+            exit 1
+          fi
+
+          if gh release view "$RELEASE_TAG" --json isDraft >/dev/null 2>&1; then
+            is_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')"
+            if [[ "$is_draft" != "true" ]]; then
+              echo "::error::Release ${RELEASE_TAG} already exists and is not a draft."
+              exit 1
+            fi
+
+            gh release edit "$RELEASE_TAG" \
+              --verify-tag \
+              --title "$RELEASE_TAG" \
+              --notes-file "$notes_file" \
+              --draft
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          else
+            gh release create "$RELEASE_TAG" "${assets[@]}" \
+              --verify-tag \
+              --draft \
+              --title "$RELEASE_TAG" \
+              --notes-file "$notes_file"
+          fi
+
       - name: Publish release artifacts
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
         run: >
@@ -147,8 +244,8 @@ jobs:
           -s .github/maven-settings.xml
           deploy
 
-  publish-sbom-release-assets:
-    name: Publish SBOM Release Assets
+  finalize-release:
+    name: Publish GitHub Release
     needs:
       - release
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
@@ -157,44 +254,23 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-        with:
-          fetch-depth: 0
-
-      - name: Download SBOM workflow artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: release-sboms-${{ needs.release.outputs.revision }}
-          path: target/release-assets/sbom
-
-      - name: Upload SBOM GitHub Release assets
+      - name: Promote GitHub Release draft
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: v${{ needs.release.outputs.revision }}
         run: |
-          shopt -s nullglob
-          assets=(target/release-assets/sbom/*)
+          set -euo pipefail
 
-          if [ "${#assets[@]}" -eq 0 ]; then
-            echo "::error::No SBOM release assets were staged."
+          is_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')"
+          if [[ "$is_draft" != "true" ]]; then
+            echo "::error::Release ${RELEASE_TAG} is not a draft and cannot be promoted safely."
             exit 1
           fi
 
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            existing_assets="$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')"
-            missing=0
-
-            for asset in "${assets[@]}"; do
-              asset_name="$(basename "$asset")"
-
-              if ! grep -Fxq "$asset_name" <<< "$existing_assets"; then
-                echo "::error::Release $RELEASE_TAG already exists without expected asset $asset_name."
-                missing=1
-              fi
-            done
-
-            exit "$missing"
+          gh release edit "$RELEASE_TAG" --draft=false
+          is_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')"
+          if [[ "$is_draft" != "false" ]]; then
+            echo "::error::Release ${RELEASE_TAG} was not promoted to a published release."
+            exit 1
           fi
-
-          gh release create "$RELEASE_TAG" "${assets[@]}" --verify-tag --title "$RELEASE_TAG" --notes "Release $RELEASE_TAG"
+          gh release view "$RELEASE_TAG" --json tagName,isDraft,publishedAt,assets

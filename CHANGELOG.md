@@ -7,6 +7,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 0.1.7 - 2026-08-09
+
 ### Changed
 
 - Updated the Spring Boot starter support matrix to Spring Boot `4.0.x` and
@@ -16,6 +18,36 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Ensured constructor preconditions follow explicit constructor invocations and
   custom mask renderer `Error` subtypes propagate instead of being swallowed.
+
+## 0.1.6 - 2026-08-03
+
+### Changed
+
+- Updated `org.jspecify:jspecify` from 1.0.0 to 1.0.1.
+
+## 0.1.5 - 2026-07-19
+
+### Changed
+
+- Updated `org.junit:junit-bom` from 6.1.0 to 6.1.1.
+
+## 0.1.4 - 2026-06-28
+
+### Changed
+
+- Updated `com.uber.nullaway:nullaway` from 0.13.6 to 0.13.7.
+
+## 0.1.3 - 2026-06-28
+
+### Changed
+
+- Updated `org.cyclonedx:cyclonedx-maven-plugin` from 2.9.1 to 2.9.2.
+
+## 0.1.2 - 2026-06-28
+
+### Changed
+
+- Updated `com.diffplug.spotless:spotless-maven-plugin` from 3.6.0 to 3.7.0.
 
 ## 0.1.1 - 2026-06-19
 
@@ -49,5 +81,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
+[0.1.7]: https://github.com/fabian-barney/contract-java/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/fabian-barney/contract-java/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/fabian-barney/contract-java/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/fabian-barney/contract-java/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.7...HEAD
