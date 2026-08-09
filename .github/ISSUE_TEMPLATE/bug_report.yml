@@ -14,7 +14,7 @@ body:
     attributes:
       label: Affected version
       description: Which release, snapshot, or commit is affected?
-      placeholder: "0.1.0-SNAPSHOT"
+      placeholder: "x.y.z-SNAPSHOT"
     validations:
       required: true
   - type: textarea

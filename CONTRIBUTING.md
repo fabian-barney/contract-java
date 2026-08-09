@@ -113,9 +113,9 @@ The reactor version is controlled by the root `pom.xml` `revision` property.
 Change it by manually editing that single property; do not use
 `versions-maven-plugin set-property` unless a future issue explicitly adds that
 workflow. Child modules should keep `${revision}` in their parent declarations.
-For a release PR, set `revision` to the release version such as `0.1.0`. After
+For a release PR, set `revision` to the release version such as `1.2.3`. After
 the release is published, open a dedicated snapshot-bump PR that sets
-`revision` to the next snapshot version such as `0.1.1-SNAPSHOT`.
+`revision` to the next patch snapshot such as `1.2.4-SNAPSHOT`.
 
 Every release PR must update `CHANGELOG.md`: move completed `Unreleased` notes
 into the target version section, add the release date, and leave a fresh
@@ -131,34 +131,35 @@ is available, and `MAVEN_GPG_PASSPHRASE` is set when the key requires a
 passphrase:
 
 ```sh
-./mvnw -B -ntp -Prelease -Drevision=0.1.0 verify
+./mvnw -B -ntp -Prelease -Drevision=1.2.3 verify
 ```
 
 In PowerShell, quote dotted `-D` properties:
 
 ```powershell
-.\mvnw.cmd -B -ntp -Prelease "-Drevision=0.1.0" verify
+.\mvnw.cmd -B -ntp -Prelease "-Drevision=1.2.3" verify
 ```
 
-The manual `Release` workflow also accepts a `revision` input. For tag-triggered
-releases, the workflow derives the revision from the tag name by removing the
-leading `v`.
+The manual `Release` workflow requires an explicit `revision` input. For
+tag-triggered runs, it derives the revision from the tag name by removing the
+leading `v`; manual publish runs check out and verify the matching annotated tag
+commit before building.
 
 The `Release` GitHub Actions workflow is manual/tag-triggered and does not run
-for pull requests. It always imports the configured GPG key, signs release
-artifacts, and uploads the generated SBOM bundle and detached signatures as a
-workflow artifact. On tag pushes, or on manual runs with `publish=true`, it also
-attaches the SBOMs and signatures to the matching GitHub Release. Manual publish
-runs require the matching `vX.Y.Z` tag to already exist; the workflow will not
-create release tags implicitly. Central publication is disabled unless the
-manual `publish` input is set and repository credentials are configured.
+for pull requests. It imports the configured GPG key, signs release artifacts,
+and uploads the generated SBOM bundle and detached signatures as a workflow
+artifact. A manual run with `publish=true` creates or updates a GitHub Release
+draft from the matching changelog section and attaches the SBOM assets before
+publishing to Maven Central. The GitHub Release is promoted only after Central
+publication succeeds; if publication fails, the draft remains available for
+investigation. The workflow will not create release tags implicitly.
 
 Expected publishing configuration:
 
 - secret `MAVEN_CENTRAL_TOKEN_USERNAME`
 - secret `MAVEN_CENTRAL_TOKEN_PASSWORD`
 - secret `MAVEN_GPG_PRIVATE_KEY`
-- secret `MAVEN_GPG_PASSPHRASE`
+- secret `MAVEN_GPG_PASSPHRASE` when the signing key requires a passphrase
 
 Publish credentials must be Central Portal user-token credentials for the
 `central` Maven server id. The matching GPG public key must be published before
