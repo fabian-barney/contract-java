@@ -346,16 +346,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          is_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')"
+          is_draft="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
           if [[ "$is_draft" != "true" ]]; then
             echo "::error::Release ${RELEASE_TAG} is not a draft and cannot be promoted safely."
             exit 1
           fi
 
-          gh release edit "$RELEASE_TAG" --draft=false
-          is_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')"
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          is_draft="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
           if [[ "$is_draft" != "false" ]]; then
             echo "::error::Release ${RELEASE_TAG} was not promoted to a published release."
             exit 1
           fi
-          gh release view "$RELEASE_TAG" --json tagName,isDraft,publishedAt,assets
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName,isDraft,publishedAt,assets
