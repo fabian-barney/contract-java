@@ -73,7 +73,7 @@
     <spotless.version>3.9.0</spotless.version>
     <palantir.java.format.version>2.91.0</palantir.java.format.version>
     <spring.boot.40.version>4.0.7</spring.boot.40.version>
-    <spring.boot.41.version>4.1.0</spring.boot.41.version>
+    <spring.boot.41.version>4.1.1</spring.boot.41.version>
     <apiguardian.version>1.1.2</apiguardian.version>
   </properties>
 
