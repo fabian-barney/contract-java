@@ -22,6 +22,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Position;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -190,7 +191,11 @@ public final class ContractProcessor extends AbstractProcessor {
 
             String methodName = methodName(method);
             List<ProcessorContract> returnContracts = resolver.semanticContracts(method.sym);
-            method.body = rewriteReturns(method.body, methodName, returnContracts);
+            method.body = rewriteReturns(
+                    method.body,
+                    methodName,
+                    returnContracts,
+                    method.sym.getReturnType().getKind());
             method.body.stats = injectParameterChecks(method, methodName);
             result = method;
         }
@@ -231,12 +236,13 @@ public final class ContractProcessor extends AbstractProcessor {
             return name.equals("this") || name.equals("super");
         }
 
-        private JCBlock rewriteReturns(JCBlock body, String methodName, List<ProcessorContract> returnContracts) {
+        private JCBlock rewriteReturns(
+                JCBlock body, String methodName, List<ProcessorContract> returnContracts, TypeKind returnType) {
             if (returnContracts.isEmpty()) {
                 return body;
             }
 
-            return (JCBlock) new ReturnTranslator(methodName, returnContracts).translate(body);
+            return (JCBlock) new ReturnTranslator(methodName, returnContracts, returnType).translate(body);
         }
 
         private List<JCStatement> parameterChecks(JCMethodDecl method, String methodName) {
@@ -301,10 +307,12 @@ public final class ContractProcessor extends AbstractProcessor {
 
         private final String methodName;
         private final List<ProcessorContract> contracts;
+        private final TypeKind returnType;
 
-        ReturnTranslator(String methodName, List<ProcessorContract> contracts) {
+        ReturnTranslator(String methodName, List<ProcessorContract> contracts, TypeKind returnType) {
             this.methodName = methodName;
             this.contracts = contracts;
+            this.returnType = returnType;
         }
 
         @Override
@@ -328,12 +336,32 @@ public final class ContractProcessor extends AbstractProcessor {
         }
 
         private String returnExpression(JCExpression expression) {
-            String source = expression.toString();
+            String source = primitiveReturnExpression(expression);
             for (ProcessorContract contract : contracts) {
                 source = contract.returnExpression(source, methodName);
             }
 
             return source;
+        }
+
+        private String primitiveReturnExpression(JCExpression expression) {
+            if (!isPrimitiveNumeric(returnType)) {
+                return expression.toString();
+            }
+
+            // Convert before overload resolution so widening expressions use the declared return bridge.
+            return "(" + primitiveTypeName(returnType) + ") (" + expression + ")";
+        }
+
+        private boolean isPrimitiveNumeric(TypeKind type) {
+            return switch (type) {
+                case BYTE, SHORT, INT, LONG, FLOAT, DOUBLE -> true;
+                default -> false;
+            };
+        }
+
+        private String primitiveTypeName(TypeKind type) {
+            return type.name().toLowerCase(Locale.ROOT);
         }
     }
 }

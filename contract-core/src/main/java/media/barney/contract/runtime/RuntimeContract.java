@@ -99,4 +99,46 @@ public enum RuntimeContract {
     };
 
     abstract boolean isValid(@Nullable Object value, ContractArguments arguments);
+
+    boolean isValid(long value, ContractArguments arguments) {
+        if (this == POSITIVE) {
+            return value > 0L;
+        }
+        if (this == NEGATIVE) {
+            return value < 0L;
+        }
+        if (this == NON_NEGATIVE) {
+            return value >= 0L;
+        }
+        if (this == NON_POSITIVE) {
+            return value <= 0L;
+        }
+        if (this == IN_RANGE) {
+            return ContractChecks.isInRange(
+                    value, arguments.min(), arguments.max(), arguments.minInclusive(), arguments.maxInclusive());
+        }
+
+        return false;
+    }
+
+    boolean isValid(double value, ContractArguments arguments) {
+        if (this == POSITIVE) {
+            return value > 0.0d;
+        }
+        if (this == NEGATIVE) {
+            return value < 0.0d;
+        }
+        if (this == NON_NEGATIVE) {
+            return value >= 0.0d;
+        }
+        if (this == NON_POSITIVE) {
+            return value <= 0.0d;
+        }
+        if (this == IN_RANGE) {
+            return ContractChecks.isInRange(
+                    value, arguments.min(), arguments.max(), arguments.minInclusive(), arguments.maxInclusive());
+        }
+
+        return false;
+    }
 }

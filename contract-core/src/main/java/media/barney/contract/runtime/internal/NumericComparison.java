@@ -53,6 +53,14 @@ final class NumericComparison {
         return false;
     }
 
+    static boolean isInRange(long value, long min, long max, boolean minInclusive, boolean maxInclusive) {
+        return inLongRange(value, min, max, minInclusive, maxInclusive);
+    }
+
+    static boolean isInRange(double value, long min, long max, boolean minInclusive, boolean maxInclusive) {
+        return inDoubleRange(value, min, max, minInclusive, maxInclusive);
+    }
+
     private static int compareDouble(double value) {
         if (Double.isNaN(value)) {
             return UNSUPPORTED;

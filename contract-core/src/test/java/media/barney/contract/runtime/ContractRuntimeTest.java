@@ -72,6 +72,38 @@ class ContractRuntimeTest {
     }
 
     @Test
+    void primitiveBridgesUseDedicatedNumericValidationPaths() {
+        assertDoesNotThrow(() -> {
+            requireLongParameter(1L, RuntimeContract.POSITIVE);
+            requireLongParameter(-1L, RuntimeContract.NEGATIVE);
+            requireLongParameter(0L, RuntimeContract.NON_NEGATIVE);
+            requireLongParameter(0L, RuntimeContract.NON_POSITIVE);
+            requireLongParameter(1L, RuntimeContract.IN_RANGE);
+
+            requireDoubleParameter(1.0d, RuntimeContract.POSITIVE);
+            requireDoubleParameter(-1.0d, RuntimeContract.NEGATIVE);
+            requireDoubleParameter(0.0d, RuntimeContract.NON_NEGATIVE);
+            requireDoubleParameter(0.0d, RuntimeContract.NON_POSITIVE);
+            requireDoubleParameter(1.0d, RuntimeContract.IN_RANGE);
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> requireLongParameter(1L, RuntimeContract.NOT_EMPTY));
+        assertThrows(IllegalArgumentException.class, () -> requireDoubleParameter(1.0d, RuntimeContract.NOT_EMPTY));
+
+        assertThrows(IllegalArgumentException.class, () -> requireLongParameter(0L, RuntimeContract.POSITIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireLongParameter(0L, RuntimeContract.NEGATIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireLongParameter(-1L, RuntimeContract.NON_NEGATIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireLongParameter(1L, RuntimeContract.NON_POSITIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireLongParameter(3L, RuntimeContract.IN_RANGE));
+
+        assertThrows(IllegalArgumentException.class, () -> requireDoubleParameter(0.0d, RuntimeContract.POSITIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireDoubleParameter(0.0d, RuntimeContract.NEGATIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireDoubleParameter(-1.0d, RuntimeContract.NON_NEGATIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireDoubleParameter(1.0d, RuntimeContract.NON_POSITIVE));
+        assertThrows(IllegalArgumentException.class, () -> requireDoubleParameter(3.0d, RuntimeContract.IN_RANGE));
+    }
+
+    @Test
     void sizeChecksSupportCharSequencesCollectionsMapsAndArrays() {
         assertTrue(ContractRuntime.hasSize("ab", 1, 2));
         assertTrue(ContractRuntime.hasSize(new StringBuilder("ab"), 1, 2));
@@ -227,6 +259,42 @@ class ContractRuntimeTest {
         } catch (NoSuchMethodException exception) {
             throw new AssertionError(exception);
         }
+    }
+
+    private static void requireLongParameter(long value, RuntimeContract contract) {
+        ContractRuntime.requireParameterValue(
+                value,
+                "com.example.Service.method",
+                "value",
+                contract,
+                "must satisfy the contract",
+                false,
+                null,
+                -2L,
+                2L,
+                true,
+                true,
+                0,
+                0,
+                null);
+    }
+
+    private static void requireDoubleParameter(double value, RuntimeContract contract) {
+        ContractRuntime.requireParameterValue(
+                value,
+                "com.example.Service.method",
+                "value",
+                contract,
+                "must satisfy the contract",
+                false,
+                null,
+                -2L,
+                2L,
+                true,
+                true,
+                0,
+                0,
+                null);
     }
 
     @SuppressWarnings({"unused", "PMD.UnusedPrivateMethod"})

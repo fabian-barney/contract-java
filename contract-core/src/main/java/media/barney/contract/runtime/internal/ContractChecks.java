@@ -74,6 +74,14 @@ public final class ContractChecks {
         return NumericComparison.isInRange(value, min, max, minInclusive, maxInclusive);
     }
 
+    public static boolean isInRange(long value, long min, long max, boolean minInclusive, boolean maxInclusive) {
+        return NumericComparison.isInRange(value, min, max, minInclusive, maxInclusive);
+    }
+
+    public static boolean isInRange(double value, long min, long max, boolean minInclusive, boolean maxInclusive) {
+        return NumericComparison.isInRange(value, min, max, minInclusive, maxInclusive);
+    }
+
     public static boolean hasSize(Object value, int min, int max) {
         if (value == null) {
             return true;

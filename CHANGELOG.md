@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Fixed
+
+- Avoided boxing and unboxing in generated primitive numeric contract checks
+  while retaining the existing object bridge for boxed values.
+
 ## 0.1.9 - 2026-08-29
 
 ### Changed
