@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.PrintWriter;
@@ -15,10 +16,19 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.spi.ToolProvider;
+import media.barney.contract.MaskRenderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class ContractProcessorIT {
+public class ContractProcessorIT {
+
+    public static final class TypeMask implements MaskRenderer {
+
+        @Override
+        public String render(Object value) {
+            return value.getClass().getSimpleName();
+        }
+    }
 
     @TempDir
     Path tempDirectory;
@@ -91,6 +101,178 @@ class ContractProcessorIT {
         assertInstanceOf(IllegalStateException.class, findCause);
     }
 
+    @Test
+    void usesPrimitiveRuntimeBridgesForNumericContracts() throws Exception {
+        String source = """
+                package example;
+                import media.barney.contract.Contract;
+                import media.barney.contract.processor.internal.ContractProcessorIT.TypeMask;
+                public class PrimitiveSample {
+                    public static void parameters(
+                            @Contract.Positive byte positiveByte,
+                            @Contract.Negative short negativeShort,
+                            @Contract.NonNegative int nonNegativeInt,
+                            @Contract.NonPositive long nonPositiveLong,
+                            @Contract.InRange(min = 0, max = 2) float rangedFloat,
+                            @Contract.Positive double positiveDouble) {
+                    }
+
+                    @Contract.Positive public static byte positiveByteConstant() {
+                        return 1;
+                    }
+
+                    @Contract.Negative public static short negativeShortConstant() {
+                        return -1;
+                    }
+
+                    @Contract.NonNegative public static int nonNegativeIntReturn(int value) {
+                        return value;
+                    }
+
+                    @Contract.NonPositive public static long nonPositiveLongReturn(long value) {
+                        return value;
+                    }
+
+                    @Contract.InRange(min = 0, max = 2) public static float rangedFloatReturn(long value) {
+                        return value;
+                    }
+
+                    @Contract.InRange(min = 0, max = 2, minInclusive = false, maxInclusive = false)
+                    public static double exclusiveDoubleReturn(double value) {
+                        return value;
+                    }
+
+                    @Contract.Positive public static double positiveDoubleReturn(double value) {
+                        return value;
+                    }
+
+                    @Contract.Mask(renderer = TypeMask.class)
+                    @Contract.Positive public static int maskedPrimitive(int value) {
+                        return value;
+                    }
+
+                    @Contract.Mask(renderer = TypeMask.class)
+                    @Contract.Positive public static byte maskedByte(byte value) {
+                        return value;
+                    }
+
+                    @Contract.Mask(renderer = TypeMask.class)
+                    @Contract.Positive public static short maskedShort(short value) {
+                        return value;
+                    }
+
+                    @Contract.Mask(renderer = TypeMask.class)
+                    @Contract.Positive public static long maskedLong(long value) {
+                        return value;
+                    }
+
+                    @Contract.Mask(renderer = TypeMask.class)
+                    @Contract.Positive public static float maskedFloat(float value) {
+                        return value;
+                    }
+
+                    @Contract.Mask(renderer = TypeMask.class)
+                    @Contract.Positive public static double maskedDouble(double value) {
+                        return value;
+                    }
+
+                    @Contract.Positive public static Integer boxedReturn(Integer value) {
+                        return value;
+                    }
+
+                }
+                """;
+        Path sourceFile = writeSource("example.PrimitiveSample", source);
+        Path outputDirectory = Files.createDirectory(tempDirectory.resolve("primitive-classes"));
+
+        ToolExecution compilation = runTool(
+                requiredTool("javac"),
+                "-classpath",
+                System.getProperty("java.class.path"),
+                "-processorpath",
+                System.getProperty("java.class.path"),
+                "-processor",
+                ContractProcessor.class.getCanonicalName(),
+                "-d",
+                outputDirectory.toString(),
+                sourceFile.toString());
+
+        assertEquals(0, compilation.exitCode(), compilation.combinedOutput());
+
+        String disassembly = runTool(
+                        requiredTool("javap"),
+                        "-classpath",
+                        outputDirectory.toString(),
+                        "-c",
+                        "-s",
+                        "example.PrimitiveSample")
+                .stdout();
+
+        assertEquals(6, count(disassembly, "ContractRuntime.requireParameterValue"), disassembly);
+        assertEquals(14, count(disassembly, "ContractRuntime.requireReturnValue"), disassembly);
+        for (String descriptor : new String[] {"B", "S", "I", "J", "F", "D"}) {
+            assertTrue(disassembly.contains("requireParameterValue:(" + descriptor), disassembly);
+            assertTrue(disassembly.contains("requireReturnValue:(" + descriptor), disassembly);
+        }
+        assertTrue(disassembly.contains("requireReturnValue:(Ljava/lang/Object;"), disassembly);
+        for (String wrapper : new String[] {"Byte", "Short", "Integer", "Long", "Float", "Double"}) {
+            assertFalse(disassembly.contains(wrapper + ".valueOf"), disassembly);
+        }
+        for (String conversion :
+                new String[] {"byteValue", "shortValue", "intValue", "longValue", "floatValue", "doubleValue"}) {
+            assertFalse(disassembly.contains(conversion), disassembly);
+        }
+
+        Class<?> type = load(outputDirectory, "example.PrimitiveSample");
+        Method parameters =
+                type.getMethod("parameters", byte.class, short.class, int.class, long.class, float.class, double.class);
+        assertDoesNotThrow(() -> parameters.invoke(null, (byte) 1, (short) -1, 0, 0L, 1.0f, 1.0d));
+        assertDoesNotThrow(() -> parameters.invoke(null, (byte) 1, (short) -1, 0, 0L, -0.0f, 1.0d));
+        assertInstanceOf(
+                IllegalArgumentException.class,
+                invocationCause(() -> parameters.invoke(null, (byte) 0, (short) -1, 0, 0L, 1.0f, 1.0d)));
+        assertInstanceOf(
+                IllegalArgumentException.class,
+                invocationCause(() -> parameters.invoke(null, (byte) 1, (short) -1, 0, 0L, 1.0f, Double.NaN)));
+
+        assertEquals((byte) 1, type.getMethod("positiveByteConstant").invoke(null));
+        assertEquals((short) -1, type.getMethod("negativeShortConstant").invoke(null));
+
+        Method nonNegativeInt = type.getMethod("nonNegativeIntReturn", int.class);
+        assertEquals(1, nonNegativeInt.invoke(null, 1));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> nonNegativeInt.invoke(null, -1)));
+
+        Method nonPositiveLong = type.getMethod("nonPositiveLongReturn", long.class);
+        assertEquals(0L, nonPositiveLong.invoke(null, 0L));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> nonPositiveLong.invoke(null, 1L)));
+
+        Method rangedFloat = type.getMethod("rangedFloatReturn", long.class);
+        assertEquals(1.0f, rangedFloat.invoke(null, 1L));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> rangedFloat.invoke(null, 3L)));
+
+        Method exclusiveDouble = type.getMethod("exclusiveDoubleReturn", double.class);
+        assertEquals(1.0d, exclusiveDouble.invoke(null, 1.0d));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> exclusiveDouble.invoke(null, 0.0d)));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> exclusiveDouble.invoke(null, 2.0d)));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> exclusiveDouble.invoke(null, Double.NaN)));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> exclusiveDouble.invoke(null, -0.0d)));
+
+        Method positiveDouble = type.getMethod("positiveDoubleReturn", double.class);
+        assertEquals(1.0d, positiveDouble.invoke(null, 1.0d));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> positiveDouble.invoke(null, 0.0d)));
+        assertInstanceOf(IllegalStateException.class, invocationCause(() -> positiveDouble.invoke(null, Double.NaN)));
+
+        assertMaskedPrimitive(type, "maskedPrimitive", int.class, 0, "Integer");
+        assertMaskedPrimitive(type, "maskedByte", byte.class, (byte) 0, "Byte");
+        assertMaskedPrimitive(type, "maskedShort", short.class, (short) 0, "Short");
+        assertMaskedPrimitive(type, "maskedLong", long.class, 0L, "Long");
+        assertMaskedPrimitive(type, "maskedFloat", float.class, 0.0f, "Float");
+        assertMaskedPrimitive(type, "maskedDouble", double.class, 0.0d, "Double");
+
+        Method boxed = type.getMethod("boxedReturn", Integer.class);
+        assertNull(boxed.invoke(null, new Object[] {null}));
+    }
+
     private Path writeSource(String className, String source) throws Exception {
         Path sourceDirectory = Files.createDirectories(tempDirectory.resolve("src"));
         Path sourceFile = sourceDirectory.resolve(className.replace('.', '/') + ".java");
@@ -145,6 +327,15 @@ class ContractProcessorIT {
                 new URLClassLoader(urls, Thread.currentThread().getContextClassLoader())) {
             return Class.forName(className, true, loader);
         }
+    }
+
+    private static void assertMaskedPrimitive(
+            Class<?> type, String methodName, Class<?> parameterType, Object value, String wrapperName)
+            throws Exception {
+        Method method = type.getMethod(methodName, parameterType);
+        Throwable cause = invocationCause(() -> method.invoke(null, value));
+        assertInstanceOf(IllegalStateException.class, cause);
+        assertTrue(cause.getMessage().contains(wrapperName), cause.getMessage());
     }
 
     private static Throwable invocationCause(ThrowingInvocation invocation) throws Exception {

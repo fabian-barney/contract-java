@@ -132,6 +132,174 @@ public final class ContractRuntime {
     }
 
     /**
+     * Evaluates a generated parameter contract without boxing a primitive value
+     * on the successful validation path.
+     */
+    public static void requireParameterValue(
+            byte value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
+        }
+    }
+
+    /**
+     * Evaluates a generated parameter contract without boxing a primitive value
+     * on the successful validation path.
+     */
+    public static void requireParameterValue(
+            short value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
+        }
+    }
+
+    /**
+     * Evaluates a generated parameter contract without boxing a primitive value
+     * on the successful validation path.
+     */
+    public static void requireParameterValue(
+            int value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
+        }
+    }
+
+    /**
+     * Evaluates a generated parameter contract without boxing a primitive value
+     * on the successful validation path.
+     */
+    public static void requireParameterValue(
+            long value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
+        }
+    }
+
+    /**
+     * Evaluates a generated parameter contract without boxing a primitive value
+     * on the successful validation path.
+     */
+    public static void requireParameterValue(
+            float value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
+        }
+    }
+
+    /**
+     * Evaluates a generated parameter contract without boxing a primitive value
+     * on the successful validation path.
+     */
+    public static void requireParameterValue(
+            double value,
+            String methodName,
+            String parameterName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.preconditionViolation(methodName, parameterName, rule, value, maskRenderer);
+        }
+    }
+
+    /**
      * Evaluates a generated return-value contract with pre-resolved metadata.
      *
      * <p>Generated code can use this lower-level entry point when it has already
@@ -162,6 +330,180 @@ public final class ContractRuntime {
      */
     public static <T extends @Nullable Object> T requireReturnValue(
             T value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
+        }
+
+        return value;
+    }
+
+    /**
+     * Evaluates a generated primitive return-value contract without boxing the
+     * value on the successful validation path.
+     */
+    public static byte requireReturnValue(
+            byte value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
+        }
+
+        return value;
+    }
+
+    /**
+     * Evaluates a generated primitive return-value contract without boxing the
+     * value on the successful validation path.
+     */
+    public static short requireReturnValue(
+            short value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
+        }
+
+        return value;
+    }
+
+    /**
+     * Evaluates a generated primitive return-value contract without boxing the
+     * value on the successful validation path.
+     */
+    public static int requireReturnValue(
+            int value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
+        }
+
+        return value;
+    }
+
+    /**
+     * Evaluates a generated primitive return-value contract without boxing the
+     * value on the successful validation path.
+     */
+    public static long requireReturnValue(
+            long value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
+        }
+
+        return value;
+    }
+
+    /**
+     * Evaluates a generated primitive return-value contract without boxing the
+     * value on the successful validation path.
+     */
+    public static float requireReturnValue(
+            float value,
+            String methodName,
+            RuntimeContract contract,
+            String description,
+            boolean customDescription,
+            @Nullable Class<? extends MaskRenderer> maskRenderer,
+            long min,
+            long max,
+            boolean minInclusive,
+            boolean maxInclusive,
+            int sizeMin,
+            int sizeMax,
+            @Nullable String regexp) {
+        ContractRule rule = new ContractRule(description, customDescription);
+        ContractArguments arguments =
+                new ContractArguments(min, max, minInclusive, maxInclusive, sizeMin, sizeMax, regexp);
+
+        if (!contract.isValid(value, arguments)) {
+            throw ContractMessages.postconditionViolation(methodName, rule, value, maskRenderer);
+        }
+
+        return value;
+    }
+
+    /**
+     * Evaluates a generated primitive return-value contract without boxing the
+     * value on the successful validation path.
+     */
+    public static double requireReturnValue(
+            double value,
             String methodName,
             RuntimeContract contract,
             String description,
