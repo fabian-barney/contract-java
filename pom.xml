@@ -54,6 +54,7 @@
     <central.deployment.repository.name>contract-java</central.deployment.repository.name>
     <cyclonedx.maven.plugin.version>2.9.3</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.3</crap-java.version>
+    <crap-java.threshold>8.0</crap-java.threshold>
     <cognitive-java.version>0.6.0</cognitive-java.version>
     <errorprone.version>2.50.0</errorprone.version>
     <junit.version>6.1.2</junit.version>
@@ -252,7 +253,7 @@
             <artifactId>crap-java-maven-plugin</artifactId>
             <version>${crap-java.version}</version>
             <configuration>
-              <threshold>8.0</threshold>
+              <threshold>${crap-java.threshold}</threshold>
             </configuration>
             <executions>
               <execution>
@@ -288,7 +289,7 @@
             <artifactId>crap-java-maven-plugin</artifactId>
             <version>${crap-java.version}</version>
             <configuration>
-              <threshold>8.0</threshold>
+              <threshold>${crap-java.threshold}</threshold>
             </configuration>
             <executions>
               <execution>
