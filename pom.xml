@@ -55,9 +55,9 @@
     <cyclonedx.maven.plugin.version>2.9.3</cyclonedx.maven.plugin.version>
     <crap-java.version>0.6.3</crap-java.version>
     <crap-java.threshold>8.0</crap-java.threshold>
-    <cognitive-java.version>0.6.0</cognitive-java.version>
+    <cognitive-java.version>0.7.0</cognitive-java.version>
     <errorprone.version>2.50.0</errorprone.version>
-    <junit.version>6.1.2</junit.version>
+    <junit.version>6.1.3</junit.version>
     <jacoco.version>0.8.15</jacoco.version>
     <jspecify.version>1.0.1</jspecify.version>
     <nullaway.version>0.13.8</nullaway.version>
