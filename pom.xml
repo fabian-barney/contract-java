@@ -43,7 +43,7 @@
   </scm>
 
   <properties>
-    <revision>0.1.10-SNAPSHOT</revision>
+    <revision>0.1.10</revision>
     <scm.tag>HEAD</scm.tag>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
