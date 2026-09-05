@@ -474,7 +474,7 @@ Example coordinates:
 <dependency>
     <groupId>media.barney</groupId>
     <artifactId>contract-core</artifactId>
-    <version>0.1.10</version>
+    <version>0.1.12</version>
 </dependency>
 ```
 
@@ -482,7 +482,7 @@ Example coordinates:
 <dependency>
     <groupId>media.barney</groupId>
     <artifactId>contract-spring-boot-starter</artifactId>
-    <version>0.1.10</version>
+    <version>0.1.12</version>
 </dependency>
 ```
 

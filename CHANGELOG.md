@@ -7,6 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 0.1.12 - 2026-09-05
+
+### Changed
+
+- Updated `com.uber.nullaway:nullaway` from 0.13.8 to 0.14.0.
+- Updated the GitHub Actions Java setup action from 5.7.0 to 6.0.0.
+
+## 0.1.11 - 2026-09-05
+
+### Changed
+
+- Updated `com.diffplug.spotless:spotless-maven-plugin` from 3.10.0 to 3.10.1.
+
 ## 0.1.10 - 2026-08-30
 
 ### Fixed
@@ -108,6 +121,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
+[0.1.12]: https://github.com/fabian-barney/contract-java/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/fabian-barney/contract-java/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/fabian-barney/contract-java/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/fabian-barney/contract-java/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/fabian-barney/contract-java/compare/v0.1.7...v0.1.8
@@ -118,4 +133,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.12...HEAD
