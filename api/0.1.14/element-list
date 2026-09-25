@@ -1,0 +1,5 @@
+module:media.barney.contract.core
+media.barney.contract
+media.barney.contract.runtime
+module:media.barney.contract.spring.boot.starter
+media.barney.contract.spring
