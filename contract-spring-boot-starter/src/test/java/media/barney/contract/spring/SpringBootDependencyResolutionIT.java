@@ -156,11 +156,13 @@ class SpringBootDependencyResolutionIT {
         List<String> command = mavenCommand();
         command.add("-B");
         command.add("-ntp");
+        command.add("-f");
+        command.add(workingDirectory.resolve("pom.xml").toString());
         command.addAll(List.of(arguments));
         Path outputFile = Files.createTempFile("contract-spring-boot-smoke-", ".log");
 
         Process process = new ProcessBuilder(command)
-                .directory(workingDirectory.toFile())
+                .directory(Path.of(requiredProperty("reactor.root")).toFile())
                 .redirectErrorStream(true)
                 .redirectOutput(outputFile.toFile())
                 .start();
@@ -182,8 +184,7 @@ class SpringBootDependencyResolutionIT {
         boolean windows =
                 System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
         if (windows) {
-            return new java.util.ArrayList<>(
-                    List.of("cmd.exe", "/c", root.resolve("mvnw.cmd").toString()));
+            return new java.util.ArrayList<>(List.of("cmd.exe", "/d", "/c", "mvnw.cmd"));
         }
 
         return new java.util.ArrayList<>(List.of(root.resolve("mvnw").toString()));

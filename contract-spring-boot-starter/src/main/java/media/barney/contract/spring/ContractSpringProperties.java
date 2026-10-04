@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * conditional: setting these properties only affects beans whose required
  * Spring Boot, actuator, or servlet classes are available.
  */
-@API(status = API.Status.EXPERIMENTAL)
+@API(status = API.Status.MAINTAINED)
 @ConfigurationProperties(prefix = "contract.spring")
 public class ContractSpringProperties {
 
@@ -51,7 +51,7 @@ public class ContractSpringProperties {
      * because contract violations indicate programming mistakes, not
      * recoverable request validation failures.
      */
-    @API(status = API.Status.EXPERIMENTAL)
+    @API(status = API.Status.MAINTAINED)
     public static final class WebExceptionHandlerSettings {
 
         private boolean enabled;
@@ -82,7 +82,7 @@ public class ContractSpringProperties {
      * <p>This integration is enabled by default but remains conditional on
      * Spring Boot actuator being present.
      */
-    @API(status = API.Status.EXPERIMENTAL)
+    @API(status = API.Status.MAINTAINED)
     public static final class ActuatorInfoSettings {
 
         private boolean enabled = true;

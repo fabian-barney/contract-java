@@ -7,6 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 1.0.0 - 2026-10-04
+
+### Changed
+
+- Stabilized the documented public APIs of both core and Spring Boot starter.
+  Starter auto-configuration, properties, and nested settings are maintained;
+  incompatible API or documented behavior changes now require a major version.
+- Updated installation examples and field/starter documentation while preserving
+  null handling, exception types, masking, property defaults, optional
+  integrations, and Java/Boot support.
+- Updated build verification tooling since 0.1.14, including CRAP Maven plugin
+  1.0.1, NullAway 0.14.2, and current pinned Maven plugins and CI actions.
+
 ### Added
 
 - Automated release candidates from protected `main` with signed tags, retained
@@ -148,6 +161,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 [0.1.12]: https://github.com/fabian-barney/contract-java/compare/v0.1.11...v0.1.12
 [0.1.14]: https://github.com/fabian-barney/contract-java/compare/v0.1.13...v0.1.14
+[1.0.0]: https://github.com/fabian-barney/contract-java/compare/v0.1.14...v1.0.0
 [0.1.13]: https://github.com/fabian-barney/contract-java/compare/v0.1.12...v0.1.13
 [0.1.11]: https://github.com/fabian-barney/contract-java/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/fabian-barney/contract-java/compare/v0.1.9...v0.1.10
@@ -160,4 +174,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v1.0.0...HEAD
