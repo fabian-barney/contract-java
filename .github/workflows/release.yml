@@ -93,6 +93,12 @@ jobs:
       - name: Restore original payload on retries
         id: restore
         run: python .github/scripts/release_restore.py
+      - name: Import and test encrypted private key before building or tagging
+        if: steps.restore.outputs.needs-signing == 'true'
+        env:
+          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: python .github/scripts/release_payload.py import-key
       - name: Build unsigned release payload once
         if: steps.restore.outputs.restored != 'true'
         env:
@@ -103,11 +109,6 @@ jobs:
           ./mvnw -B -ntp -Prelease "-Dscm.tag=v${RELEASE_VERSION}" \
             "-Dproject.build.outputTimestamp=${epoch}" -Dgpg.skip=true clean verify
           python .github/scripts/release_payload.py stage
-      - name: Import and test encrypted private key
-        env:
-          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        run: python .github/scripts/release_payload.py import-key
       - name: Sign and validate retained bytes
         if: steps.restore.outputs.restored != 'true'
         env:
