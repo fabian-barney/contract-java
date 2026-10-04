@@ -146,9 +146,9 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
-[0.1.12]: https://github.com/fabian-barney/contract-java/compare/v0.1.11...v0.1.12
 [0.1.14]: https://github.com/fabian-barney/contract-java/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/fabian-barney/contract-java/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/fabian-barney/contract-java/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/fabian-barney/contract-java/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/fabian-barney/contract-java/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/fabian-barney/contract-java/compare/v0.1.8...v0.1.9
