@@ -4,9 +4,10 @@ import hashlib
 import os
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from release_common import CENTRAL, fetch, require
+from release_common import CENTRAL, NS, fetch, require
 
 SOURCE = """package consumer;
 import media.barney.contract.Contract;
@@ -30,13 +31,35 @@ public class Main {
 """
 
 
+def annotation_paths(pom: Path, repository: Path) -> list[Path]:
+    identities = {("org.apiguardian", "apiguardian-api"), ("org.jspecify", "jspecify")}
+    resolved = {}
+    for dependency in ET.parse(pom).findall("m:dependencies/m:dependency", NS):
+        group = dependency.findtext("m:groupId", namespaces=NS)
+        artifact = dependency.findtext("m:artifactId", namespaces=NS)
+        identity = (group, artifact)
+        if identity not in identities:
+            continue
+        version = dependency.findtext("m:version", namespaces=NS)
+        require(version and "${" not in version, "Unresolved consumer dependency")
+        resolved[identity] = (
+            repository
+            / group.replace(".", "/")
+            / artifact
+            / version
+            / f"{artifact}-{version}.jar"
+        )
+    require(
+        resolved.keys() == identities, "Missing annotation dependencies in resolved POM"
+    )
+    return [resolved[identity] for identity in sorted(identities)]
+
+
 def consumers(version: str) -> None:
     current = Path(f"contract-core/target/contract-core-{version}.jar").resolve()
-    repository = Path.home() / ".m2/repository"
-    annotations = [
-        repository / "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar",
-        repository / "org/jspecify/jspecify/1.0.1/jspecify-1.0.1.jar",
-    ]
+    annotations = annotation_paths(
+        Path("contract-core/.flattened-pom.xml"), Path.home() / ".m2/repository"
+    )
     require(
         current.is_file() and all(path.is_file() for path in annotations),
         "Missing consumer dependencies",

@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import release_consumer as consumer
 import release_control as control
 import release_payload as payload
 import release_publish as publish
@@ -187,6 +188,28 @@ class CandidateTests(unittest.TestCase):
 
 
 class PayloadTests(unittest.TestCase):
+    def test_consumers_follow_resolved_annotation_versions(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            pom = root / "core.pom"
+            pom.write_text(
+                '<project xmlns="http://maven.apache.org/POM/4.0.0"><dependencies>'
+                "<dependency><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId><version>2.0.0</version></dependency>"
+                "<dependency><groupId>org.jspecify</groupId><artifactId>jspecify</artifactId><version>3.0.0</version></dependency>"
+                "</dependencies></project>"
+            )
+            paths = consumer.annotation_paths(pom, root)
+            self.assertEqual(
+                [path.relative_to(root).as_posix() for path in paths],
+                [
+                    "org/apiguardian/apiguardian-api/2.0.0/apiguardian-api-2.0.0.jar",
+                    "org/jspecify/jspecify/3.0.0/jspecify-3.0.0.jar",
+                ],
+            )
+            pom.write_text(pom.read_text().replace("3.0.0", "${jspecify.version}"))
+            with self.assertRaisesRegex(ValueError, "Unresolved consumer dependency"):
+                consumer.annotation_paths(pom, root)
+
     def test_unresolved_pom_fails(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "artifact.pom"
