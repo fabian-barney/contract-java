@@ -100,6 +100,20 @@
   </dependencyManagement>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${maven.multiModuleProjectDirectory}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+          <include>THIRD-PARTY-LICENSES.md</include>
+        </includes>
+      </resource>
+    </resources>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -372,6 +386,31 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.4.0</version>
+            <executions>
+              <execution>
+                <id>javadoc-legal-files</id>
+                <phase>prepare-package</phase>
+                <goals><goal>copy-resources</goal></goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/reports/apidocs/META-INF</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${maven.multiModuleProjectDirectory}</directory>
+                      <includes>
+                        <include>LICENSE</include>
+                        <include>NOTICE</include>
+                        <include>THIRD-PARTY-LICENSES.md</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
             <version>${central.publishing.maven.plugin.version}</version>
@@ -394,6 +433,7 @@
               <outputFormat>all</outputFormat>
               <outputName>bom</outputName>
               <skipNotDeployed>false</skipNotDeployed>
+              <includeTestScope>false</includeTestScope>
             </configuration>
             <executions>
               <execution>
@@ -422,12 +462,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven.javadoc.plugin.version}</version>
-            <configuration>
-              <source>${maven.compiler.release}</source>
-              <excludePackageNames>*.internal</excludePackageNames>
-              <doclint>none</doclint>
-              <failOnError>true</failOnError>
-            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -436,6 +470,13 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+              <source>${maven.compiler.release}</source>
+              <excludePackageNames>*.internal</excludePackageNames>
+              <doclint>none</doclint>
+              <failOnError>true</failOnError>
+              <notimestamp>true</notimestamp>
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
