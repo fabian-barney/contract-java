@@ -11,6 +11,9 @@ from release_payload import stage
 
 
 def preflight() -> None:
+    if os.name != "nt":
+        wrapper_path = Path("mvnw")
+        wrapper_path.chmod(wrapper_path.stat().st_mode | 0o111)
     sha = git("rev-parse", "HEAD")
     epoch, instant = timestamp(sha)
     current = revision(Path("pom.xml").read_text())

@@ -43,6 +43,8 @@ def secret_environment() -> dict[str, str]:
 
 
 def import_key(expected: str = FINGERPRINT) -> None:
+    home = os.environ.get("GNUPGHOME")
+    require(home and Path(home).is_dir(), "An isolated signing keyring is required")
     key = decode_private_key()
     require(
         key and os.environ.get("MAVEN_GPG_PASSPHRASE"), "Missing signing credentials"
