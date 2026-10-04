@@ -37,13 +37,18 @@ def restore() -> None:
             check=True,
         )
         verify(Path("target/release-payload"), release)
-        output({"restored": "true"})
+        output(
+            {
+                "restored": "true",
+                "needs-signing": "false" if release["retry"] else "true",
+            }
+        )
         return
     require(
         not release["retry"],
         "A tag exists but original bytes are unavailable; do not rebuild",
     )
-    output({"restored": "false"})
+    output({"restored": "false", "needs-signing": "true"})
 
 
 if __name__ == "__main__":
