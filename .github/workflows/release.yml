@@ -131,6 +131,7 @@ jobs:
       - name: Create draft and verify fourteen assets
         run: python .github/scripts/release_publish.py draft
       - name: Attest Maven payloads and checksum manifests
+        # actions/attest v4 defaults to SLSA provenance without SBOM/predicate inputs.
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
         with:
           subject-path: |
