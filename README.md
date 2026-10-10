@@ -41,19 +41,18 @@ integrations, but they are not exported as public modules.
 
 ## Versioning
 
-`contract-java` follows semantic versioning for stable releases. After `1.0.0`,
-breaking changes to maintained public API require a major version.
-
-Before `1.0.0`, the project is still in initial development. `0.x` minor
-releases may contain breaking API or generated-code changes, while patch
-releases should remain compatible unless a documented security or correctness
-fix requires otherwise.
+`contract-java` follows semantic versioning. Starting with `1.0.0`, both
+`contract-core` and `contract-spring-boot-starter` have maintained public APIs.
+Breaking changes to those APIs or documented behavior require a major version;
+minor releases add compatible functionality and patch releases provide
+compatible fixes.
 
 The compatibility promise covers APIs annotated with API Guardian
 `@API(status = MAINTAINED)` and the documented generated-code contract.
-Starter types annotated `@API(status = EXPERIMENTAL)` may still change in minor
-releases until promoted. Packages named `internal` are outside the compatibility
-promise.
+The starter's auto-configuration class, configuration-properties class, and
+nested settings types are maintained. Their documented property names, defaults,
+conditional integrations, and exception mapping are part of the stable promise.
+Packages named `internal` are outside the compatibility promise.
 
 Breaking changes include:
 
@@ -66,6 +65,12 @@ Breaking changes include:
 - Changing documented exception types, including parameter and
   constructor-parameter failures no longer throwing `IllegalArgumentException`
   or return-value failures no longer throwing `IllegalStateException`.
+- Changing documented null handling, masking guarantees, starter property
+  defaults, or optional integration behavior incompatibly.
+
+Previously generated code remains compatible with the maintained runtime bridge
+throughout the `1.x` line. Supported Java and Spring Boot versions follow the
+documented support policy; this release preserves the existing targets.
 
 The compatibility promise does not cover implementation details such as
 processor internals, packages named `internal`, exact bytecode instruction
@@ -80,7 +85,7 @@ Use `contract-core` directly in plain Java projects:
 <dependency>
   <groupId>media.barney</groupId>
   <artifactId>contract-core</artifactId>
-  <version>0.1.12</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -90,7 +95,7 @@ Use the Spring Boot starter in Boot applications:
 <dependency>
   <groupId>media.barney</groupId>
   <artifactId>contract-spring-boot-starter</artifactId>
-  <version>0.1.12</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -100,8 +105,8 @@ Gradle Kotlin DSL:
 import org.gradle.api.tasks.compile.JavaCompile
 
 dependencies {
-    implementation("media.barney:contract-core:0.1.12")
-    annotationProcessor("media.barney:contract-core:0.1.12")
+    implementation("media.barney:contract-core:1.0.0")
+    annotationProcessor("media.barney:contract-core:1.0.0")
 }
 
 val contractProcessorJvmArgs = listOf(
@@ -130,8 +135,8 @@ Gradle Groovy DSL:
 
 ```groovy
 dependencies {
-    implementation 'media.barney:contract-core:0.1.12'
-    annotationProcessor 'media.barney:contract-core:0.1.12'
+    implementation 'media.barney:contract-core:1.0.0'
+    annotationProcessor 'media.barney:contract-core:1.0.0'
 }
 
 def contractProcessorJvmArgs = [
@@ -157,7 +162,7 @@ tasks.withType(JavaCompile).configureEach {
 ```
 
 Spring Boot applications can use
-`media.barney:contract-spring-boot-starter:0.1.12` as the
+`media.barney:contract-spring-boot-starter:1.0.0` as the
 `implementation` dependency while keeping `media.barney:contract-core` on the
 `annotationProcessor` path.
 
@@ -344,7 +349,7 @@ lombok.copyableAnnotations += media.barney.contract.Contract.Size
 lombok.copyableAnnotations += media.barney.contract.Contract.Pattern
 ```
 
-Field declarations are not directly enforced in the current `0.x` release line.
+Field declarations are metadata and are not directly enforced in version 1.
 Contracts copied by
 Lombok onto supported method, constructor, or parameter targets are enforced.
 

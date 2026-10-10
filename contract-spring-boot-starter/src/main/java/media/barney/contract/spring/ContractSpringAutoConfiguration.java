@@ -25,7 +25,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * with {@code contract.spring.web-exception-handler.enabled=true}; it maps
  * contract-java runtime bridge violations to bodyless HTTP 500 responses.
  */
-@API(status = API.Status.EXPERIMENTAL)
+@API(status = API.Status.MAINTAINED)
 @AutoConfiguration
 @EnableConfigurationProperties(ContractSpringProperties.class)
 public class ContractSpringAutoConfiguration {

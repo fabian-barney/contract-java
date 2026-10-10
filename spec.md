@@ -342,6 +342,14 @@ The supported generated-code surface is the public annotation package
 `media.barney.contract` plus the generated-code runtime bridge package
 `media.barney.contract.runtime`.
 
+Starting with `1.0.0`, both core and Spring Boot starter public APIs annotated
+`MAINTAINED` are stable. Incompatible changes require a major version. This
+includes the starter's auto-configuration, configuration properties and nested
+settings types, documented property names/defaults, conditional integrations,
+and exception mapping. Existing null handling, masking, exception types, and
+generated-code runtime bridge behavior remain unchanged. Internal packages are
+outside this promise; the existing Java and Spring Boot support policy remains.
+
 The following behavior is part of the compatibility promise within a compatible
 release line:
 
@@ -474,7 +482,7 @@ Example coordinates:
 <dependency>
     <groupId>media.barney</groupId>
     <artifactId>contract-core</artifactId>
-    <version>0.1.12</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -482,7 +490,7 @@ Example coordinates:
 <dependency>
     <groupId>media.barney</groupId>
     <artifactId>contract-spring-boot-starter</artifactId>
-    <version>0.1.12</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
