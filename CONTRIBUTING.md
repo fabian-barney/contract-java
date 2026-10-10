@@ -102,7 +102,7 @@ processor code.
 Compile tests for the processor live in
 `contract-core/src/test/java/media/barney/contract/processor`.
 
-## Release Skeleton
+## Releases
 
 Do not include version bumps in ordinary feature, fix, or documentation PRs.
 Version changes belong in release or snapshot-bump PRs so the changelog,
@@ -123,50 +123,35 @@ into the target version section, add the release date, and leave a fresh
 tagging or publishing a release. The release workflow rejects target version
 sections that still use the `TBD` date marker.
 
-The `release` Maven profile attaches source and Javadoc jars, generates
-CycloneDX XML and JSON SBOMs for published modules, signs artifacts with GPG,
-flattens published POMs, and configures Sonatype Central Portal publishing. For
-local release verification, make sure `gpg` is installed, a release signing key
-is available, and `MAVEN_GPG_PASSPHRASE` is set when the key requires a
-passphrase:
+The `release` Maven profile attaches source and Javadoc JARs, generates
+CycloneDX XML and JSON SBOMs, and flattens published POMs. Use unsigned local
+verification; publication CI normalizes, signs, and retains the exact payload:
 
 ```sh
-./mvnw -B -ntp -Prelease -Drevision=1.2.3 verify
+./mvnw -B -ntp -Prelease -Drevision=1.2.3 -Dgpg.skip=true verify
 ```
 
 In PowerShell, quote dotted `-D` properties:
 
 ```powershell
-.\mvnw.cmd -B -ntp -Prelease "-Drevision=1.2.3" verify
+.\mvnw.cmd -B -ntp -Prelease "-Drevision=1.2.3" "-Dgpg.skip=true" verify
 ```
 
-The manual `Release` workflow requires an explicit `revision` input. For
-tag-triggered runs, it derives the revision from the tag name by removing the
-leading `v`; manual publish runs check out and verify the matching annotated tag
-commit before building.
+The reviewed stable-version PR merge starts `Release` from protected `main`.
+It waits for `verify / required` on that exact SHA, validates coordinates and
+release notes, creates a signed annotated tag, and continues within the same
+workflow. Unchanged revisions and snapshot bumps publish nothing.
 
-The `Release` GitHub Actions workflow is manual/tag-triggered and does not run
-for pull requests. It imports the configured GPG key, signs release artifacts,
-and uploads the generated SBOM bundle and detached signatures as a workflow
-artifact. A manual run with `publish=true` creates or updates a GitHub Release
-draft from the matching changelog section and attaches the SBOM assets before
-publishing to Maven Central. The GitHub Release is promoted only after Central
-publication succeeds; if publication fails, the draft remains available for
-investigation. The workflow will not create release tags implicitly.
+Workflow dispatch runs a nonpublishing preflight. It compares two clean builds
+and exercises the same release controls and packaging, without publishing
+credentials, tags, or releases.
 
-Expected publishing configuration:
+The publication job uploads the retained Central ZIP through the Portal API,
+records its deployment ID, and verifies downloadable bytes, signatures,
+checksums, and GitHub provenance/SBOM attestations. It explicitly calls the
+reusable `Javadoc Pages` workflow, which deploys the retained Javadoc archives
+with Actions Pages, preserving `/api/<version>/` and selecting `/api/latest/`
+by semantic version. GitHub finalization follows complete verification.
 
-- secret `MAVEN_CENTRAL_TOKEN_USERNAME`
-- secret `MAVEN_CENTRAL_TOKEN_PASSWORD`
-- secret `MAVEN_GPG_PRIVATE_KEY`
-- secret `MAVEN_GPG_PASSPHRASE` when the signing key requires a passphrase
-
-Publish credentials must be Central Portal user-token credentials for the
-`central` Maven server id. The matching GPG public key must be published before
-the first live release.
-
-The `Javadoc Pages` workflow runs on `vX.Y.Z` tag pushes. It builds aggregate
-Javadoc with `./mvnw -B -ntp -DskipTests -Djacoco.skip=true javadoc:aggregate`,
-publishes the API reference to the `gh-pages` branch under `/api/<version>/`,
-and updates `/api/latest/` only when that tag is the highest published semantic
-version.
+See [RELEASING.md](RELEASING.md) for repository configuration, the pinned signing
+fingerprint, fourteen-asset layout, consumer verification, and recovery rules.

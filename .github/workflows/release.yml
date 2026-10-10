@@ -1,361 +1,212 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      publish:
-        description: Deploy artifacts after tag validation; false validates only
-        required: true
-        default: false
-        type: boolean
-      revision:
-        description: Maven project revision to release
-        required: true
-        type: string
   push:
-    tags:
-      - "v*.*.*"
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  release:
-    name: Build Release Artifacts
+  candidate:
+    name: Detect release candidate
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     outputs:
-      revision: ${{ steps.release-revision.outputs.revision }}
-
+      publish: ${{ steps.candidate.outputs.publish }}
+      version: ${{ steps.candidate.outputs.version }}
     env:
-      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
+      - name: Import pinned public key
+        run: |
+          export GNUPGHOME="$RUNNER_TEMP/candidate-key"
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          install -d -m 700 "$GNUPGHOME"
+          gpg --batch --import .github/release-signing-key.asc
+      - name: Inspect exact push and first parent
+        id: candidate
+        run: python .github/scripts/release_control.py candidate "$GITHUB_SHA"
+      - name: Clean keyring
+        if: always()
+        run: |
+          gpgconf --kill gpg-agent
+          rm -rf "$GNUPGHOME"
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+  preflight:
+    name: Nonpublishing release preflight
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
           cache: maven
+      - run: python -m unittest discover -s .github/scripts -p 'test_release_*.py' -v
+      - run: python .github/scripts/release_preflight.py
 
-      - name: Set Maven wrapper permissions
-        run: chmod +x mvnw
-
-      - name: Verify signing configuration
+  publish:
+    name: Publish retained release payload
+    needs: candidate
+    if: needs.candidate.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    concurrency:
+      group: contract-java-publication
+      cancel-in-progress: false
+    environment: release
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Wait for exact source required gate
+        run: python .github/scripts/release_control.py wait "$GITHUB_SHA"
+      - name: Import public key and recheck candidate
         run: |
-          test -n "$MAVEN_GPG_PRIVATE_KEY"
-
-      - name: Import GPG signing key
-        run: printf '%s' "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
-
-      - name: Resolve release revision
-        id: release-revision
+          export GNUPGHOME="$RUNNER_TEMP/release-key"
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          export RELEASE_CANDIDATE="$RUNNER_TEMP/release-candidate.json"
+          echo "RELEASE_CANDIDATE=$RELEASE_CANDIDATE" >> "$GITHUB_ENV"
+          install -d -m 700 "$GNUPGHOME"
+          gpg --batch --import .github/release-signing-key.asc
+          python .github/scripts/release_control.py candidate "$GITHUB_SHA"
+      - name: Restore original payload on retries
+        id: restore
+        run: python .github/scripts/release_restore.py
+      - name: Import and test encrypted private key before building or tagging
+        if: steps.restore.outputs.needs-signing == 'true'
         env:
-          DISPATCH_REVISION: ${{ inputs.revision }}
-        run: |
-          set -euo pipefail
-
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            revision="${DISPATCH_REVISION:-}"
-          else
-            revision="${GITHUB_REF_NAME#v}"
-          fi
-
-          if [[ ! "$revision" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
-            echo "::error::Release revision must match the supported X.Y.Z tag format and cannot be a snapshot."
-            exit 1
-          fi
-
-          echo "revision=$revision" >> "$GITHUB_OUTPUT"
-
-      - name: Verify publish source branch
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
-        run: |
-          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
-            echo "::error::Publication must be dispatched from protected main."
-            exit 1
-          fi
-
-      - name: Verify release source
+          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: python .github/scripts/release_payload.py import-key
+      - name: Build unsigned release payload once
+        if: steps.restore.outputs.restored != 'true'
         env:
-          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
+          RELEASE_VERSION: ${{ needs.candidate.outputs.version }}
         run: |
-          set -euo pipefail
-
-          release_tag="v${RELEASE_REVISION}"
-          git fetch --force --tags origin
-
-          if ! git rev-parse --verify "${release_tag}^{commit}" >/dev/null 2>&1; then
-            echo "::error::Release tag ${release_tag} does not exist in the checked-out repository."
-            exit 1
-          fi
-
-          if [[ "$(git cat-file -t "$release_tag")" != "tag" ]]; then
-            echo "::error::Release tag ${release_tag} must be an annotated tag."
-            exit 1
-          fi
-
-          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF_NAME" != "$release_tag" ]]; then
-            echo "::error::The pushed ref does not match the resolved release tag."
-            exit 1
-          fi
-
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            git checkout --detach "$release_tag"
-          fi
-
-          tag_commit="$(git rev-parse "${release_tag}^{commit}")"
-          checkout_commit="$(git rev-parse HEAD)"
-
-          if [[ "$checkout_commit" != "$tag_commit" ]]; then
-            echo "::error::The release build source does not match ${release_tag}."
-            echo "::error::Checked out ${checkout_commit}; expected ${tag_commit}."
-            exit 1
-          fi
-
-          echo "Building ${release_tag} from ${checkout_commit}."
-
-      - name: Verify remote release tag
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+          chmod +x mvnw
+          epoch="$(git show -s --format=%ct "$GITHUB_SHA")"
+          ./mvnw -B -ntp -Prelease "-Dscm.tag=v${RELEASE_VERSION}" \
+            "-Dproject.build.outputTimestamp=${epoch}" -Dgpg.skip=true clean verify
+          python .github/scripts/release_payload.py stage
+      - name: Sign and validate retained bytes
+        if: steps.restore.outputs.restored != 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v${{ steps.release-revision.outputs.revision }}
-        run: gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" >/dev/null
-
-      - name: Verify changelog release date
-        env:
-          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
-        run: |
-          set -euo pipefail
-
-          if grep -Fxq "## ${RELEASE_REVISION} - TBD" CHANGELOG.md; then
-            echo "::error::CHANGELOG.md must replace the target release TBD marker before tagging or publishing."
-            exit 1
-          fi
-
-          escaped_revision="${RELEASE_REVISION//./\\.}"
-          if ! grep -Eq "^## ${escaped_revision} - [0-9]{4}-[0-9]{2}-[0-9]{2}$" CHANGELOG.md; then
-            echo "::error::CHANGELOG.md must contain a dated section for the target release."
-            exit 1
-          fi
-
-      - name: Build and verify release artifacts
-        run: >
-          ./mvnw -B -ntp -Prelease
-          "-Drevision=${{ steps.release-revision.outputs.revision }}"
-          verify
-
-      - name: Stage SBOM release assets
-        env:
-          RELEASE_REVISION: ${{ steps.release-revision.outputs.revision }}
-        run: |
-          set -euo pipefail
-          mkdir -p target/release-assets/sbom
-
-          stage_bom() {
-            module_path="$1"
-            artifact_id="$2"
-
-            cp "${module_path}/target/bom.json" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json"
-            cp "${module_path}/target/bom.json.asc" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.json.asc"
-            cp "${module_path}/target/bom.xml" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml"
-            cp "${module_path}/target/bom.xml.asc" "target/release-assets/sbom/${artifact_id}-${RELEASE_REVISION}-bom.xml.asc"
-          }
-
-          stage_bom . contract-java
-          stage_bom contract-core contract-core
-          stage_bom contract-spring-boot-starter contract-spring-boot-starter
-
-      - name: Upload SBOM workflow artifact
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: python .github/scripts/release_payload.py seal
+      - name: Retain immutable payload before publication
+        if: steps.restore.outputs.restored != 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: release-sboms-${{ steps.release-revision.outputs.revision }}
-          path: target/release-assets/sbom
+          name: release-payload-${{ github.sha }}
+          path: target/release-payload
           if-no-files-found: error
+          retention-days: 90
+      - name: Create, verify, and push signed annotated tag
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: |
+          chmod +x .github/scripts/gpg-release-sign.sh
+          python .github/scripts/release_publish.py tag
+      - name: Create draft and verify fourteen assets
+        run: python .github/scripts/release_publish.py draft
+      - name: Attest Maven payloads and checksum manifests
+        # actions/attest v4 defaults to SLSA provenance without SBOM/predicate inputs.
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: |
+            target/release-payload/central/**/*.pom
+            target/release-payload/central/**/*.jar
+            target/release-payload/central/**/*.json
+            target/release-payload/central/**/*.xml
+            target/release-payload/github/SHA256SUMS
+            target/release-payload/github/SHA512SUMS
+      - name: Bind parent SBOM to POM digest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: target/release-payload/central/media/barney/contract-java/${{ needs.candidate.outputs.version }}/*.pom
+          sbom-path: target/release-payload/github/contract-java-${{ needs.candidate.outputs.version }}.cdx.json
+      - name: Bind core SBOM to JAR digest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: target/release-payload/github/contract-core-${{ needs.candidate.outputs.version }}.jar
+          sbom-path: target/release-payload/github/contract-core-${{ needs.candidate.outputs.version }}.cdx.json
+      - name: Bind starter SBOM to JAR digest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: target/release-payload/github/contract-spring-boot-starter-${{ needs.candidate.outputs.version }}.jar
+          sbom-path: target/release-payload/github/contract-spring-boot-starter-${{ needs.candidate.outputs.version }}.cdx.json
+      - name: Verify attestation identities and digests
+        run: python .github/scripts/release_publish.py attestations
+      - name: Publish prebuilt Central bundle and verify downloads
+        env:
+          MAVEN_CENTRAL_TOKEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_TOKEN_USERNAME }}
+          MAVEN_CENTRAL_TOKEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_TOKEN_PASSWORD }}
+        run: python .github/scripts/release_publish.py central
+      - name: Clean private keyring
+        if: always()
+        run: |
+          gpgconf --kill gpg-agent
+          rm -rf "$GNUPGHOME"
 
-  create-release-draft:
-    name: Create GitHub Release Draft
-    needs:
-      - release
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' }}
+  javadoc:
+    needs: [candidate, publish]
+    if: needs.candidate.outputs.publish == 'true'
+    uses: ./.github/workflows/javadoc-pages.yml
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+      id-token: write
+
+  finalize:
+    name: Verify and finalize GitHub release
+    needs: [candidate, publish, javadoc]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
-    steps:
-      - name: Checkout release source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: v${{ needs.release.outputs.revision }}
-          fetch-depth: 0
-
-      - name: Download SBOM release assets
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
-        with:
-          name: release-sboms-${{ needs.release.outputs.revision }}
-          path: target/release-assets/sbom
-
-      - name: Create GitHub Release draft
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_REVISION: ${{ needs.release.outputs.revision }}
-          RELEASE_TAG: v${{ needs.release.outputs.revision }}
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-
-          assets=(target/release-assets/sbom/*)
-          if [[ "${#assets[@]}" -eq 0 ]]; then
-            echo "::error::No SBOM release assets were staged."
-            exit 1
-          fi
-
-          notes_file="$RUNNER_TEMP/release-notes.md"
-          awk -v prefix="## ${RELEASE_REVISION} - " '
-            index($0, prefix) == 1 { in_section=1 }
-            in_section && $0 ~ /^## / && index($0, prefix) != 1 { exit }
-            in_section && substr($0, 1, 1) == "[" && index($0, "]:") > 0 { exit }
-            in_section { print }
-          ' CHANGELOG.md > "$notes_file"
-
-          if [[ ! -s "$notes_file" ]]; then
-            echo "::error::No release notes were found for ${RELEASE_TAG}."
-            exit 1
-          fi
-
-          if gh release view "$RELEASE_TAG" --json isDraft >/dev/null 2>&1; then
-            is_draft="$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')"
-            if [[ "$is_draft" != "true" ]]; then
-              echo "::error::Release ${RELEASE_TAG} already exists and is not a draft."
-              exit 1
-            fi
-
-            gh release edit "$RELEASE_TAG" \
-              --verify-tag \
-              --title "$RELEASE_TAG" \
-              --notes-file "$notes_file" \
-              --draft
-            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
-          else
-            gh release create "$RELEASE_TAG" "${assets[@]}" \
-              --verify-tag \
-              --draft \
-              --title "$RELEASE_TAG" \
-              --notes-file "$notes_file"
-          fi
-
-  publish-release-artifacts:
-    name: Publish Maven Central Artifacts
-    needs:
-      - release
-      - create-release-draft
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      revision: ${{ needs.release.outputs.revision }}
-
+      actions: read
+      attestations: read
     env:
-      MAVEN_CENTRAL_TOKEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_TOKEN_USERNAME }}
-      MAVEN_CENTRAL_TOKEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_TOKEN_PASSWORD }}
-      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout release source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: v${{ needs.release.outputs.revision }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
-          distribution: temurin
-          java-version: "17"
-          cache: maven
-
-      - name: Set Maven wrapper permissions
-        run: chmod +x mvnw
-
-      - name: Verify release source
-        env:
-          RELEASE_TAG: v${{ needs.release.outputs.revision }}
+          name: release-payload-${{ github.sha }}
+          path: target/release-payload
+      - name: Verify public release before finalization
         run: |
-          set -euo pipefail
-
-          if [[ "$(git cat-file -t "$RELEASE_TAG")" != "tag" ]]; then
-            echo "::error::Release tag ${RELEASE_TAG} must be an annotated tag."
-            exit 1
-          fi
-
-          tag_commit="$(git rev-parse "${RELEASE_TAG}^{commit}")"
-          checkout_commit="$(git rev-parse HEAD)"
-          if [[ "$checkout_commit" != "$tag_commit" ]]; then
-            echo "::error::The Central publication source does not match ${RELEASE_TAG}."
-            echo "::error::Checked out ${checkout_commit}; expected ${tag_commit}."
-            exit 1
-          fi
-
-      - name: Verify signing configuration
+          export GNUPGHOME="$RUNNER_TEMP/verify-key"
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          install -d -m 700 "$GNUPGHOME"
+          gpg --batch --import .github/release-signing-key.asc
+          python .github/scripts/release_publish.py finalize
+      - name: Clean verification keyring
+        if: always()
         run: |
-          test -n "$MAVEN_GPG_PRIVATE_KEY"
-          test -n "$MAVEN_GPG_PASSPHRASE"
-
-      - name: Import GPG signing key
-        run: printf '%s' "$MAVEN_GPG_PRIVATE_KEY" | gpg --batch --import
-
-      - name: Verify publish configuration
-        run: |
-          test -n "$MAVEN_CENTRAL_TOKEN_USERNAME"
-          test -n "$MAVEN_CENTRAL_TOKEN_PASSWORD"
-
-      - name: Publish release artifacts
-        run: >
-          ./mvnw -B -ntp -Prelease
-          "-Drevision=${{ needs.release.outputs.revision }}"
-          -s .github/maven-settings.xml
-          deploy
-
-  finalize-release:
-    name: Publish GitHub Release
-    needs:
-      - publish-release-artifacts
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Promote GitHub Release draft
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v${{ needs['publish-release-artifacts'].outputs.revision }}
-        run: |
-          set -euo pipefail
-
-          is_draft="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
-          if [[ "$is_draft" != "true" ]]; then
-            echo "::error::Release ${RELEASE_TAG} is not a draft and cannot be promoted safely."
-            exit 1
-          fi
-
-          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
-          is_draft="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
-          if [[ "$is_draft" != "false" ]]; then
-            echo "::error::Release ${RELEASE_TAG} was not promoted to a published release."
-            exit 1
-          fi
-          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName,isDraft,publishedAt,assets
+          gpgconf --kill gpg-agent
+          rm -rf "$GNUPGHOME"
