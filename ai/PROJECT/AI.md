@@ -13,3 +13,4 @@ source of truth is `spec.md` until implementation documentation supersedes it.
 
 - [Lessons Learned](LESSONS_LEARNED/LESSONS_LEARNED.md)
 - [Architecture Decisions](DECISIONS/DECISIONS.md)
+- [Release policy](../../RELEASING.md)

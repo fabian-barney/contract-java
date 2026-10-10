@@ -144,7 +144,7 @@ public final class ContractProcessor extends AbstractProcessor {
     private void transform(Set<? extends Element> rootElements) {
         for (Element rootElement : rootElements) {
             JCTree tree = trees.getTree(rootElement);
-            if (tree != null) {
+            if (tree instanceof JCClassDecl) {
                 tree.accept(new ContractTranslator());
             }
         }
