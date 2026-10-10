@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"media.barney.contract.spring.boot.starter","l":"media.barney.contract.spring"}];updateSearchResults();
