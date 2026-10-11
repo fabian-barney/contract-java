@@ -205,6 +205,8 @@ class PublicationIdentityTests(unittest.TestCase):
         # Model the observed draft API behavior when a PATCH omits tag_name.
         self.record["tag_name"] = "untagged-fixture"
         self.record.update(data)
+        # Existing tags make target_commitish non-authoritative in the REST API.
+        self.record["target_commitish"] = "main"
         return dict(self.record)
 
     def test_central_checkpoints_preserve_the_original_release(self):
@@ -223,6 +225,7 @@ class PublicationIdentityTests(unittest.TestCase):
                 )
             self.assertEqual(api.call_count, 2)
             self.assertEqual(self.record["tag_name"], "v1.0.0")
+            self.assertEqual(self.record["target_commitish"], "main")
             self.assertTrue(self.record["draft"])
             self.assertIn("central-upload-started", self.record["body"])
             self.assertIn(f"central-deployment: {deployment}", self.record["body"])
@@ -234,7 +237,6 @@ class PublicationIdentityTests(unittest.TestCase):
         for change in (
             {"id": 8},
             {"tag_name": "untagged-fixture"},
-            {"target_commitish": "b" * 40},
             {"body": "source: another commit"},
         ):
             changed = dict(self.record, **change)
@@ -262,6 +264,7 @@ class PublicationIdentityTests(unittest.TestCase):
             publish.finalize(self.release)
         self.assertFalse(self.record["draft"])
         self.assertEqual(self.record["tag_name"], "v1.0.0")
+        self.assertEqual(self.record["target_commitish"], "main")
         self.assertEqual(self.record["make_latest"], "true")
         self.assertEqual(self.record["assets"], [{"id": 11, "name": "retained.jar"}])
 

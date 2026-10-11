@@ -57,7 +57,6 @@ def update_record(
         updated is not None
         and updated.get("id") == record["id"]
         and updated.get("tag_name") == release["tag"]
-        and updated.get("target_commitish") == release["sha"]
         and f"source: {release['sha']}" in (updated.get("body") or ""),
         "Release identity changed during metadata update",
     )
