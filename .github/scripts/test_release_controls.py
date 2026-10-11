@@ -187,6 +187,85 @@ class CandidateTests(unittest.TestCase):
             publish.publish_central(release)
 
 
+class PublicationIdentityTests(unittest.TestCase):
+    def setUp(self):
+        self.release = {"version": "1.0.0", "tag": "v1.0.0", "sha": "a" * 40}
+        self.record = {
+            "id": 7,
+            "tag_name": "v1.0.0",
+            "target_commitish": self.release["sha"],
+            "draft": True,
+            "body": f"<!-- source: {self.release['sha']} -->",
+            "assets": [{"id": 11, "name": "retained.jar"}],
+        }
+
+    def metadata_api(self, path, method, data):
+        self.assertTrue(path.endswith("/releases/7"))
+        self.assertEqual(method, "PATCH")
+        # Model the observed draft API behavior when a PATCH omits tag_name.
+        self.record["tag_name"] = "untagged-fixture"
+        self.record.update(data)
+        return dict(self.record)
+
+    def test_central_checkpoints_preserve_the_original_release(self):
+        deployment = "da8d9bbf-edec-4426-9729-f7b1f97e0cac"
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "central-bundle.zip").write_bytes(b"original bundle")
+            with (
+                patch.object(publish, "ROOT", root),
+                patch.object(publish, "gh", side_effect=self.metadata_api) as api,
+                patch.object(publish, "portal_headers", return_value={}),
+                patch.object(publish, "fetch", return_value=deployment.encode()),
+            ):
+                self.assertEqual(
+                    publish.upload_bundle(self.record, self.release), deployment
+                )
+            self.assertEqual(api.call_count, 2)
+            self.assertEqual(self.record["tag_name"], "v1.0.0")
+            self.assertTrue(self.record["draft"])
+            self.assertIn("central-upload-started", self.record["body"])
+            self.assertIn(f"central-deployment: {deployment}", self.record["body"])
+            self.assertEqual(
+                self.record["assets"], [{"id": 11, "name": "retained.jar"}]
+            )
+
+    def test_identity_drift_stops_before_central_upload(self):
+        for change in (
+            {"id": 8},
+            {"tag_name": "untagged-fixture"},
+            {"target_commitish": "b" * 40},
+            {"body": "source: another commit"},
+        ):
+            changed = dict(self.record, **change)
+            with (
+                self.subTest(change=change),
+                patch.object(publish, "gh", return_value=changed),
+                patch.object(publish, "fetch") as upload,
+                self.assertRaisesRegex(ValueError, "Release identity changed"),
+            ):
+                publish.upload_bundle(self.record, self.release)
+            upload.assert_not_called()
+
+    def test_finalization_preserves_the_original_release(self):
+        page = f'<html data-source-sha="{self.release["sha"]}"></html>'.encode()
+        with (
+            patch.object(publish, "verify"),
+            patch.object(publish, "verify_tag"),
+            patch.object(publish, "central_downloads"),
+            patch.object(publish, "github_assets"),
+            patch.object(publish, "attestations"),
+            patch.object(publish, "fetch", return_value=page),
+            patch.object(publish, "release_record", return_value=self.record),
+            patch.object(publish, "gh", side_effect=self.metadata_api),
+        ):
+            publish.finalize(self.release)
+        self.assertFalse(self.record["draft"])
+        self.assertEqual(self.record["tag_name"], "v1.0.0")
+        self.assertEqual(self.record["make_latest"], "true")
+        self.assertEqual(self.record["assets"], [{"id": 11, "name": "retained.jar"}])
+
+
 class PayloadTests(unittest.TestCase):
     def test_consumers_follow_resolved_annotation_versions(self):
         with tempfile.TemporaryDirectory() as temp:
