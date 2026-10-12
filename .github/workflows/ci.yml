@@ -85,14 +85,14 @@ jobs:
         run: ./mvnw -B -ntp -P!quality-gates-all -DskipTests install
 
       - name: Upload Maven repository
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: maven-repository
           path: /home/runner/.m2/repository
           if-no-files-found: error
 
       - name: Upload build outputs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: build-targets
           path: |
@@ -138,7 +138,7 @@ jobs:
         run: ./mvnw -B -ntp -P!quality-gates-all verify
 
       - name: Upload JaCoCo reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: jacoco-reports
           path: |
