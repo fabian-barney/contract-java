@@ -9,6 +9,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
+- Updated cognitive-java Maven plugin from 0.7.1 to 1.0.0 with the existing threshold of 8.
 - Updated Spotless Maven plugin from 3.10.2 to 3.10.4 while retaining the pinned
   Palantir Java Format version.
 
