@@ -80,9 +80,11 @@ workflow, protected main source ref, source SHA, subject digest, and SBOM conten
 Attestations live in GitHub's attestation API, preserving the fourteen-asset layout.
 
 The Portal API uploads the validated ZIP with automatic publication. Its
-deployment ID is recorded in the draft's hidden metadata and workflow log. CI
-waits for publication and checks every Central download against the retained
-bytes. The explicitly called Pages workflow extracts the retained Javadoc JARs,
+deployment ID is recorded in the draft's hidden metadata and workflow log. Every
+metadata update explicitly preserves the tag and source SHA and checks the
+returned release identity before continuing. CI waits for publication and checks
+every Central download against the retained bytes. The explicitly called Pages
+workflow extracts the retained Javadoc JARs,
 preserves the `gh-pages` version archive, deploys through Actions Pages, and
 updates `/api/latest/` by semantic version. Finalization repeats artifact,
 signature, provenance, SBOM, and versioned Javadoc checks before publishing GitHub.
@@ -121,6 +123,12 @@ Use **Re-run all jobs** on the original release run. Reruns restore only that
 run's retained payload, verify it, reuse the exact signed tag and draft, compare
 existing assets, and resume the recorded Central deployment. They never overwrite
 different uploaded bytes. A tag without available retained bytes is a hard stop.
+
+If publication and Javadoc succeeded and only finalization failed, recover the
+original draft metadata and use **Re-run failed jobs** on that same run. If the
+draft lost its tag association, restore its expected tag and source SHA on the
+existing release record, preserving its ID and assets. Never create a replacement
+draft for the same published version.
 
 If upload's outcome is unknown, the draft's `central-upload-started` marker blocks
 a second upload. Recover the original deployment ID from the Portal or recorded
