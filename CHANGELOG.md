@@ -7,6 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the pinned Deploy Pages action from 4.0.5 to 5.0.1.
+- Updated cognitive-java Maven plugin from 0.7.1 to 1.0.0.
+- Updated Spotless Maven plugin from 3.10.2 to 3.10.4 while retaining the pinned
+  Palantir Java Format version.
+
 ## 1.0.0 - 2026-10-10
 
 ### Changed
