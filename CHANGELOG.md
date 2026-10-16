@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Updated Spotless Maven plugin from 3.10.2 to 3.10.4 while retaining the pinned
+  Palantir Java Format version.
+
 ## 1.0.0 - 2026-10-10
 
 ### Changed
