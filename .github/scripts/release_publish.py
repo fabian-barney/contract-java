@@ -45,6 +45,24 @@ def release_record(release: Release) -> JsonObject | None:
     return None
 
 
+def update_record(
+    record: JsonObject, release: Release, changes: JsonObject
+) -> JsonObject:
+    updated = gh(
+        f"repos/{REPOSITORY}/releases/{record['id']}",
+        "PATCH",
+        dict(changes, tag_name=release["tag"], target_commitish=release["sha"]),
+    )
+    require(
+        updated is not None
+        and updated.get("id") == record["id"]
+        and updated.get("tag_name") == release["tag"]
+        and f"source: {release['sha']}" in (updated.get("body") or ""),
+        "Release identity changed during metadata update",
+    )
+    return updated
+
+
 def tag(release: Release) -> None:
     require(git("rev-parse", "HEAD") == release["sha"], "Tag source mismatch")
     existing = git("ls-remote", "origin", f"refs/tags/{release['tag']}")
@@ -252,7 +270,7 @@ def upload_bundle(record: JsonObject, release: Release) -> str:
         "Previous upload outcome unknown; recover its deployment ID",
     )
     body = record["body"] + "\n<!-- central-upload-started -->\n"
-    gh(f"repos/{REPOSITORY}/releases/{record['id']}", "PATCH", {"body": body})
+    record = update_record(record, release, {"body": body})
     boundary = "contract-java-" + uuid.uuid4().hex
     bundle = (ROOT / "central-bundle.zip").read_bytes()
     data = (
@@ -279,9 +297,9 @@ def upload_bundle(record: JsonObject, release: Release) -> str:
     )
     require(str(uuid.UUID(deployment)) == deployment, "Invalid Central deployment ID")
     print(f"Central deployment ID: {deployment}")
-    gh(
-        f"repos/{REPOSITORY}/releases/{record['id']}",
-        "PATCH",
+    update_record(
+        record,
+        release,
         {"body": body + f"\n<!-- central-deployment: {deployment} -->\n"},
     )
     return deployment
@@ -328,9 +346,9 @@ def finalize(release: Release) -> None:
         "Versioned Javadoc source mismatch",
     )
     record = release_record(release)
-    gh(
-        f"repos/{REPOSITORY}/releases/{record['id']}",
-        "PATCH",
+    update_record(
+        record,
+        release,
         {"draft": False, "make_latest": "true"},
     )
     print(
