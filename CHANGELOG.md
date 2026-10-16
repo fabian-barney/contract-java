@@ -7,13 +7,25 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 1.0.1 - 2026-10-16
+
 ### Changed
 
+- Updated Maven Wrapper from 3.9.16 to 3.10.0 and Maven Resources Plugin from
+  3.4.0 to 3.5.0.
+- Updated pinned artifact upload and download actions used by CI and release
+  payload retention.
 - Updated the pinned Upload Pages Artifact action from 4.0.0 to 5.0.0.
 - Updated the pinned Deploy Pages action from 4.0.5 to 5.0.1.
 - Updated cognitive-java Maven plugin from 0.7.1 to 1.0.0.
 - Updated Spotless Maven plugin from 3.10.2 to 3.10.4 while retaining the pinned
   Palantir Java Format version.
+
+### Fixed
+
+- Preserve the release tag and source commit during release metadata updates,
+  verify the returned release identity, and document recovery of the original
+  release record without replacing published assets.
 
 ## 1.0.0 - 2026-10-10
 
@@ -167,6 +179,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
+[1.0.1]: https://github.com/fabian-barney/contract-java/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/fabian-barney/contract-java/compare/v0.1.14...v1.0.0
 [0.1.14]: https://github.com/fabian-barney/contract-java/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/fabian-barney/contract-java/compare/v0.1.12...v0.1.13
@@ -182,4 +195,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v1.0.1...HEAD
