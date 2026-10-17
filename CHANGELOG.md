@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the Spring Boot 4.0 smoke-test BOM from 4.0.7 to 4.0.8 while
+  preserving the separate Spring Boot 4.1 compatibility line.
+
 ## 1.0.1 - 2026-10-16
 
 ### Changed
