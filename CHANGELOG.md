@@ -7,6 +7,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## 2.0.0 - 2026-10-18
+
 ### Breaking changes
 
 - Require full JDK 21 or 25 for builds and annotation processing, emit Java 21
@@ -197,6 +199,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
+[2.0.0]: https://github.com/fabian-barney/contract-java/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/fabian-barney/contract-java/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/fabian-barney/contract-java/compare/v0.1.14...v1.0.0
 [0.1.14]: https://github.com/fabian-barney/contract-java/compare/v0.1.13...v0.1.14
@@ -213,4 +216,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v2.0.0...HEAD
