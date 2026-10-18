@@ -29,7 +29,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -42,7 +41,6 @@ import javax.tools.Diagnostic;
 
 @SupportedAnnotationTypes("*")
 @SupportedOptions(ContractProcessor.ENABLED_OPTION)
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public final class ContractProcessor extends AbstractProcessor {
 
     public static final String ENABLED_OPTION = "contracts.enabled";
@@ -50,6 +48,11 @@ public final class ContractProcessor extends AbstractProcessor {
     private JavacTrees trees;
     private ParserFactory parserFactory;
     private ContractResolver resolver;
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
+    }
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {

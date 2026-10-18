@@ -2,8 +2,11 @@
 
 The parent `media.barney:contract-java`, `contract-core`, and
 `contract-spring-boot-starter` publish together to Maven Central and GitHub.
-Examples remain unpublished. Java 17+ and the existing Java 17/21/25,
-Linux/Windows, and Spring Boot 4.0/4.1 verification matrix remain unchanged.
+Examples remain unpublished. The next major release requires Java 21 bytecode
+and supports full JDK 21/25, Linux/Windows, and Spring Boot 4.0/4.1.
+Maven 3.9.16 is the minimum build version; the primary wrapper uses 3.10.0.
+See [MIGRATING.md](MIGRATING.md). This baseline change does not itself bump the
+project revision or publish a release.
 
 ## Release trigger
 
@@ -53,6 +56,9 @@ removed even on failure.
 
 The release profile builds flattened resolved POMs, main/sources/Javadoc JARs,
 and CycloneDX JSON/XML SBOMs once. Archive timestamps use the source commit time.
+Every class in both main JARs, including JPMS descriptors, must use Java 21
+class-file major version 65. Release staging rejects malformed or mismatched
+class headers before signing or publication.
 SBOM timestamps and serial identifiers are deterministic; production graphs omit
 test dependencies and annotate direct optional dependencies. Every distributed
 JAR includes the project license, notice, and third-party inventory.

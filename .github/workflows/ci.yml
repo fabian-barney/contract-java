@@ -20,14 +20,18 @@ concurrency:
 
 jobs:
   release-controls:
-    name: verify / release-controls
+    name: verify / release-controls / JDK ${{ matrix.java-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["21", "25"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
           cache: maven
       - name: Test release control and encrypted signing failures
         run: python -m unittest discover -s .github/scripts -p 'test_release_*.py' -v
@@ -48,6 +52,7 @@ jobs:
       - package
       - verify-matrix
       - static-analysis
+      - minimum-maven
       - quality-crap-contract-core
       - quality-crap-contract-spring-boot-starter
       - quality-cognitive-contract-core
@@ -68,11 +73,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -112,11 +117,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -172,11 +177,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
@@ -206,7 +211,6 @@ jobs:
           - ubuntu-latest
           - windows-latest
         java-version:
-          - "17"
           - "21"
           - "25"
         boot-line:
@@ -218,7 +222,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
           java-version: ${{ matrix.java-version }}
@@ -238,18 +242,22 @@ jobs:
         run: .\mvnw.cmd -B -ntp -P!quality-gates-all "-Dspring.boot.smoke.line=${{ matrix.boot-line }}" spotless:check verify
 
   static-analysis:
-    name: Static Analysis
+    name: Static Analysis / JDK ${{ matrix.java-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["21", "25"]
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 25
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: ${{ matrix.java-version }}
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -257,6 +265,32 @@ jobs:
 
       - name: Run Error Prone and NullAway
         run: ./mvnw -B -ntp -P!quality-gates-all,quality-gate-static-analysis -DskipTests -Djacoco.skip=true clean compile
+
+  minimum-maven:
+    name: verify / Maven 3.9.16 / JDK ${{ matrix.java-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["21", "25"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+      - name: Install checksum-verified Maven 3.9.16
+        env:
+          MAVEN_SHA512: 831a8591fe20c8243b1dbe7d71e3244f31d1665b0804b2e825e38cbbe5ce0cafb8338851f90780735568773e0a6cd07bbec107cda0b896b008b861075358b6f6
+        run: |
+          curl --fail --silent --show-error --location \
+            https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.16/apache-maven-3.9.16-bin.tar.gz \
+            --output "$RUNNER_TEMP/maven.tar.gz"
+          echo "$MAVEN_SHA512  $RUNNER_TEMP/maven.tar.gz" | sha512sum --check
+          tar -xzf "$RUNNER_TEMP/maven.tar.gz" -C "$RUNNER_TEMP"
+      - name: Verify with the minimum Maven version
+        run: '"$RUNNER_TEMP/apache-maven-3.9.16/bin/mvn" -B -ntp spotless:check verify'
 
   quality-crap-contract-core:
     name: verify / quality-crap-contract-core
@@ -269,11 +303,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -311,11 +345,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
@@ -352,11 +386,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
@@ -393,11 +427,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw

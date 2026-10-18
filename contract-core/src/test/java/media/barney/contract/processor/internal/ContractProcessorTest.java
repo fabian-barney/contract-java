@@ -35,6 +35,27 @@ class ContractProcessorTest {
     Path tempDirectory;
 
     @Test
+    void supportsBaselineAndHostSourceVersionsWithoutWarnings() throws Exception {
+        for (String sourceVersion :
+                List.of("21", Integer.toString(Runtime.version().feature()))) {
+            Compilation compilation = compile(
+                    sourceVersion, List.of("-Werror", "-Xlint:-options"), source("example.SupportedSource", """
+                            package example;
+                            import media.barney.contract.Contract;
+                            public class SupportedSource {
+                                public static int positive(@Contract.Positive int value) {
+                                    return value;
+                                }
+                            }
+                            """));
+
+            assertTrue(compilation.succeeded(), compilation.diagnosticsText());
+            Method positive = compilation.load("example.SupportedSource").getMethod("positive", int.class);
+            assertInstanceOf(IllegalArgumentException.class, invocationCause(() -> positive.invoke(null, -1)));
+        }
+    }
+
+    @Test
     void injectsParameterPreconditions() throws Exception {
         Compilation compilation = compile(source("example.Preconditions", """
                         package example;
@@ -261,6 +282,11 @@ class ContractProcessorTest {
     }
 
     private Compilation compile(List<String> extraOptions, JavaFileObject... sources) throws IOException {
+        return compile("21", extraOptions, sources);
+    }
+
+    private Compilation compile(String sourceVersion, List<String> extraOptions, JavaFileObject... sources)
+            throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         Path outputDirectory = Files.createTempDirectory(tempDirectory, "contract-processor-test-");
@@ -272,9 +298,9 @@ class ContractProcessorTest {
                     "-d",
                     outputDirectory.toString(),
                     "-source",
-                    "17",
+                    sourceVersion,
                     "-target",
-                    "17"));
+                    sourceVersion));
             options.addAll(extraOptions);
 
             JavaCompiler.CompilationTask task =

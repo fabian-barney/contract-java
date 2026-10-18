@@ -7,8 +7,21 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Require full JDK 21 or 25 for builds and annotation processing, emit Java 21
+  bytecode, and retire Java 17 support for the next major release.
+- Require Maven 3.9.16 or newer for repository builds. See [MIGRATING.md](MIGRATING.md).
+
 ### Changed
 
+- Upgrade CRAP/Cognitive Java to 2.0.0, Palantir Java Format to 2.102.0, Central
+  Publishing to 0.12.0, Maven Dependency to 3.11.0, and setup-java to 6.1.0.
+- Align all modules on JUnit 6.1.3 and compile/test the starter against each
+  supported Spring Boot BOM. Pin lifecycle plugins and use the active Maven
+  installation for integration fixtures.
+- Verify Java 21 archive bytecode and run static analysis and nonpublishing
+  release preflight on both supported JDKs.
 - Updated the Spring Boot 4.0 smoke-test BOM from 4.0.7 to 4.0.8 while
   preserving the separate Spring Boot 4.1 compatibility line.
 

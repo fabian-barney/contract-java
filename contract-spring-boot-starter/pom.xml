@@ -22,12 +22,23 @@
     <tag>${scm.tag}</tag>
   </scm>
 
+  <properties>
+    <spring.boot.version>${spring.boot.41.version}</spring.boot.version>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot.41.version}</version>
+        <version>${spring.boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -93,10 +104,21 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <expected.spring.boot.version>${spring.boot.version}</expected.spring.boot.version>
+            <expected.junit.version>${junit.version}</expected.junit.version>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
             <contract.version>${project.version}</contract.version>
+            <maven.home>${maven.home}</maven.home>
             <maven.dependency.plugin.version>${maven.dependency.plugin.version}</maven.dependency.plugin.version>
             <maven.install.plugin.version>${maven.install.plugin.version}</maven.install.plugin.version>
             <reactor.root>${maven.multiModuleProjectDirectory}</reactor.root>
@@ -116,4 +138,19 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>spring-boot-40</id>
+      <activation>
+        <property>
+          <name>spring.boot.smoke.line</name>
+          <value>4.0</value>
+        </property>
+      </activation>
+      <properties>
+        <spring.boot.version>${spring.boot.40.version}</spring.boot.version>
+      </properties>
+    </profile>
+  </profiles>
 </project>

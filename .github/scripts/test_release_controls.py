@@ -8,6 +8,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -270,6 +271,37 @@ class PublicationIdentityTests(unittest.TestCase):
 
 
 class PayloadTests(unittest.TestCase):
+    def test_main_jars_require_java_21_bytecode(self):
+        valid = b"\xca\xfe\xba\xbe\x00\x00\x00\x41"
+        cases = (
+            (valid, None),
+            (valid[:-1] + b"\x3d", "Expected Java 21 bytecode"),
+            (valid[:-1] + b"\x45", "Expected Java 21 bytecode"),
+            (b"invalid!", "Malformed class header"),
+            (b"\xca\xfe", "Malformed class header"),
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            jar = Path(temp) / "contract-core-1.0.0.jar"
+            for class_name in ("module-info.class", "media/barney/contract/Contract.class"):
+                for header, error in cases:
+                    with self.subTest(class_name=class_name, header=header):
+                        entries = {
+                            "module-info.class": valid,
+                            "media/barney/contract/Contract.class": valid,
+                            "META-INF/services/javax.annotation.processing.Processor": b"ContractProcessor",
+                        }
+                        entries[class_name] = header
+                        with zipfile.ZipFile(jar, "w") as archive:
+                            for name in payload.LEGAL:
+                                archive.writestr("META-INF/" + name, Path(name).read_bytes())
+                            for name, data in entries.items():
+                                archive.writestr(name, data)
+                        if error:
+                            with self.assertRaisesRegex(ValueError, error):
+                                payload.verify_jar(jar, main=True)
+                        else:
+                            payload.verify_jar(jar, main=True)
+
     def test_consumers_follow_resolved_annotation_versions(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

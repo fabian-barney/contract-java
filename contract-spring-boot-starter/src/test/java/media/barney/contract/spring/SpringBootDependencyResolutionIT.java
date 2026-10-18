@@ -180,14 +180,15 @@ class SpringBootDependencyResolutionIT {
     }
 
     private static List<String> mavenCommand() {
-        Path root = Path.of(requiredProperty("reactor.root"));
+        Path mavenBin = Path.of(requiredProperty("maven.home")).resolve("bin");
         boolean windows =
                 System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
         if (windows) {
-            return new java.util.ArrayList<>(List.of("cmd.exe", "/d", "/c", "mvnw.cmd"));
+            return new java.util.ArrayList<>(
+                    List.of("cmd.exe", "/d", "/c", mavenBin.resolve("mvn.cmd").toString()));
         }
 
-        return new java.util.ArrayList<>(List.of(root.resolve("mvnw").toString()));
+        return new java.util.ArrayList<>(List.of(mavenBin.resolve("mvn").toString()));
     }
 
     private static String installGoal() {
