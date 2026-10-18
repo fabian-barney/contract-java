@@ -45,33 +45,38 @@
   <properties>
     <revision>1.0.2-SNAPSHOT</revision>
     <scm.tag>HEAD</scm.tag>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputTimestamp>2026-05-31T00:00:00Z</project.build.outputTimestamp>
 
-    <central.publishing.maven.plugin.version>0.11.0</central.publishing.maven.plugin.version>
+    <central.publishing.maven.plugin.version>0.12.0</central.publishing.maven.plugin.version>
     <central.deployment.repository.name>contract-java</central.deployment.repository.name>
     <cyclonedx.maven.plugin.version>2.9.3</cyclonedx.maven.plugin.version>
-    <crap-java.version>1.0.1</crap-java.version>
-    <cognitive-java.version>1.0.0</cognitive-java.version>
+    <crap-java.version>2.0.0</crap-java.version>
+    <cognitive-java.version>2.0.0</cognitive-java.version>
     <errorprone.version>2.50.0</errorprone.version>
     <junit.version>6.1.3</junit.version>
     <jacoco.version>0.8.15</jacoco.version>
     <jspecify.version>1.0.1</jspecify.version>
     <nullaway.version>0.14.2</nullaway.version>
     <maven.compiler.plugin.version>3.16.0</maven.compiler.plugin.version>
+    <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
+    <maven.deploy.plugin.version>3.2.0</maven.deploy.plugin.version>
     <maven.enforcer.plugin.version>3.6.3</maven.enforcer.plugin.version>
     <maven.failsafe.plugin.version>3.6.0</maven.failsafe.plugin.version>
-    <maven.install.plugin.version>3.1.4</maven.install.plugin.version>
-    <maven.dependency.plugin.version>3.9.0</maven.dependency.plugin.version>
+    <maven.install.plugin.version>3.2.0</maven.install.plugin.version>
+    <maven.dependency.plugin.version>3.11.0</maven.dependency.plugin.version>
+    <maven.jar.plugin.version>3.5.1</maven.jar.plugin.version>
     <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
     <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
+    <maven.resources.plugin.version>3.5.0</maven.resources.plugin.version>
+    <maven.site.plugin.version>3.22.0</maven.site.plugin.version>
     <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
     <maven.surefire.plugin.version>3.6.0</maven.surefire.plugin.version>
     <flatten.maven.plugin.version>1.8.0</flatten.maven.plugin.version>
     <spotless.version>3.10.4</spotless.version>
-    <palantir.java.format.version>2.91.0</palantir.java.format.version>
+    <palantir.java.format.version>2.102.0</palantir.java.format.version>
     <spring.boot.40.version>4.0.8</spring.boot.40.version>
     <spring.boot.41.version>4.1.1</spring.boot.41.version>
     <apiguardian.version>1.1.2</apiguardian.version>
@@ -116,6 +121,36 @@
     </resources>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven.clean.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven.resources.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven.jar.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven.install.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven.deploy.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.plugin.version}</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -210,10 +245,10 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>[3.9,)</version>
+                  <version>[3.9.16,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>[17,)</version>
+                  <version>[21,)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -388,7 +423,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>${maven.resources.plugin.version}</version>
             <executions>
               <execution>
                 <id>javadoc-legal-files</id>

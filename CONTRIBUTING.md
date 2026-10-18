@@ -47,6 +47,9 @@ license.
 
 ## Local Checks
 
+Use a full JDK 21 or 25 and Maven 3.9.16 or newer. The checksum-verified wrapper
+selects Maven 3.10.0. CI tests both JDK lines; keep current security patches.
+
 Run the formatter check and the same verification as the default CI gate:
 
 ```sh
@@ -85,7 +88,19 @@ directories.
 `contract-spring-boot-starter` runs a Failsafe integration smoke test during
 `verify`. It packages the current reactor artifacts, installs them into an
 isolated temporary Maven repository, and resolves small dependency projects
-against the supported Spring Boot `4.0.x` and `4.1.x` BOMs.
+against the supported Spring Boot `4.0.x` and `4.1.x` BOMs. Nested Maven processes
+use the same installation as the reactor, including in minimum-version checks.
+
+The default build compiles and runs starter behavior tests against Boot 4.1.1.
+Select Boot 4.0.8 for compilation, behavior tests, and its resolution fixture:
+
+```sh
+./mvnw -B -ntp -Dspring.boot.smoke.line=4.0 spotless:check verify
+```
+
+Use `-Dspring.boot.smoke.line=4.1` for the explicit 4.1 matrix case. The JUnit
+6.1.3 BOM takes precedence over either Boot BOM for the complete JUnit family.
+The starter-local Boot profile preserves the parent's default quality gates.
 
 Run only the starter and its dependencies with:
 

@@ -531,6 +531,6 @@ exceptions are not handled by the starter.
 
 ## 7. Requirements
 
-- Java 17+
+- Java 21 and 25, with Java 21 bytecode; other releases are unverified.
 - Maven 3.9+ or Gradle 8+
 - Spring Boot starter support is limited to Spring Boot release lines with current OSS support

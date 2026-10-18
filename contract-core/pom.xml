@@ -45,14 +45,14 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <!--
-            The parent configures the Maven release setting to 17 for ordinary
+            The parent configures the Maven release setting to 21 for ordinary
             modules. This module uses javac internals and must compile with
-            explicit source/target 17 instead, so intentionally remove the inherited
+            explicit source/target 21 instead, so intentionally remove the inherited
             release value while retaining the source and target values below.
           -->
           <release combine.self="override"/>
-          <source>17</source>
-          <target>17</target>
+          <source>${maven.compiler.release}</source>
+          <target>${maven.compiler.release}</target>
           <proc>none</proc>
           <compilerArgs>
             <arg>--add-exports</arg>
