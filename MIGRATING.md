@@ -1,6 +1,6 @@
-# Migrating to the next major release
+# Migrating to 2.0.0
 
-The development branch raises the minimum Java version to 21. Official support
+Version 2.0.0 raises the minimum Java version to 21. Official support
 covers JDK 21 and 25 with current security patches; other Java releases are
 unverified. This is a deliberate support policy change, not a claim that every
 vendor's Java 17 distribution has reached end of life.
@@ -32,6 +32,6 @@ JUnit API, engine, and platform resolve consistently to 6.1.3 in every module.
 The existing `spring.boot.smoke.line=4.0` selector now controls the starter's
 compile/test BOM as well as the isolated resolution check; the default uses 4.1.
 
-Published 1.x artifacts remain unchanged. This work records breaking changes
-under Unreleased and keeps the current development revision; the next major
-version and publication are handled by a separate release PR.
+Upgrade both `contract-core` and `contract-spring-boot-starter`, when used, to
+`2.0.0`. Published 1.x artifacts and their historical compatibility remain
+unchanged. See [CHANGELOG.md](CHANGELOG.md) for the complete 2.0.0 release notes.
