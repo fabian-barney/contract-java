@@ -91,8 +91,8 @@ isolated temporary Maven repository, and resolves small dependency projects
 against the supported Spring Boot `4.0.x` and `4.1.x` BOMs. Nested Maven processes
 use the same installation as the reactor, including in minimum-version checks.
 
-The default build compiles and runs starter behavior tests against Boot 4.1.1.
-Select Boot 4.0.8 for compilation, behavior tests, and its resolution fixture:
+The default build compiles and runs starter behavior tests against Boot 4.1.2.
+Select Boot 4.0.9 for compilation, behavior tests, and its resolution fixture:
 
 ```sh
 ./mvnw -B -ntp -Dspring.boot.smoke.line=4.0 spotless:check verify
