@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Update the supported Spring Boot BOMs to 4.0.9 and 4.1.2.
+- Update Error Prone to 2.51.0 and NullAway to 0.14.3.
+
 ## 2.0.0 - 2026-10-18
 
 ### Breaking changes
