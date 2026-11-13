@@ -12,9 +12,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Update the pinned setup-java action from 6.1.0 to 6.2.0 in CI and release workflows.
 - Update Maven Surefire and Failsafe from 3.6.0 to 3.6.1.
 - Update Maven Enforcer to 3.7.0 and JaCoCo to 0.8.16.
-
 - Update the supported Spring Boot BOMs to 4.0.9 and 4.1.2.
-- Update Error Prone to 2.51.0 and NullAway to 0.14.3.
+- Update Error Prone to 2.52.0 and NullAway to 0.14.3.
 
 ## 2.0.0 - 2026-10-18
 
