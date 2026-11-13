@@ -9,6 +9,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
+- Update the pinned setup-java action from 6.1.0 to 6.2.0 in CI and release workflows.
 - Update Maven Enforcer to 3.7.0 and JaCoCo to 0.8.16.
 
 - Update the supported Spring Boot BOMs to 4.0.9 and 4.1.2.
