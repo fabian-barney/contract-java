@@ -9,8 +9,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
+- Update the Spotless Maven plugin from 3.10.4 to 3.11.0 while retaining the pinned Palantir Java Format version.
 - Update Maven Enforcer to 3.7.0 and JaCoCo to 0.8.16.
-
 - Update the supported Spring Boot BOMs to 4.0.9 and 4.1.2.
 - Update Error Prone to 2.51.0 and NullAway to 0.14.3.
 
