@@ -9,6 +9,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
+- Update the Spotless Maven plugin from 3.10.4 to 3.11.0 while retaining the pinned Palantir Java Format version.
 - Update the pinned setup-java action from 6.1.0 to 6.2.0 in CI and release workflows.
 - Update Maven Surefire and Failsafe from 3.6.0 to 3.6.1.
 - Update Maven Enforcer to 3.7.0 and JaCoCo to 0.8.16.
