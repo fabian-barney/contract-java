@@ -137,11 +137,10 @@ integrations, but they are not exported as public modules.
 
 ## Versioning
 
-`contract-java` follows semantic versioning. Starting with `1.0.0`, both
-`contract-core` and `contract-spring-boot-starter` have maintained public APIs.
-Breaking changes to those APIs or documented behavior require a major version;
-minor releases add compatible functionality and patch releases provide
-compatible fixes.
+`contract-java` follows semantic versioning; [RELEASING.md](RELEASING.md#versioning)
+defines the version-bump rules. Starting with `1.0.0`, both `contract-core` and
+`contract-spring-boot-starter` have maintained public APIs. Breaking changes to
+those APIs or documented behavior require a major version.
 
 The compatibility promise covers APIs annotated with API Guardian
 `@API(status = MAINTAINED)` and the documented generated-code contract.
@@ -167,9 +166,9 @@ Breaking changes include:
 Previously generated code remains compatible with the maintained runtime bridge
 within each major release line. Version `2.0.0` also preserves compatibility with
 previously generated `1.x` code on supported JDKs. Supported Java and Spring Boot
-versions follow the documented support policy. Version `2.0.0` raises the Java
-baseline to 21; published `1.x` artifacts and their historical compatibility remain
-unchanged.
+versions follow the [support policy](RELEASING.md#support-policy). Version
+`2.0.0` raises the Java baseline to 21; published `1.x` artifacts and their
+historical compatibility remain unchanged.
 
 The compatibility promise does not cover implementation details such as
 processor internals, packages named `internal`, exact bytecode instruction
@@ -454,14 +453,12 @@ Lombok onto supported method, constructor, or parameter targets are enforced.
 
 ## Spring Boot
 
-`contract-spring-boot-starter` currently supports Spring Boot `4.0.x` and
-`4.1.x` as documented in
-`ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md`.
+`contract-spring-boot-starter` supports Spring Boot `4.0.x` and `4.1.x`.
 
-The compatibility table follows the Spring Boot support window defined in
-[ADR-0002](ai/PROJECT/DECISIONS/ADR-0002-SPRING-BOOT-STARTER-SUPPORT.md).
-CI compiles and runs behavior tests against each listed Spring Boot line on
-both supported JDKs, in addition to isolated dependency-resolution checks.
+The compatibility table follows the
+[support policy](RELEASING.md#support-policy). CI compiles and runs behavior
+tests against each listed Spring Boot line on both supported JDKs, in addition
+to isolated dependency-resolution checks.
 
 | JDK | Spring Boot `4.0.x` | Spring Boot `4.1.x` |
 | --- | --- | --- |
@@ -473,8 +470,8 @@ Building and running the annotation processor requires a full JDK 21 or 25.
 Published library bytecode targets Java 21. Use current security patches within
 the supported JDK lines; newer feature releases are unverified.
 
-Spring Boot lines outside ADR-0002 are not part of the starter support target,
-even if `contract-core` remains usable in non-Spring projects.
+Spring Boot lines outside the support policy are not part of the starter support
+target, even if `contract-core` remains usable in non-Spring projects.
 
 The starter publishes Boot auto-configuration from
 `media.barney.contract.spring.ContractSpringAutoConfiguration` and keeps the

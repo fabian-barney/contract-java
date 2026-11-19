@@ -4,9 +4,58 @@ The parent `media.barney:contract-java`, `contract-core`, and
 `contract-spring-boot-starter` publish together to Maven Central and GitHub.
 Examples remain unpublished. The 2.x release line requires Java 21 bytecode
 and supports full JDK 21/25, Linux/Windows, and Spring Boot 4.0/4.1.
-Maven 3.9.16 is the minimum build version; the primary wrapper uses 3.10.1.
-Stable version changes publish through the reviewed-main workflow described
-below.
+Maven 3.9.16 is the minimum build version. Stable version changes publish
+through the reviewed-main workflow described below.
+
+## Support policy
+
+The supported matrix consists of Spring Boot lines, JDK LTS releases, and a
+minimum Maven version. The [README compatibility table](README.md#spring-boot)
+lists the supported Spring Boot and JDK lines.
+
+- **Spring Boot:** a line is supported from its adoption until it leaves Spring's
+  OSS support window, as published in the
+  [Spring support policy](https://spring.io/support-policy). Commercial support
+  does not count.
+- **JDK:** only LTS releases are supported.
+  - A JDK LTS reaches end of life when Oracle JDK stops providing free updates
+    for it under the NFTC license, as published in
+    [Oracle's Java SE support roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html).
+  - No other source is used. Paid support, such as Oracle Premier or Extended
+    Support, never counts, and neither do Oracle's six-month OpenJDK builds on
+    jdk.java.net.
+  - The bytecode target is the oldest supported LTS.
+- **Maven:** the minimum Maven version for building this repository follows
+  Apache Maven's end-of-life declarations and the minimum versions required by
+  the build plugins.
+- **Hard cut:** a line is retired on its end-of-life date, with no grace period.
+  Retirement work is prepared ahead of time so it can merge on that date.
+  - Retirement removes everything tied to the line: CI matrix entries, version
+    properties, profiles and selectors, tests and fixtures, compatibility code,
+    workarounds, documentation and table entries, and Dependabot configuration.
+- **Adoption:** new Spring Boot minor lines and new JDK LTS releases are adopted
+  after their GA release.
+  - The newest supported Spring Boot line is the default build line, and it
+    defines the versions in the published starter POM.
+- **Security fixes:** only the latest release, the newest minor of the newest
+  major, receives security fixes. [SECURITY.md](SECURITY.md) describes how to
+  report a vulnerability.
+
+## Versioning
+
+Releases follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The README defines the API compatibility promise. Version bumps follow these
+rules:
+
+- **Major:**
+  - any removal from the supported matrix: dropping a Spring Boot line or a JDK
+    LTS, raising the bytecode target, or raising the Maven minimum
+  - any API break
+
+  Retirements that fall due close together may ship in one major.
+- **Minor:** adding a supported line, or a new feature.
+- **Patch:** fixes, and dependency patch updates that affect published artifacts.
+- Changes that only touch tooling, CI, or documentation do not require a release.
 
 ## Release trigger
 

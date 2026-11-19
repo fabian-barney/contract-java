@@ -11,8 +11,9 @@ transitive dependency on `contract-core`. That shape did not justify a starter
 module: there was no auto-configuration metadata, no Spring-specific runtime
 integration, and no documented behavior beyond dependency aggregation.
 
-ADR-0002 already defines which Spring Boot release lines are supported. This
-decision defines what the starter actually does inside those supported lines.
+The support policy in [RELEASING.md](../../../RELEASING.md#support-policy)
+defines which Spring Boot release lines are supported. This decision defines
+what the starter actually does inside those supported lines.
 
 The contract model remains framework-agnostic. Any Spring Boot integration
 therefore needs to stay optional, non-invasive, and clearly bounded so that
