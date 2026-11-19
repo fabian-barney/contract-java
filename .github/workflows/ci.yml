@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["21", "25"]
+        java-version: ["25"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
@@ -73,11 +73,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -117,11 +117,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -177,11 +177,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
@@ -211,7 +211,6 @@ jobs:
           - ubuntu-latest
           - windows-latest
         java-version:
-          - "21"
           - "25"
         boot-line:
           - "4.0"
@@ -247,7 +246,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["21", "25"]
+        java-version: ["25"]
 
     steps:
       - name: Checkout
@@ -272,7 +271,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["21", "25"]
+        java-version: ["25"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
@@ -303,11 +302,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
           cache: maven
 
       - name: Set Maven wrapper permissions
@@ -345,11 +344,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
@@ -386,11 +385,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
@@ -427,11 +426,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
 
       - name: Set Maven wrapper permissions
         run: chmod +x mvnw
