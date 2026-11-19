@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -31,13 +33,18 @@ import org.junit.jupiter.api.io.TempDir;
 
 class ContractProcessorTest {
 
+    private static final String BASELINE_RELEASE = Objects.requireNonNull(
+            System.getProperty("contract.java.release"), "Surefire must set contract.java.release");
+
     @TempDir
     Path tempDirectory;
 
     @Test
     void supportsBaselineAndHostSourceVersionsWithoutWarnings() throws Exception {
-        for (String sourceVersion :
-                List.of("21", Integer.toString(Runtime.version().feature()))) {
+        for (String sourceVersion : Stream.of(
+                        BASELINE_RELEASE, Integer.toString(Runtime.version().feature()))
+                .distinct()
+                .toList()) {
             Compilation compilation = compile(
                     sourceVersion, List.of("-Werror", "-Xlint:-options"), source("example.SupportedSource", """
                             package example;
@@ -282,7 +289,7 @@ class ContractProcessorTest {
     }
 
     private Compilation compile(List<String> extraOptions, JavaFileObject... sources) throws IOException {
-        return compile("21", extraOptions, sources);
+        return compile(BASELINE_RELEASE, extraOptions, sources);
     }
 
     private Compilation compile(String sourceVersion, List<String> extraOptions, JavaFileObject... sources)

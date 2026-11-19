@@ -45,10 +45,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <!--
-            The parent configures the Maven release setting to 21 for ordinary
-            modules. This module uses javac internals and must compile with
-            explicit source/target 21 instead, so intentionally remove the inherited
-            release value while retaining the source and target values below.
+            The parent configures the Maven release setting for ordinary modules.
+            This module exports javac internals, which javac rejects together with
+            release, so it compiles with explicit source/target values from the
+            same property and intentionally removes the inherited release value.
           -->
           <release combine.self="override"/>
           <source>${maven.compiler.release}</source>
@@ -87,6 +87,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>@{argLine} --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</argLine>
+          <systemPropertyVariables>
+            <contract.java.release>${maven.compiler.release}</contract.java.release>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>
