@@ -7,6 +7,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Added
+
+- Explain in the README how contract-java differs from Jakarta Validation and
+  how to use both together.
+
+### Removed
+
+- Remove the 2.0.0 migration guide (`MIGRATING.md`).
+
 ### Changed
 
 - Update the Flatten Maven plugin from 1.8.0 to 1.9.0.
@@ -23,7 +32,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Require full JDK 21 or 25 for builds and annotation processing, emit Java 21
   bytecode, and retire Java 17 support for the next major release.
-- Require Maven 3.9.16 or newer for repository builds. See [MIGRATING.md](MIGRATING.md).
+- Require Maven 3.9.16 or newer for repository builds.
 
 ### Changed
 
