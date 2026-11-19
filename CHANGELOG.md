@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Require full JDK 25 for builds and annotation processing, and emit Java 25
+  bytecode. Java 21 support is retired because its free Oracle NFTC updates
+  have ended.
+
 ### Added
 
 - Explain in the README how contract-java differs from Jakarta Validation and

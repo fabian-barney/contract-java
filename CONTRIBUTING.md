@@ -47,9 +47,9 @@ license.
 
 ## Local Checks
 
-Use a full JDK 21 or 25 with Maven 3.9.16 or newer, or with the checksum-verified
-Maven Wrapper. CI tests both JDK lines; keep current security patches. Supported
-lines follow the [support policy](RELEASING.md#support-policy).
+Use a full JDK 25 with Maven 3.9.16 or newer, or with the checksum-verified
+Maven Wrapper. CI tests every supported JDK; keep current security patches.
+Supported lines follow the [support policy](RELEASING.md#support-policy).
 
 Run the formatter check and the same verification as the default CI gate:
 
