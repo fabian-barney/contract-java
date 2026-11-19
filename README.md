@@ -270,13 +270,14 @@ auto-configuration for optional integrations:
 
 ## Maven Compiler Setup
 
-The processor is enabled by default when javac discovers it on the annotation
-processor path or compile classpath. Generated contract messages use the
-source-level parameter names exposed by javac while it compiles the AST. The
-`<parameters>true</parameters>` setting is still useful for application code
-that inspects method metadata through reflection, but it is not required for
-generated contract messages. Pass processor options through the Maven compiler
-plugin:
+javac runs the processor only when annotation processing is configured
+explicitly; a processor that is only on the compile classpath is not run.
+Enable processing and list `contract-core` on the annotation processor path.
+Generated contract messages use the source-level parameter names exposed by
+javac while it compiles the AST. The `<parameters>true</parameters>` setting is
+still useful for application code that inspects method metadata through
+reflection, but it is not required for generated contract messages. Pass
+processor options through the Maven compiler plugin:
 
 ```xml
 <plugin>
@@ -285,6 +286,14 @@ plugin:
   <configuration>
     <release>25</release>
     <parameters>true</parameters>
+    <proc>full</proc>
+    <annotationProcessorPaths>
+      <path>
+        <groupId>media.barney</groupId>
+        <artifactId>contract-core</artifactId>
+        <version>2.0.0</version>
+      </path>
+    </annotationProcessorPaths>
     <compilerArgs>
       <arg>-Acontracts.enabled=true</arg>
     </compilerArgs>
@@ -294,7 +303,7 @@ plugin:
 
 The current processor rewrites javac trees and therefore needs access to
 `jdk.compiler` internals while it runs. For Maven Wrapper builds, add these
-exports to `.mvn/jvm.config`. The targets cover classpath processor usage
+exports to `.mvn/jvm.config`. The targets cover processor-path usage
 (`ALL-UNNAMED`) and JPMS processor-module-path usage
 (`media.barney.contract.core`):
 
@@ -524,7 +533,7 @@ javac packages to `media.barney.contract.core` as shown in
 | --- | --- | --- |
 | Contract messages use names such as `arg0` or `arg1` instead of source parameter names. | The compiler did not expose a usable source parameter name to the processor. | Rebuild from normal Java source with annotation processing enabled. The processor reads names from javac's source AST; `-parameters` is for reflection metadata and does not control generated contract messages. |
 | Annotated methods compile, but no generated checks run. | Contract processing is disabled or the build does not pass `-Acontracts.enabled=true` after overriding compiler arguments. | Add `<arg>-Acontracts.enabled=true</arg>` to compiler arguments or remove any `-Acontracts.enabled=false` override. |
-| Annotated methods compile, but the processor never appears to run. | `contract-core` is missing from the compile classpath, annotation processor path, or processor module path. | Add `media.barney:contract-core` as a dependency and ensure annotation processing is enabled for the build. On toolchains where processor discovery is disabled by default, configure an explicit processor path. |
+| Annotated methods compile, but the processor never appears to run. | `contract-core` is only on the compile classpath, or missing from the annotation processor path or processor module path. javac does not run processors that are only on the compile classpath. | Add `media.barney:contract-core` as a dependency and to the annotation processor path: Maven `annotationProcessorPaths` with `<proc>full</proc>`, or the Gradle `annotationProcessor` configuration. |
 | Lombok-generated constructors, setters, builders, or getters do not receive expected contract checks. | Lombok did not copy the contract annotations or processor ordering hides the generated member from the contract processor. | Add the relevant `media.barney.contract.Contract.*` annotations to `lombok.copyableAnnotations` and keep Lombok available before the contract processor sees generated members. Do not rely on exact Lombok null-check ordering as a compatibility guarantee. |
 
 ## Local Development
