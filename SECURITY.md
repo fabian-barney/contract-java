@@ -13,7 +13,7 @@ Upgrade to the latest release to receive them.
 | Older releases | No |
 | Snapshots | No |
 
-The supported Spring Boot, JDK, and Maven lines follow the
+The supported Spring Boot and JDK lines and the minimum Maven version follow the
 [support policy](RELEASING.md#support-policy).
 
 ## Reporting a Vulnerability

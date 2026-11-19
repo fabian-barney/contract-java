@@ -16,7 +16,8 @@ source of truth is `spec.md` until implementation documentation supersedes it.
 - Docs name supported lines, such as Spring Boot `4.1.x` or JDK 25, never pinned
   patch or tool versions. Pins live only in build files. Supported minimums,
   such as the minimum Maven version, and the release version in installation
-  examples are not pins.
+  examples are not pins. CHANGELOG entries record history and may name exact
+  versions.
 
 ## Project-Owned Knowledge
 
