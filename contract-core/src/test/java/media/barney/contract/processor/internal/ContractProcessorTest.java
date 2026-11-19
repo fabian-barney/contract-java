@@ -248,6 +248,54 @@ class ContractProcessorTest {
     }
 
     @Test
+    void masksValuesThroughComposedContracts() throws Exception {
+        Compilation compilation = compile(source("example.ComposedMasks", """
+                        package example;
+                        import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+                        import static java.lang.annotation.ElementType.FIELD;
+                        import static java.lang.annotation.ElementType.METHOD;
+                        import static java.lang.annotation.ElementType.PARAMETER;
+                        import static java.lang.annotation.RetentionPolicy.RUNTIME;
+                        import java.lang.annotation.Retention;
+                        import java.lang.annotation.Target;
+                        import media.barney.contract.Contract;
+                        import media.barney.contract.processor.internal.ContractProcessorIT.TypeMask;
+                        public class ComposedMasks {
+                            public static void unlock(@SecretPin String pin) {
+                            }
+                            @MaskedCode public static String issue(String code) {
+                                return code;
+                            }
+                            @Contract
+                            @Contract.Mask(renderer = TypeMask.class)
+                            @Contract.Pattern(regexp = "[0-9]+") @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+                            @Retention(RUNTIME)
+                            public @interface SecretPin {}
+                            @Contract
+                            @Contract.Mask
+                            @Contract.Pattern(regexp = "[0-9]+") @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
+                            @Retention(RUNTIME)
+                            public @interface MaskedCode {}
+                        }
+                        """));
+
+        assertTrue(compilation.succeeded(), compilation.diagnosticsText());
+        Class<?> type = compilation.load("example.ComposedMasks");
+        Method unlock = type.getMethod("unlock", String.class);
+        Method issue = type.getMethod("issue", String.class);
+
+        Throwable pinCause = invocationCause(() -> unlock.invoke(null, "raw-pin"));
+        assertInstanceOf(IllegalArgumentException.class, pinCause);
+        assertTrue(pinCause.getMessage().endsWith("but was: String"), pinCause.getMessage());
+        assertFalse(pinCause.getMessage().contains("raw-pin"));
+
+        Throwable codeCause = invocationCause(() -> issue.invoke(null, "raw-code"));
+        assertInstanceOf(IllegalStateException.class, codeCause);
+        assertTrue(codeCause.getMessage().endsWith("but was: [MASKED]"), codeCause.getMessage());
+        assertFalse(codeCause.getMessage().contains("raw-code"));
+    }
+
+    @Test
     void disabledProcessorOptionSkipsInjection() throws Exception {
         Compilation compilation =
                 compile(List.of("-Acontracts.enabled=false"), source("example.DisabledContracts", """
