@@ -5,8 +5,8 @@ The parent `media.barney:contract-java`, `contract-core`, and
 Examples remain unpublished. The 2.x release line requires Java 21 bytecode
 and supports full JDK 21/25, Linux/Windows, and Spring Boot 4.0/4.1.
 Maven 3.9.16 is the minimum build version; the primary wrapper uses 3.10.0.
-See [MIGRATING.md](MIGRATING.md) for upgrading from 1.x. Stable version changes
-publish through the reviewed-main workflow described below.
+Stable version changes publish through the reviewed-main workflow described
+below.
 
 ## Release trigger
 
