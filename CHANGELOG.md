@@ -7,6 +7,16 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Require full JDK 25 for builds and annotation processing, and emit Java 25
+  bytecode. Java 21 support is retired because its free Oracle NFTC updates
+  have ended.
+- Maven builds must enable annotation processing explicitly with
+  `<proc>full</proc>` and list `contract-core` in `annotationProcessorPaths`.
+  javac 25 silently skips processors found only on the compile classpath, so
+  contracts would not be enforced. Gradle builds need Gradle 9.1 or newer.
+
 ### Added
 
 - Explain in the README how contract-java differs from Jakarta Validation and
