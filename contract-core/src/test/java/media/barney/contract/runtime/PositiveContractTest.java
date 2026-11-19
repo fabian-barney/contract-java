@@ -21,8 +21,6 @@ class PositiveContractTest {
         assertTrue(POSITIVE.accepts(new BigDecimal("1.5")));
 
         assertDoesNotThrow(() -> POSITIVE.requireParameter(1, "com.example.UserService.findUser", "limit"));
-        assertDoesNotThrow(
-                () -> POSITIVE.requireParameter(Integer.valueOf(1), "com.example.UserService.findUser", "limit"));
     }
 
     @Test

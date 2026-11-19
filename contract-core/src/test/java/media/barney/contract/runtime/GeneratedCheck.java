@@ -5,11 +5,15 @@ import media.barney.contract.runtime.internal.ContractArguments;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Issues the same bridge calls that annotation-processor-generated checks emit.
+ * Issues the object-valued bridge calls that annotation-processor-generated
+ * checks emit for reference types.
  *
  * <p>The processor resolves the contract kind, description, mask renderer, and
  * attribute values at compile time; this fixture carries those pre-resolved
- * values so runtime tests exercise exactly the generated-code call shape.
+ * values to the {@code Object} parameter bridge and the generic return bridge.
+ * Primitive arguments are boxed here, so the primitive bridge overloads are
+ * covered by {@code ContractRuntimeTest} and {@code ContractProcessorIT}
+ * instead.
  */
 record GeneratedCheck(
         RuntimeContract kind,
