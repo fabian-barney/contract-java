@@ -21,8 +21,9 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   and `requireReturn(Object, String, Annotation...)`, `renderValue`, and the
   `isNotEmpty`, `isNotBlank`, `isPositive`, `isNegative`, `isNonNegative`,
   `isNonPositive`, `isInRange`, `hasSize`, and `matchesPattern` helpers. No
-  released processor emitted calls to them; applications that called them
-  directly must replace those calls.
+  released processor emitted calls to them. They have no public replacement:
+  declare contracts with the `media.barney.contract.Contract` annotations and
+  let the annotation processor generate the checks.
 
 ### Added
 
