@@ -7,7 +7,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from release_common import CENTRAL, NS, fetch, require
+from release_common import CENTRAL, NS, configured_java_release, fetch, require
 
 SOURCE = """package consumer;
 import media.barney.contract.Contract;
@@ -68,6 +68,7 @@ def consumers(version: str) -> None:
         f"-J--add-exports=jdk.compiler/com.sun.tools.javac.{package}=ALL-UNNAMED"
         for package in ("code", "api", "parser", "processing", "tree", "util")
     ]
+    release = str(configured_java_release())
     with tempfile.TemporaryDirectory(prefix="contract-consumer-") as temp:
         root = Path(temp)
         old = root / "contract-core-0.1.14.jar"
@@ -90,7 +91,7 @@ def consumers(version: str) -> None:
                     *exports,
                     "-proc:full",
                     "--release",
-                    "21",
+                    release,
                     "-classpath",
                     classpath,
                     "-processorpath",
@@ -116,7 +117,7 @@ def consumers(version: str) -> None:
                 *exports,
                 "-proc:full",
                 "--release",
-                "21",
+                release,
                 "--module-path",
                 modulepath,
                 "-processorpath",

@@ -96,6 +96,21 @@ def revision(xml: str) -> str | None:
     return ET.fromstring(xml).findtext("m:properties/m:revision", namespaces=NS)
 
 
+def java_release(xml: str) -> int:
+    value = ET.fromstring(xml).findtext(
+        "m:properties/m:maven.compiler.release", namespaces=NS
+    )
+    require(
+        value is not None and value.isdecimal(),
+        "Expected a numeric maven.compiler.release",
+    )
+    return int(cast(str, value))
+
+
+def configured_java_release() -> int:
+    return java_release(Path("pom.xml").read_text(encoding="utf-8"))
+
+
 def timestamp(sha: str) -> tuple[int, str]:
     epoch = int(git("show", "-s", "--format=%ct", sha))
     return epoch, dt.datetime.fromtimestamp(epoch, dt.timezone.utc).isoformat().replace(

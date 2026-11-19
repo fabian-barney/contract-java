@@ -17,6 +17,7 @@ from release_common import (
     NS,
     Release,
     candidate,
+    configured_java_release,
     digest,
     maven_path,
     require,
@@ -253,6 +254,7 @@ def verify_jar(path: Path, main: bool = False) -> None:
             )
         if main:
             require("module-info.class" in names, "Missing JPMS descriptor")
+            release = configured_java_release()
             for name in sorted(names):
                 if name.endswith(".class"):
                     header = archive.read(name)[:8]
@@ -261,8 +263,8 @@ def verify_jar(path: Path, main: bool = False) -> None:
                         f"Malformed class header: {name}",
                     )
                     require(
-                        int.from_bytes(header[6:8], "big") == 65,
-                        f"Expected Java 21 bytecode: {name}",
+                        int.from_bytes(header[6:8], "big") == release + 44,
+                        f"Expected Java {release} bytecode: {name}",
                     )
             if path.name.startswith("contract-core-"):
                 require(

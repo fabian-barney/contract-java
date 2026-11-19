@@ -19,7 +19,9 @@ import release_publish as publish
 from release_common import (
     ARTIFACTS,
     FINGERPRINT,
+    configured_java_release,
     digest,
+    java_release,
     maven_path,
     version_tuple,
 )
@@ -271,12 +273,38 @@ class PublicationIdentityTests(unittest.TestCase):
 
 
 class PayloadTests(unittest.TestCase):
-    def test_main_jars_require_java_21_bytecode(self):
-        valid = b"\xca\xfe\xba\xbe\x00\x00\x00\x41"
+    def test_java_release_reads_configured_bytecode_target(self):
+        pom = (
+            '<project xmlns="http://maven.apache.org/POM/4.0.0">'
+            "<properties>{}</properties></project>"
+        )
+        self.assertEqual(
+            java_release(
+                pom.format("<maven.compiler.release>25</maven.compiler.release>")
+            ),
+            25,
+        )
+        for properties in (
+            "",
+            "<maven.compiler.release></maven.compiler.release>",
+            "<maven.compiler.release>twenty-five</maven.compiler.release>",
+            "<maven.compiler.release>${java.version}</maven.compiler.release>",
+        ):
+            with (
+                self.subTest(properties=properties),
+                self.assertRaisesRegex(ValueError, "maven.compiler.release"),
+            ):
+                java_release(pom.format(properties))
+
+    def test_main_jars_require_configured_bytecode(self):
+        release = configured_java_release()
+        major = release + 44
+        valid = b"\xca\xfe\xba\xbe\x00\x00" + major.to_bytes(2, "big")
+        message = f"Expected Java {release} bytecode"
         cases = (
             (valid, None),
-            (valid[:-1] + b"\x3d", "Expected Java 21 bytecode"),
-            (valid[:-1] + b"\x45", "Expected Java 21 bytecode"),
+            (valid[:-2] + (major - 1).to_bytes(2, "big"), message),
+            (valid[:-2] + (major + 1).to_bytes(2, "big"), message),
             (b"invalid!", "Malformed class header"),
             (b"\xca\xfe", "Malformed class header"),
         )
