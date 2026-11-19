@@ -18,6 +18,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
+- Update the Maven Wrapper distribution from 3.10.0 to 3.10.1.
 - Update the Flatten Maven plugin from 1.8.0 to 1.9.0.
 - Update the Spotless Maven plugin from 3.10.4 to 3.11.0 while retaining the pinned Palantir Java Format version.
 - Update the pinned setup-java action from 6.1.0 to 6.2.0 in CI and release workflows.
