@@ -36,7 +36,7 @@ problems. Use them together, not as alternatives:
 | Purpose | Reject invalid external input. | Detect programming errors. |
 | A violation means | Bad input: expected, recoverable, and reported back to the client. | A bug: in the caller for a precondition, in the method itself for a postcondition. Unexpected and not recoverable. |
 | Where it belongs | System boundaries such as controllers, message listeners, and forms. | Internal method and constructor boundaries. |
-| How it runs | A validator, called by a framework or explicitly, that typically collects all violations. | Checks the annotation processor generates into the method body at compile time. They run on every call without proxies, containers, or reflection, and fail fast on the first violation. |
+| How it runs | A validator, called by a framework or explicitly, that typically collects all violations. | Checks the annotation processor generates into the method body at compile time. They run on every call without proxies or a container, and fail fast on the first violation. |
 | Failure signal | Constraint violations, for example `ConstraintViolationException`. | `IllegalArgumentException` for preconditions, `IllegalStateException` for postconditions. |
 | Typical HTTP result | `400`-style client error. | `500`; the starter's opt-in resolver never maps contract violations to `4xx`. |
 | Closest analogy | Form and input validation. | Guava `Preconditions.checkArgument` / `checkState`, assertions. |
@@ -94,7 +94,7 @@ refactoring. If a precondition fails, some caller skipped validation or computed
 a wrong value. If the postcondition fails, `createUser` itself is broken. Both
 are bugs to fix, not input to report back to a client.
 
-The same-named annotations differ on `null`: Jakarta `@NotBlank` rejects
+The two `@NotBlank` annotations differ on `null`: Jakarta `@NotBlank` rejects
 `null`, while `@Contract.NotBlank`, like every built-in contract, lets it pass.
 If `createUser` must never receive a `null` tenant, declare that with JSpecify
 and enforce it with NullAway.
