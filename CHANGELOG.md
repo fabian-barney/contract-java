@@ -15,9 +15,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ### Removed
 
 - Remove the 2.0.0 migration guide (`MIGRATING.md`).
+- Remove ADR-0002; the support policy in `RELEASING.md` now defines the
+  supported Spring Boot lines.
 
 ### Changed
 
+- Define the support policy and versioning rules in `RELEASING.md`. Spring Boot,
+  JDK LTS, and Maven support follows upstream end of life with a hard cut, and
+  every removal from the supported matrix requires a major release.
+- Provide security fixes for the latest release only.
 - Update the Maven Wrapper distribution from 3.10.0 to 3.10.1.
 - Update the Flatten Maven plugin from 1.8.0 to 1.9.0.
 - Update the Spotless Maven plugin from 3.10.4 to 3.11.0 while retaining the pinned Palantir Java Format version.

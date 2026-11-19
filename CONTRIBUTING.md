@@ -47,8 +47,9 @@ license.
 
 ## Local Checks
 
-Use a full JDK 21 or 25 and Maven 3.9.16 or newer. The checksum-verified wrapper
-selects Maven 3.10.1. CI tests both JDK lines; keep current security patches.
+Use a full JDK 21 or 25 with Maven 3.9.16 or newer, or with the checksum-verified
+Maven Wrapper. CI tests both JDK lines; keep current security patches. Supported
+lines follow the [support policy](RELEASING.md#support-policy).
 
 Run the formatter check and the same verification as the default CI gate:
 
@@ -91,15 +92,16 @@ isolated temporary Maven repository, and resolves small dependency projects
 against the supported Spring Boot `4.0.x` and `4.1.x` BOMs. Nested Maven processes
 use the same installation as the reactor, including in minimum-version checks.
 
-The default build compiles and runs starter behavior tests against Boot 4.1.2.
-Select Boot 4.0.9 for compilation, behavior tests, and its resolution fixture:
+The default build compiles and runs starter behavior tests against the default
+Boot line, `4.1.x`. Select the `4.0.x` line for compilation, behavior tests, and
+its resolution fixture:
 
 ```sh
 ./mvnw -B -ntp -Dspring.boot.smoke.line=4.0 spotless:check verify
 ```
 
 Use `-Dspring.boot.smoke.line=4.1` for the explicit 4.1 matrix case. The JUnit
-6.1.3 BOM takes precedence over either Boot BOM for the complete JUnit family.
+BOM takes precedence over every Boot BOM for the complete JUnit family.
 The starter-local Boot profile preserves the parent's default quality gates.
 
 Run only the starter and its dependencies with:
@@ -168,5 +170,6 @@ reusable `Javadoc Pages` workflow, which deploys the retained Javadoc archives
 with Actions Pages, preserving `/api/<version>/` and selecting `/api/latest/`
 by semantic version. GitHub finalization follows complete verification.
 
-See [RELEASING.md](RELEASING.md) for repository configuration, the pinned signing
-fingerprint, fourteen-asset layout, consumer verification, and recovery rules.
+See [RELEASING.md](RELEASING.md) for the support policy, versioning rules,
+repository configuration, the pinned signing fingerprint, fourteen-asset layout,
+consumer verification, and recovery rules.

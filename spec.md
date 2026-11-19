@@ -348,7 +348,8 @@ includes the starter's auto-configuration, configuration properties and nested
 settings types, documented property names/defaults, conditional integrations,
 and exception mapping. Existing null handling, masking, exception types, and
 generated-code runtime bridge behavior remain unchanged. Internal packages are
-outside this promise; the existing Java and Spring Boot support policy remains.
+outside this promise. Java and Spring Boot support follows the
+[support policy](RELEASING.md#support-policy).
 
 The following behavior is part of the compatibility promise within a compatible
 release line:
@@ -494,15 +495,10 @@ Example coordinates:
 </dependency>
 ```
 
-### 6.3 Spring Boot Support Policy
+### 6.3 Spring Boot Support
 
-The Spring Boot starter supports only Spring Boot release lines that are still within active OSS support according to Spring's published support policy.
-
-As of June 21, 2026, that means Spring Boot `4.0.x` and `4.1.x`. This dated
-note is descriptive context, not a permanent minimum-version rule. The
-normative rule is to follow the current OSS support window.
-
-During implementation, the concrete supported Spring Boot lines should be captured in an ADR so that the codebase and release process can be updated when Spring changes its support window.
+The supported Spring Boot lines are defined by the support policy in
+[RELEASING.md](RELEASING.md#support-policy).
 
 The contract model itself does not depend on Spring and remains usable through
 `contract-core` in non-Spring projects.
@@ -533,4 +529,4 @@ exceptions are not handled by the starter.
 
 - Java 21 and 25, with Java 21 bytecode; other releases are unverified.
 - Maven 3.9+ or Gradle 8+
-- Spring Boot starter support is limited to Spring Boot release lines with current OSS support
+- Spring Boot lines supported under the [support policy](RELEASING.md#support-policy)
