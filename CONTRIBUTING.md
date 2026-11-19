@@ -48,7 +48,7 @@ license.
 ## Local Checks
 
 Use a full JDK 21 or 25 and Maven 3.9.16 or newer. The checksum-verified wrapper
-selects Maven 3.10.0. CI tests both JDK lines; keep current security patches.
+selects Maven 3.10.1. CI tests both JDK lines; keep current security patches.
 
 Run the formatter check and the same verification as the default CI gate:
 
