@@ -20,9 +20,9 @@ before deciding where to use it.
 
 ## contract-java vs. Jakarta Validation
 
-Jakarta Validation (formerly Bean Validation, for example Hibernate Validator)
-and `contract-java` both put constraint-like annotations such as "positive",
-"size", or "pattern" on Java code. They look similar, but they solve different
+Jakarta Validation (formerly Bean Validation; implemented by, for example,
+Hibernate Validator) and `contract-java` both put constraint-like annotations
+such as "positive", "size", or "pattern" on Java code. They look similar, but they solve different
 problems. Use them together, not as alternatives:
 
 - Jakarta Validation answers **"Is this data acceptable?"** It checks untrusted
@@ -48,6 +48,12 @@ body, you declare them once on the signature and the processor generates them.
 ### Using both together
 
 ```java
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import media.barney.contract.Contract;
+
 record CreateUserRequest(
         @NotBlank @Size(max = 32) String tenant,
         @Positive int limit) {
@@ -87,6 +93,11 @@ controller, a scheduled job, another service, or code written after the next
 refactoring. If a precondition fails, some caller skipped validation or computed
 a wrong value. If the postcondition fails, `createUser` itself is broken. Both
 are bugs to fix, not input to report back to a client.
+
+The same-named annotations differ on `null`: Jakarta `@NotBlank` rejects
+`null`, while `@Contract.NotBlank`, like every built-in contract, lets it pass.
+If `createUser` must never receive a `null` tenant, declare that with JSpecify
+and enforce it with NullAway.
 
 ### Rules of thumb
 
