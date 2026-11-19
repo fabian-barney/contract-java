@@ -10,32 +10,30 @@ import org.junit.jupiter.api.Test;
 
 class SizeContractTest {
 
+    private static final GeneratedCheck SIZE = GeneratedCheck.size(1, 2);
+
     @Test
     void supportsCharSequenceCollectionMapAndArrayValues() {
-        assertTrue(ContractRuntime.hasSize("ab", 1, 2));
-        assertTrue(ContractRuntime.hasSize(new StringBuilder("ab"), 1, 2));
-        assertTrue(ContractRuntime.hasSize(List.of("a", "b"), 1, 2));
-        assertTrue(ContractRuntime.hasSize(Map.of("a", 1), 1, 2));
-        assertTrue(ContractRuntime.hasSize(new long[] {1L, 2L}, 1, 2));
+        assertTrue(SIZE.accepts("ab"));
+        assertTrue(SIZE.accepts(new StringBuilder("ab")));
+        assertTrue(SIZE.accepts(List.of("a", "b")));
+        assertTrue(SIZE.accepts(Map.of("a", 1)));
+        assertTrue(SIZE.accepts(new long[] {1L, 2L}));
     }
 
     @Test
     void rejectsOutOfRangeAndUnsupportedValues() {
-        assertFalse(ContractRuntime.hasSize("", 1, 2));
-        assertFalse(ContractRuntime.hasSize("abc", 1, 2));
-        assertFalse(ContractRuntime.hasSize(List.of(), 1, 2));
-        assertFalse(ContractRuntime.hasSize(Map.of(), 1, 2));
-        assertFalse(ContractRuntime.hasSize(new String[0], 1, 2));
-        assertFalse(ContractRuntime.hasSize(42, 1, 2));
+        assertFalse(SIZE.accepts(""));
+        assertFalse(SIZE.accepts("abc"));
+        assertFalse(SIZE.accepts(List.of()));
+        assertFalse(SIZE.accepts(Map.of()));
+        assertFalse(SIZE.accepts(new String[0]));
+        assertFalse(SIZE.accepts(42));
     }
 
     @Test
     void ignoresNullReferenceValues() {
-        assertTrue(ContractRuntime.hasSize(null, 1, 2));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "tenant",
-                BuiltInContractTestSupport.parameterAnnotations("sizeString", String.class)));
+        assertTrue(SIZE.accepts(null));
+        assertDoesNotThrow(() -> SIZE.requireParameter(null, "com.example.UserService.findUser", "tenant"));
     }
 }

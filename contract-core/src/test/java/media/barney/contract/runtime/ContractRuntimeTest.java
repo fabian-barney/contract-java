@@ -1,24 +1,17 @@
 package media.barney.contract.runtime;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
-import media.barney.contract.Contract;
+import media.barney.contract.DefaultMaskRenderer;
 import media.barney.contract.MaskRenderer;
 import org.junit.jupiter.api.Test;
 
@@ -26,49 +19,49 @@ class ContractRuntimeTest {
 
     @Test
     void semanticChecksIgnoreNullValues() {
-        assertTrue(ContractRuntime.isNotEmpty(null));
-        assertTrue(ContractRuntime.isNotBlank(null));
-        assertTrue(ContractRuntime.isPositive(null));
-        assertTrue(ContractRuntime.isNegative(null));
-        assertTrue(ContractRuntime.isNonNegative(null));
-        assertTrue(ContractRuntime.isNonPositive(null));
-        assertTrue(ContractRuntime.isInRange(null, 1, 3, true, false));
-        assertTrue(ContractRuntime.hasSize(null, 1, 3));
-        assertTrue(ContractRuntime.matchesPattern(null, "[0-9]+"));
+        assertTrue(GeneratedCheck.notEmpty().accepts(null));
+        assertTrue(GeneratedCheck.notBlank().accepts(null));
+        assertTrue(GeneratedCheck.positive().accepts(null));
+        assertTrue(GeneratedCheck.negative().accepts(null));
+        assertTrue(GeneratedCheck.nonNegative().accepts(null));
+        assertTrue(GeneratedCheck.nonPositive().accepts(null));
+        assertTrue(GeneratedCheck.inRange(1, 3, true, false).accepts(null));
+        assertTrue(GeneratedCheck.size(1, 3).accepts(null));
+        assertTrue(GeneratedCheck.pattern("[0-9]+").accepts(null));
 
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null, "com.example.UserService.findUser", "limit", parameterAnnotations("positive", Integer.class)));
+        assertDoesNotThrow(
+                () -> GeneratedCheck.positive().requireParameter(null, "com.example.UserService.findUser", "limit"));
     }
 
     @Test
     void contentPredicatesSupportStringsCollectionsMapsAndArrays() {
-        assertTrue(ContractRuntime.isNotEmpty(new StringBuilder("abc")));
-        assertTrue(ContractRuntime.isNotEmpty(List.of("a")));
-        assertTrue(ContractRuntime.isNotEmpty(Map.of("a", "b")));
-        assertTrue(ContractRuntime.isNotEmpty(new int[] {1}));
+        assertTrue(GeneratedCheck.notEmpty().accepts(new StringBuilder("abc")));
+        assertTrue(GeneratedCheck.notEmpty().accepts(List.of("a")));
+        assertTrue(GeneratedCheck.notEmpty().accepts(Map.of("a", "b")));
+        assertTrue(GeneratedCheck.notEmpty().accepts(new int[] {1}));
 
-        assertFalse(ContractRuntime.isNotEmpty(""));
-        assertFalse(ContractRuntime.isNotEmpty(List.of()));
-        assertFalse(ContractRuntime.isNotBlank(" \t\n"));
+        assertFalse(GeneratedCheck.notEmpty().accepts(""));
+        assertFalse(GeneratedCheck.notEmpty().accepts(List.of()));
+        assertFalse(GeneratedCheck.notBlank().accepts(" \t\n"));
     }
 
     @Test
     void numericPredicatesSupportBigDecimalsBigIntegersAndRanges() {
-        assertTrue(ContractRuntime.isPositive(new BigDecimal("1.5")));
-        assertTrue(ContractRuntime.isNegative(BigInteger.valueOf(-1L)));
-        assertTrue(ContractRuntime.isNonNegative(0));
-        assertTrue(ContractRuntime.isNonPositive(0L));
+        assertTrue(GeneratedCheck.positive().accepts(new BigDecimal("1.5")));
+        assertTrue(GeneratedCheck.negative().accepts(BigInteger.valueOf(-1L)));
+        assertTrue(GeneratedCheck.nonNegative().accepts(0));
+        assertTrue(GeneratedCheck.nonPositive().accepts(0L));
 
-        assertTrue(ContractRuntime.isInRange(new BigDecimal("2.5"), 1, 3, true, false));
-        assertTrue(ContractRuntime.isInRange(BigInteger.TWO, 1, 3, true, false));
-        assertTrue(ContractRuntime.isInRange(2.5d, 1, 3, true, false));
-        assertTrue(ContractRuntime.isInRange(2.5f, 1, 3, true, false));
-        assertTrue(ContractRuntime.isInRange(2L, 1, 3, true, false));
-        assertFalse(ContractRuntime.isInRange(3, 1, 3, true, false));
-        assertFalse(ContractRuntime.isInRange(Double.NaN, 1, 3, true, false));
-        assertFalse(ContractRuntime.isInRange("2", 1, 3, true, false));
-        assertFalse(ContractRuntime.isPositive(Double.NaN));
-        assertFalse(ContractRuntime.isPositive("1"));
+        assertTrue(GeneratedCheck.inRange(1, 3, true, false).accepts(new BigDecimal("2.5")));
+        assertTrue(GeneratedCheck.inRange(1, 3, true, false).accepts(BigInteger.TWO));
+        assertTrue(GeneratedCheck.inRange(1, 3, true, false).accepts(2.5d));
+        assertTrue(GeneratedCheck.inRange(1, 3, true, false).accepts(2.5f));
+        assertTrue(GeneratedCheck.inRange(1, 3, true, false).accepts(2L));
+        assertFalse(GeneratedCheck.inRange(1, 3, true, false).accepts(3));
+        assertFalse(GeneratedCheck.inRange(1, 3, true, false).accepts(Double.NaN));
+        assertFalse(GeneratedCheck.inRange(1, 3, true, false).accepts("2"));
+        assertFalse(GeneratedCheck.positive().accepts(Double.NaN));
+        assertFalse(GeneratedCheck.positive().accepts("1"));
     }
 
     @Test
@@ -105,25 +98,21 @@ class ContractRuntimeTest {
 
     @Test
     void sizeChecksSupportCharSequencesCollectionsMapsAndArrays() {
-        assertTrue(ContractRuntime.hasSize("ab", 1, 2));
-        assertTrue(ContractRuntime.hasSize(new StringBuilder("ab"), 1, 2));
-        assertTrue(ContractRuntime.hasSize(List.of("a", "b"), 1, 2));
-        assertTrue(ContractRuntime.hasSize(Map.of("a", 1), 1, 2));
-        assertTrue(ContractRuntime.hasSize(new long[] {1L, 2L}, 1, 2));
+        assertTrue(GeneratedCheck.size(1, 2).accepts("ab"));
+        assertTrue(GeneratedCheck.size(1, 2).accepts(new StringBuilder("ab")));
+        assertTrue(GeneratedCheck.size(1, 2).accepts(List.of("a", "b")));
+        assertTrue(GeneratedCheck.size(1, 2).accepts(Map.of("a", 1)));
+        assertTrue(GeneratedCheck.size(1, 2).accepts(new long[] {1L, 2L}));
 
-        assertFalse(ContractRuntime.hasSize("abc", 1, 2));
-        assertFalse(ContractRuntime.hasSize(42, -1, 10));
+        assertFalse(GeneratedCheck.size(1, 2).accepts("abc"));
+        assertFalse(GeneratedCheck.size(-1, 10).accepts(42));
     }
 
     @Test
     void parameterViolationIncludesLocationContractAndQuotedValue() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        "",
-                        "com.example.UserService.findUser",
-                        "tenant",
-                        parameterAnnotations("tenant", String.class)));
+                () -> GeneratedCheck.size(1, 32).requireParameter("", "com.example.UserService.findUser", "tenant"));
 
         assertEquals(
                 "Parameter 'tenant' of method 'com.example.UserService.findUser' "
@@ -135,8 +124,9 @@ class ContractRuntimeTest {
     void returnViolationUsesIllegalStateExceptionAndDefaultMasking() {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> ContractRuntime.requireReturn(
-                        "", "com.example.TokenService.issue", methodAnnotations("maskedNotBlank")));
+                () -> GeneratedCheck.notBlank()
+                        .masked(DefaultMaskRenderer.class)
+                        .requireReturn("", "com.example.TokenService.issue"));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -145,14 +135,12 @@ class ContractRuntimeTest {
     }
 
     @Test
-    void customComposedContractUsesCustomMessage() {
+    void customDescriptionFollowsLocationAfterColon() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        0L,
-                        "com.example.UserService.deleteUser",
-                        "userId",
-                        parameterAnnotations("validId", Long.class)));
+                () -> GeneratedCheck.positive()
+                        .withMessage("must be a valid ID")
+                        .requireParameter(0L, "com.example.UserService.deleteUser", "userId"));
 
         assertEquals(
                 "Parameter 'userId' of method 'com.example.UserService.deleteUser': "
@@ -164,11 +152,9 @@ class ContractRuntimeTest {
     void customMaskRendererIsAppliedWithoutRawValue() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        "secret-token",
-                        "com.example.AccountService.login",
-                        "password",
-                        parameterAnnotations("sensitivePattern", String.class)));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(TextMaskRenderer.class)
+                        .requireParameter("secret-token", "com.example.AccountService.login", "password"));
 
         assertEquals(
                 "Parameter 'password' of method 'com.example.AccountService.login' "
@@ -178,11 +164,12 @@ class ContractRuntimeTest {
     }
 
     @Test
-    void directMaskRendererIsAppliedWithoutRawValue() {
+    void customMaskRendererIsAppliedToReturnValues() {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> ContractRuntime.requireReturn(
-                        "secret-token", "com.example.TokenService.issue", methodAnnotations("directMaskedPattern")));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(TextMaskRenderer.class)
+                        .requireReturn("secret-token", "com.example.TokenService.issue"));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -195,8 +182,9 @@ class ContractRuntimeTest {
     void brokenMaskRendererFallsBackConservatively() {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> ContractRuntime.requireReturn(
-                        "raw-secret", "com.example.TokenService.issue", methodAnnotations("throwingMask")));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(ThrowingMaskRenderer.class)
+                        .requireReturn("raw-secret", "com.example.TokenService.issue"));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -209,27 +197,26 @@ class ContractRuntimeTest {
     void maskRendererErrorsPropagate() {
         LinkageError exception = assertThrows(
                 LinkageError.class,
-                () -> ContractRuntime.requireReturn(
-                        "raw-secret", "com.example.TokenService.issue", methodAnnotations("linkageMask")));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(LinkageErrorMaskRenderer.class)
+                        .requireReturn("raw-secret", "com.example.TokenService.issue"));
 
         assertEquals("renderer linkage failed", exception.getMessage());
     }
 
     @Test
     void patternChecksReuseCompiledPatternBehavior() {
-        assertTrue(ContractRuntime.matchesPattern("USR-42", "USR-[0-9]+"));
-        assertFalse(ContractRuntime.matchesPattern("TEN-42", "USR-[0-9]+"));
+        assertTrue(GeneratedCheck.pattern("USR-[0-9]+").accepts("USR-42"));
+        assertFalse(GeneratedCheck.pattern("USR-[0-9]+").accepts("TEN-42"));
     }
 
     @Test
     void customBuiltInMessageKeepsLocationAndValueRendering() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        BigDecimal.ZERO,
-                        "com.example.AccountService.transfer",
-                        "amount",
-                        parameterAnnotations("amount", BigDecimal.class)));
+                () -> GeneratedCheck.positive()
+                        .withMessage("transfer amount must be positive")
+                        .requireParameter(BigDecimal.ZERO, "com.example.AccountService.transfer", "amount"));
 
         assertEquals(
                 "Parameter 'amount' of method 'com.example.AccountService.transfer': "
@@ -238,27 +225,10 @@ class ContractRuntimeTest {
     }
 
     @Test
-    void valueRenderingQuotesEscapesAndFormatsArrays() {
-        assertEquals("\"a\\n\\\"\\\\\\t\\r\"", ContractRuntime.renderValue("a\n\"\\\t\r", null));
-        assertEquals("'\\n'", ContractRuntime.renderValue('\n', null));
-        assertEquals("[1, 2]", ContractRuntime.renderValue(new int[] {1, 2}, null));
-        assertEquals("[a, [b]]", ContractRuntime.renderValue(new Object[] {"a", new String[] {"b"}}, null));
-    }
+    void returnBridgeReturnsOriginalValueWhenContractPasses() {
+        String value = "USR-42";
 
-    private static Annotation[] parameterAnnotations(String methodName, Class<?> parameterType) {
-        try {
-            return Fixture.class.getDeclaredMethod(methodName, parameterType).getParameterAnnotations()[0];
-        } catch (NoSuchMethodException exception) {
-            throw new AssertionError(exception);
-        }
-    }
-
-    private static Annotation[] methodAnnotations(String methodName) {
-        try {
-            return Fixture.class.getDeclaredMethod(methodName).getAnnotations();
-        } catch (NoSuchMethodException exception) {
-            throw new AssertionError(exception);
-        }
+        assertSame(value, GeneratedCheck.pattern("USR-[0-9]+").requireReturn(value, "com.example.UserService.find"));
     }
 
     private static void requireLongParameter(long value, RuntimeContract contract) {
@@ -296,54 +266,6 @@ class ContractRuntimeTest {
                 0,
                 null);
     }
-
-    @SuppressWarnings({"unused", "PMD.UnusedPrivateMethod"})
-    private static final class Fixture {
-
-        void positive(@Contract.Positive Integer limit) {}
-
-        void tenant(@Contract.Size(min = 1, max = 32) String tenant) {}
-
-        void validId(@ValidId Long userId) {}
-
-        void sensitivePattern(@SensitivePattern String password) {}
-
-        void amount(@Contract.Positive(message = "transfer amount must be positive") BigDecimal amount) {}
-
-        @Contract.Mask
-        @Contract.NotBlank String maskedNotBlank() {
-            return "";
-        }
-
-        @Contract.Mask(renderer = ThrowingMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+") String throwingMask() {
-            return "";
-        }
-
-        @Contract.Mask(renderer = TextMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+") String directMaskedPattern() {
-            return "";
-        }
-
-        @Contract.Mask(renderer = LinkageErrorMaskRenderer.class)
-        @Contract.Pattern(regexp = "[0-9]+") String linkageMask() {
-            return "";
-        }
-    }
-
-    @Contract
-    @Contract.Positive @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
-    @Retention(RUNTIME)
-    private @interface ValidId {
-
-        String message() default "must be a valid ID";
-    }
-
-    @Contract
-    @Contract.Mask(renderer = TextMaskRenderer.class)
-    @Contract.Pattern(regexp = "[0-9]+") @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
-    @Retention(RUNTIME)
-    private @interface SensitivePattern {}
 
     public static final class TextMaskRenderer implements MaskRenderer {
 
