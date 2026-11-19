@@ -9,47 +9,36 @@ import org.junit.jupiter.api.Test;
 
 class PatternContractTest {
 
+    private static final GeneratedCheck IGNORE_CASE = GeneratedCheck.pattern("(?i)usr-[0-9]+");
+
     @Test
     void supportsInlineRegexFlags() {
-        assertTrue(ContractRuntime.matchesPattern("USR-42", "(?i)usr-[0-9]+"));
-        assertTrue(ContractRuntime.matchesPattern("usr-42", "(?i)usr-[0-9]+"));
+        assertTrue(IGNORE_CASE.accepts("USR-42"));
+        assertTrue(IGNORE_CASE.accepts("usr-42"));
 
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                "usr-42",
-                "com.example.UserService.findUser",
-                "tenant",
-                BuiltInContractTestSupport.parameterAnnotations("patternIgnoreCase", String.class)));
+        assertDoesNotThrow(() -> IGNORE_CASE.requireParameter("usr-42", "com.example.UserService.findUser", "tenant"));
     }
 
     @Test
     void rejectsNonMatchingAndUnsupportedValues() {
-        assertFalse(ContractRuntime.matchesPattern("TEN-42", "(?i)usr-[0-9]+"));
-        assertFalse(ContractRuntime.matchesPattern(42, "(?i)usr-[0-9]+"));
-
+        assertFalse(IGNORE_CASE.accepts("TEN-42"));
+        assertFalse(IGNORE_CASE.accepts(42));
         assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        "TEN-42",
-                        "com.example.UserService.findUser",
-                        "tenant",
-                        BuiltInContractTestSupport.parameterAnnotations("patternIgnoreCase", String.class)));
+                () -> IGNORE_CASE.requireParameter("TEN-42", "com.example.UserService.findUser", "tenant"));
     }
 
     @Test
     void ignoresNullReferenceValues() {
-        assertTrue(ContractRuntime.matchesPattern(null, "(?i)usr-[0-9]+"));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "tenant",
-                BuiltInContractTestSupport.parameterAnnotations("patternIgnoreCase", String.class)));
+        assertTrue(IGNORE_CASE.accepts(null));
+        assertDoesNotThrow(() -> IGNORE_CASE.requireParameter(null, "com.example.UserService.findUser", "tenant"));
     }
 
     @Test
     void boundsCompiledPatternCacheBeforeCompilingUncachedPattern() {
         for (int index = 0; index <= 256; index++) {
             String value = "value-" + index;
-            assertTrue(ContractRuntime.matchesPattern(value, value));
+            assertTrue(GeneratedCheck.pattern(value).accepts(value));
         }
     }
 }
