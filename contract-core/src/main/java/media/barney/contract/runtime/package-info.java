@@ -6,7 +6,8 @@
  *
  * <p>Generated checks call this package to evaluate built-in semantic
  * contracts and throw the documented JDK exception types; violation messages
- * render masked values through the configured mask renderer. Parameter and constructor-parameter precondition failures throw
+ * render masked values through the configured mask renderer. Parameter and
+ * constructor-parameter precondition failures throw
  * {@link java.lang.IllegalArgumentException}; return-value postcondition
  * failures throw {@link java.lang.IllegalStateException}. Exact generated
  * bytecode shape and packages named {@code internal} are not public API.
