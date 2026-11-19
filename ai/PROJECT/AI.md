@@ -14,7 +14,9 @@ source of truth is `spec.md` until implementation documentation supersedes it.
 - Rule and policy docs state current rules only: no "as of" notes and no
   records of past decisions. History belongs in the CHANGELOG, git, and issues.
 - Docs name supported lines, such as Spring Boot `4.1.x` or JDK 25, never pinned
-  patch or tool versions. Pins live only in build files.
+  patch or tool versions. Pins live only in build files. Supported minimums,
+  such as the minimum Maven version, and the release version in installation
+  examples are not pins.
 
 ## Project-Owned Knowledge
 

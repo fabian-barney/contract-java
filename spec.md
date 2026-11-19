@@ -346,8 +346,8 @@ Starting with `1.0.0`, both core and Spring Boot starter public APIs annotated
 `MAINTAINED` are stable. Incompatible changes require a major version. This
 includes the starter's auto-configuration, configuration properties and nested
 settings types, documented property names/defaults, conditional integrations,
-and exception mapping. Existing null handling, masking, exception types, and
-generated-code runtime bridge behavior remain unchanged. Internal packages are
+and exception mapping. The promise also covers null handling, masking, exception
+types, and generated-code runtime bridge behavior. Internal packages are
 outside this promise. Java and Spring Boot support follows the
 [support policy](RELEASING.md#support-policy).
 

@@ -137,11 +137,10 @@ integrations, but they are not exported as public modules.
 
 ## Versioning
 
-`contract-java` follows semantic versioning. Starting with `1.0.0`, both
-`contract-core` and `contract-spring-boot-starter` have maintained public APIs.
-Breaking changes to those APIs or documented behavior require a major version;
-minor releases add compatible functionality and patch releases provide
-compatible fixes.
+`contract-java` follows semantic versioning; [RELEASING.md](RELEASING.md#versioning)
+defines the version-bump rules. Starting with `1.0.0`, both `contract-core` and
+`contract-spring-boot-starter` have maintained public APIs. Breaking changes to
+those APIs or documented behavior require a major version.
 
 The compatibility promise covers APIs annotated with API Guardian
 `@API(status = MAINTAINED)` and the documented generated-code contract.
@@ -167,10 +166,9 @@ Breaking changes include:
 Previously generated code remains compatible with the maintained runtime bridge
 within each major release line. Version `2.0.0` also preserves compatibility with
 previously generated `1.x` code on supported JDKs. Supported Java and Spring Boot
-versions follow the [support policy](RELEASING.md#support-policy), and
-[RELEASING.md](RELEASING.md#versioning) defines which version bump each change
-requires. Version `2.0.0` raises the Java baseline to 21; published `1.x`
-artifacts and their historical compatibility remain unchanged.
+versions follow the [support policy](RELEASING.md#support-policy). Version
+`2.0.0` raises the Java baseline to 21; published `1.x` artifacts and their
+historical compatibility remain unchanged.
 
 The compatibility promise does not cover implementation details such as
 processor internals, packages named `internal`, exact bytecode instruction

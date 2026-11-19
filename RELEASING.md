@@ -10,11 +10,11 @@ through the reviewed-main workflow described below.
 ## Support policy
 
 The supported matrix consists of Spring Boot lines, JDK LTS releases, and a
-minimum Maven version. The README compatibility table lists the supported Spring
-Boot and JDK lines.
+minimum Maven version. The [README compatibility table](README.md#spring-boot)
+lists the supported Spring Boot and JDK lines.
 
-- **Spring Boot:** a line is supported while it is inside Spring's OSS support
-  window, as published in the
+- **Spring Boot:** a line is supported from its adoption until it leaves Spring's
+  OSS support window, as published in the
   [Spring support policy](https://spring.io/support-policy). Commercial support
   does not count.
 - **JDK:** only LTS releases are supported.
@@ -25,8 +25,9 @@ Boot and JDK lines.
     Support, never counts, and neither do Oracle's six-month OpenJDK builds on
     jdk.java.net.
   - The bytecode target is the oldest supported LTS.
-- **Maven:** the minimum Maven version follows Apache Maven's end-of-life
-  declarations and the minimum versions required by the build plugins.
+- **Maven:** the minimum Maven version for building this repository follows
+  Apache Maven's end-of-life declarations and the minimum versions required by
+  the build plugins.
 - **Hard cut:** a line is retired on its end-of-life date, with no grace period.
   Retirement work is prepared ahead of time so it can merge on that date.
   - Retirement removes everything tied to the line: CI matrix entries, version
@@ -43,8 +44,8 @@ Boot and JDK lines.
 ## Versioning
 
 Releases follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-The README defines the API compatibility promise; these rules decide the version
-bump for every change.
+The README defines the API compatibility promise. Version bumps follow these
+rules:
 
 - **Major:**
   - any removal from the supported matrix: dropping a Spring Boot line or a JDK
