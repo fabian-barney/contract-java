@@ -396,7 +396,6 @@
               <compilerArgs combine.children="append">
                 <arg>-XDcompilePolicy=simple</arg>
                 <arg>--should-stop=ifError=FLOW</arg>
-                <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
                 <arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true</arg>
               </compilerArgs>
               <annotationProcessorPaths combine.children="append">
