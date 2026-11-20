@@ -2,13 +2,19 @@
 
 ## Supported Versions
 
-The project currently supports security fixes for the first public release line
-only.
+Only the [latest release](https://github.com/fabian-barney/contract-java/releases/latest),
+the newest minor version of the newest major version, receives security fixes.
+Fixes ship in a new release; older releases and snapshots are not patched.
+Upgrade to the latest release to receive them.
 
 | Version | Supported |
 | --- | --- |
-| `0.1.x` | Yes |
-| `< 0.1.0` snapshots | No |
+| Latest release | Yes |
+| Older releases | No |
+| Snapshots | No |
+
+The supported Spring Boot and JDK lines and the minimum Maven version follow the
+[support policy](https://github.com/fabian-barney/contract-java/blob/main/RELEASING.md#support-policy).
 
 ## Reporting a Vulnerability
 
