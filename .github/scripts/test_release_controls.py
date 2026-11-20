@@ -13,6 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote
 
+import configure_release as setup
 import release_consumer as consumer
 import release_control as control
 import release_payload as payload
@@ -29,11 +30,10 @@ from release_common import (
 
 
 class CandidateTests(unittest.TestCase):
-    def test_candidate_collisions_and_version_floor(self):
+    def select_candidate(self, current, previous, releases, central, notes, temp):
         sha = "a" * 40
         parent = "b" * 40
         pom = '<project xmlns="http://maven.apache.org/POM/4.0.0"><properties><revision>{}</revision></properties></project>'
-        published = {"draft": False, "prerelease": False, "tag_name": "v0.1.14"}
 
         def git_result(*args):
             if args == ("rev-parse", "HEAD"):
@@ -41,41 +41,81 @@ class CandidateTests(unittest.TestCase):
             if args == ("rev-parse", f"{sha}^1"):
                 return parent
             if args == ("show", f"{sha}:pom.xml"):
-                return pom.format("1.0.0")
+                return pom.format(current)
             if args == ("show", f"{parent}:pom.xml"):
-                return pom.format("0.1.13-SNAPSHOT")
+                return pom.format(previous)
             if args == ("show", f"{sha}:CHANGELOG.md"):
-                return "## 1.0.0 - 2026-01-01\n\n- Stable.\n"
+                return notes
             if args[0] == "ls-remote":
                 return ""
             raise AssertionError(args)
 
+        def github_result(path):
+            if path == f"repos/{REPOSITORY}/branches/{quote(RELEASE_BRANCH, safe='')}":
+                return {"protected": True}
+            return releases
+
+        environment = {
+            "GITHUB_REPOSITORY": REPOSITORY,
+            "GITHUB_REF": f"refs/heads/{RELEASE_BRANCH}",
+            "GITHUB_OUTPUT": str(Path(temp) / "outputs"),
+            "RELEASE_CANDIDATE": str(Path(temp) / "candidate.json"),
+        }
+        with (
+            patch.dict(os.environ, environment),
+            patch.object(control, "git", side_effect=git_result),
+            patch.object(control, "gh", side_effect=github_result),
+            patch.object(control, "fetch", return_value=central),
+            patch.object(control, "timestamp", return_value=(0, "1970-01-01T00:00:00Z")),
+        ):
+            control.select(sha)
+
+    def test_candidate_collisions_and_version_floor(self):
+        published = {"draft": False, "prerelease": False, "tag_name": "v0.1.14"}
         conflicting = {
             "draft": True,
             "prerelease": False,
             "tag_name": "v1.0.0",
             "body": "source: another commit",
         }
-        for releases, central in (
-            ([published], b"existing POM"),
-            ([published, conflicting], None),
-            ([dict(published, tag_name="v1.0.0")], None),
+        for releases, central, message in (
+            ([published], b"existing POM", "Maven Central coordinates already exist"),
+            ([published, conflicting], None, "Conflicting GitHub release"),
+            (
+                [dict(published, tag_name="v1.0.0")],
+                None,
+                "Version must exceed published releases",
+            ),
         ):
-
-            def github_result(path):
-                return (
-                    {"protected": True}
-                    if path.endswith(f"branches/{quote(RELEASE_BRANCH, safe='')}")
-                    else releases
+            with (
+                self.subTest(message=message),
+                tempfile.TemporaryDirectory() as temp,
+                self.assertRaisesRegex(ValueError, message),
+            ):
+                self.select_candidate(
+                    "1.0.0",
+                    "0.1.13-SNAPSHOT",
+                    releases,
+                    central,
+                    "## 1.0.0 - 2026-01-01\n\n- Stable.\n",
+                    temp,
                 )
 
-            with (
-                patch.object(control, "git", side_effect=git_result),
-                patch.object(control, "gh", side_effect=github_result),
-                patch.object(control, "fetch", return_value=central),
-                self.assertRaises(ValueError),
-            ):
-                control.select(sha)
+    def test_maintenance_release_above_published_releases_is_selected(self):
+        published = {"draft": False, "prerelease": False, "tag_name": "v2.0.0"}
+        with tempfile.TemporaryDirectory() as temp:
+            self.select_candidate(
+                "2.1.0",
+                "2.1.0-SNAPSHOT",
+                [published],
+                None,
+                "## 2.1.0 - 2026-11-20\n\n- Deprecate.\n",
+                temp,
+            )
+            candidate = json.loads((Path(temp) / "candidate.json").read_text())
+            outputs = (Path(temp) / "outputs").read_text()
+        self.assertEqual((candidate["version"], candidate["tag"]), ("2.1.0", "v2.1.0"))
+        self.assertIn("publish=true", outputs)
 
     def test_publication_requires_the_protected_release_branch(self):
         for ref, protected, message in (
@@ -198,6 +238,64 @@ class CandidateTests(unittest.TestCase):
             self.assertRaisesRegex(ValueError, "Timed out"),
         ):
             control.wait_required("a" * 40, timeout=1)
+
+    def test_wait_accepts_successful_ci_on_the_release_branch(self):
+        run = {
+            "id": 7,
+            "head_sha": "a" * 40,
+            "head_branch": RELEASE_BRANCH,
+            "status": "completed",
+            "conclusion": "success",
+            "html_url": "https://example.invalid/run",
+        }
+        jobs = {"jobs": [{"name": "verify / required", "conclusion": "success"}]}
+        with (
+            patch.object(control, "gh", side_effect=[{"workflow_runs": [run]}, jobs]),
+            patch.object(control.time, "monotonic", side_effect=[0, 0]),
+            patch.object(control.time, "sleep", side_effect=AssertionError("waited")),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            control.wait_required("a" * 40, timeout=1)
+
+    def test_setup_requires_release_branch_status_checks(self):
+        ruleset_only = {
+            "protected": True,
+            "protection": {
+                "enabled": False,
+                "required_status_checks": {"enforcement_level": "off", "contexts": []},
+            },
+        }
+        with (
+            patch.object(setup, "gh", return_value=ruleset_only),
+            self.assertRaisesRegex(ValueError, "must require verify / required"),
+        ):
+            setup.configure()
+
+        mirrored = {
+            "protected": True,
+            "protection": {
+                "enabled": True,
+                "required_status_checks": {
+                    "enforcement_level": "everyone",
+                    "contexts": ["verify / required"],
+                },
+            },
+        }
+        calls = []
+
+        def github(path, *args):
+            calls.append((path, *args[:1]))
+            if path.endswith("/rulesets"):
+                return [{"name": "immutable release tags"}]
+            return mirrored
+
+        with (
+            patch.object(setup, "gh", side_effect=github),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            setup.configure()
+        self.assertEqual(calls[0], (f"repos/{REPOSITORY}/branches/release%2F2.x",))
+        self.assertNotIn("PATCH", [call[1] for call in calls if len(call) > 1])
 
     def test_lightweight_and_wrong_commit_tags_fail(self):
         with (
