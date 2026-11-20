@@ -7,7 +7,8 @@ and supports full JDK 21/25, Linux/Windows, and Spring Boot 4.0/4.1.
 Maven 3.9.16 is the minimum build version; the primary wrapper uses 3.10.0.
 See [MIGRATING.md](MIGRATING.md) for upgrading from 1.x. Stable 2.x version
 changes publish from the protected `release/2.x` maintenance branch through the
-reviewed workflow described below.
+reviewed workflow described below. A 2.x release must still exceed every
+published release, so the 2.x line publishes only while no 3.x release exists.
 
 ## Release trigger
 
