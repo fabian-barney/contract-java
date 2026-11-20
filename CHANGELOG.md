@@ -22,9 +22,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ### Changed
 
 - Release the 2.x line from the protected `release/2.x` maintenance branch.
-  Provenance and SBOM attestations of 2.x releases name
+  From 2.1.0 on, provenance and SBOM attestations of 2.x releases name
   `refs/heads/release/2.x` as their source ref, so verify them with
   `gh attestation verify ... --source-ref refs/heads/release/2.x`.
+  Attestations of 2.0.0 name `refs/heads/main`.
 
 ## 2.0.0 - 2026-10-18
 
