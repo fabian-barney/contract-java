@@ -258,36 +258,38 @@ class CandidateTests(unittest.TestCase):
             control.wait_required("a" * 40, timeout=1)
 
     def test_setup_requires_release_branch_status_checks(self):
-        ruleset_only = {
-            "protected": True,
-            "protection": {
-                "enabled": False,
-                "required_status_checks": {"enforcement_level": "off", "contexts": []},
-            },
-        }
-        with (
-            patch.object(setup, "gh", return_value=ruleset_only),
-            self.assertRaisesRegex(ValueError, "must require verify / required"),
-        ):
-            setup.configure()
-
-        mirrored = {
-            "protected": True,
-            "protection": {
-                "enabled": True,
-                "required_status_checks": {
-                    "enforcement_level": "everyone",
-                    "contexts": ["verify / required"],
+        def branch(protected=True, level="everyone", contexts=("verify / required",)):
+            return {
+                "protected": protected,
+                "protection": {
+                    "enabled": protected,
+                    "required_status_checks": {
+                        "enforcement_level": level,
+                        "contexts": list(contexts),
+                    },
                 },
-            },
-        }
+            }
+
+        for name, refused in (
+            ("ruleset only", branch(level="off", contexts=())),
+            ("admins exempt", branch(level="non_admins")),
+            ("aggregator missing", branch(contexts=("other",))),
+            ("unprotected", branch(protected=False)),
+        ):
+            with (
+                self.subTest(name),
+                patch.object(setup, "gh", return_value=refused),
+                self.assertRaisesRegex(ValueError, "must require verify / required"),
+            ):
+                setup.configure()
+
         calls = []
 
         def github(path, *args):
             calls.append((path, *args[:1]))
             if path.endswith("/rulesets"):
                 return [{"name": "immutable release tags"}]
-            return mirrored
+            return branch()
 
         with (
             patch.object(setup, "gh", side_effect=github),
@@ -296,6 +298,37 @@ class CandidateTests(unittest.TestCase):
             setup.configure()
         self.assertEqual(calls[0], (f"repos/{REPOSITORY}/branches/release%2F2.x",))
         self.assertNotIn("PATCH", [call[1] for call in calls if len(call) > 1])
+
+    def test_attestations_require_the_release_branch_source_ref(self):
+        calls = []
+
+        def attest(*args):
+            calls.append(args)
+            if "--format" not in args:
+                return ""
+            sbom = Path(args[3].rsplit(".", 1)[0] + "-cyclonedx.json")
+            predicate = json.loads(sbom.read_text(encoding="utf-8"))
+            return json.dumps([{"verificationResult": {"statement": {"predicate": predicate}}}])
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for artifact in ARTIFACTS:
+                prefix = root / "central" / maven_path(artifact, "2.1.0")
+                prefix.parent.mkdir(parents=True, exist_ok=True)
+                Path(str(prefix) + "-cyclonedx.json").write_text(
+                    json.dumps({"bom": artifact}), encoding="utf-8"
+                )
+            with (
+                patch.object(publish, "ROOT", root),
+                patch.object(publish, "payloads", return_value=[root / "payload.jar"]),
+                patch.object(publish, "run", side_effect=attest),
+            ):
+                publish.attestations({"sha": "a" * 40, "version": "2.1.0"})
+        self.assertEqual(len(calls), 3 + len(ARTIFACTS))
+        for call in calls:
+            self.assertEqual(
+                call[call.index("--source-ref") + 1], "refs/heads/release/2.x"
+            )
 
     def test_lightweight_and_wrong_commit_tags_fail(self):
         with (
