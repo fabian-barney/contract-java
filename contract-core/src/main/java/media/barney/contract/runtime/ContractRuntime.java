@@ -46,7 +46,13 @@ public final class ContractRuntime {
      * @param parameterName the parameter name used in messages
      * @param annotations the annotations applied to the parameter
      * @throws IllegalArgumentException when a parameter contract fails
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
     public static void requireParameter(
             @Nullable Object value, String methodName, String parameterName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
@@ -71,7 +77,13 @@ public final class ContractRuntime {
      * @param methodName the fully qualified method name used in messages
      * @param annotations the annotations applied to the method
      * @throws IllegalStateException when a return-value contract fails
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
     public static void requireReturn(@Nullable Object value, String methodName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
 
@@ -532,7 +544,14 @@ public final class ContractRuntime {
      *
      * @param value value to evaluate; {@code null} passes
      * @return {@code true} when the value is {@code null} or has non-zero size
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isNotEmpty(@Nullable Object value) {
         return ContractChecks.isNotEmpty(value);
     }
@@ -543,7 +562,14 @@ public final class ContractRuntime {
      * @param value value to evaluate; {@code null} passes
      * @return {@code true} when the value is {@code null} or contains at least
      *     one non-whitespace character
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isNotBlank(@Nullable Object value) {
         return ContractChecks.isNotBlank(value);
     }
@@ -554,7 +580,14 @@ public final class ContractRuntime {
      * @param value value to evaluate; {@code null} passes
      * @return {@code true} when the value is {@code null} or numerically
      *     greater than zero
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isPositive(@Nullable Object value) {
         return ContractChecks.isPositive(value);
     }
@@ -565,7 +598,14 @@ public final class ContractRuntime {
      * @param value value to evaluate; {@code null} passes
      * @return {@code true} when the value is {@code null} or numerically less
      *     than zero
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isNegative(@Nullable Object value) {
         return ContractChecks.isNegative(value);
     }
@@ -576,7 +616,14 @@ public final class ContractRuntime {
      * @param value value to evaluate; {@code null} passes
      * @return {@code true} when the value is {@code null} or numerically
      *     greater than or equal to zero
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isNonNegative(@Nullable Object value) {
         return ContractChecks.isNonNegative(value);
     }
@@ -587,7 +634,14 @@ public final class ContractRuntime {
      * @param value value to evaluate; {@code null} passes
      * @return {@code true} when the value is {@code null} or numerically less
      *     than or equal to zero
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isNonPositive(@Nullable Object value) {
         return ContractChecks.isNonPositive(value);
     }
@@ -602,7 +656,14 @@ public final class ContractRuntime {
      * @param maxInclusive whether the upper bound is inclusive
      * @return {@code true} when the value is {@code null} or falls within the
      *     configured range
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean isInRange(
             @Nullable Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
         return ContractChecks.isInRange(value, min, max, minInclusive, maxInclusive);
@@ -616,7 +677,14 @@ public final class ContractRuntime {
      * @param max inclusive maximum length or size
      * @return {@code true} when the value is {@code null} or has size within
      *     the configured range
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean hasSize(@Nullable Object value, int min, int max) {
         return ContractChecks.hasSize(value, min, max);
     }
@@ -628,7 +696,14 @@ public final class ContractRuntime {
      * @param regexp Java regular expression
      * @return {@code true} when the value is {@code null} or the full sequence
      *     matches {@code regexp}
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static boolean matchesPattern(@Nullable Object value, String regexp) {
         return ContractChecks.matchesPattern(value, regexp);
     }
@@ -640,7 +715,14 @@ public final class ContractRuntime {
      * @param maskRenderer renderer type for confidential values, or
      *     {@code null} to render the value normally
      * @return rendered message value
+     * @deprecated Generated code does not call this method, and it is removed
+     *     in 3.0.0 without a replacement. Declare contracts with the
+     *     {@code media.barney.contract.Contract} annotations and let the
+     *     annotation processor generate the checks.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @SuppressWarnings("InlineMeSuggester")
     public static String renderValue(@Nullable Object value, @Nullable Class<? extends MaskRenderer> maskRenderer) {
         return ValueRenderer.render(value, maskRenderer);
     }

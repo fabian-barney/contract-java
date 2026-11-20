@@ -14,6 +14,7 @@ from release_common import (
     ARTIFACTS,
     CENTRAL,
     FINGERPRINT,
+    RELEASE_BRANCH,
     REPOSITORY,
     JsonObject,
     Release,
@@ -184,7 +185,7 @@ def attestations(release: Release) -> None:
         "--source-digest",
         release["sha"],
         "--source-ref",
-        "refs/heads/main",
+        f"refs/heads/{RELEASE_BRANCH}",
         "--deny-self-hosted-runners",
     ]
     for path in payloads() + [

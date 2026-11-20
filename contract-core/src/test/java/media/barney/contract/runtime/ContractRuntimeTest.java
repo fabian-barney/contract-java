@@ -22,6 +22,7 @@ import media.barney.contract.Contract;
 import media.barney.contract.MaskRenderer;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("removal")
 class ContractRuntimeTest {
 
     @Test

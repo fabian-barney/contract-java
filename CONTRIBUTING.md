@@ -4,7 +4,8 @@
 
 Use trunk-based development. Keep `main` protected and releasable, and put each
 change on a short-lived issue branch named for the issue and concern, such as
-`codex/51-contributing-flow`.
+`codex/51-contributing-flow`. Changes for the 2.x maintenance line target the
+protected `release/2.x` branch.
 
 Open one pull request per issue. The PR description should link the issue with a
 closing keyword, summarize the bounded change, list the checks run, and call out
@@ -152,7 +153,7 @@ In PowerShell, quote dotted `-D` properties:
 .\mvnw.cmd -B -ntp -Prelease "-Drevision=1.2.3" "-Dgpg.skip=true" verify
 ```
 
-The reviewed stable-version PR merge starts `Release` from protected `main`.
+The reviewed stable-version PR merge starts `Release` from protected `release/2.x`.
 It waits for `verify / required` on that exact SHA, validates coordinates and
 release notes, creates a signed annotated tag, and continues within the same
 workflow. Unchanged revisions and snapshot bumps publish nothing.

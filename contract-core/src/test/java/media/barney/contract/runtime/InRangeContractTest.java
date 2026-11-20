@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("removal")
 class InRangeContractTest {
 
     @Test

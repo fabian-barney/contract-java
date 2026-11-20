@@ -9,7 +9,7 @@ on:
       - ready_for_review
   push:
     branches:
-      - main
+      - release/2.x
 
 permissions:
   contents: read

@@ -28,6 +28,7 @@ class Release(TypedDict):
 
 
 REPOSITORY = "fabian-barney/contract-java"
+RELEASE_BRANCH = "release/2.x"
 FINGERPRINT = "9C48ED4A1B413005B7FCF3C6340670DF38D20146"
 ARTIFACTS = ("contract-java", "contract-core", "contract-spring-boot-starter")
 CENTRAL = "https://repo.maven.apache.org/maven2"
