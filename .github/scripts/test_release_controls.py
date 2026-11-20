@@ -11,6 +11,7 @@ import unittest
 import zipfile
 from pathlib import Path
 from unittest.mock import patch
+from urllib.parse import quote
 
 import release_consumer as consumer
 import release_control as control
@@ -19,6 +20,8 @@ import release_publish as publish
 from release_common import (
     ARTIFACTS,
     FINGERPRINT,
+    RELEASE_BRANCH,
+    REPOSITORY,
     digest,
     maven_path,
     version_tuple,
@@ -61,7 +64,9 @@ class CandidateTests(unittest.TestCase):
 
             def github_result(path):
                 return (
-                    {"protected": True} if path.endswith("branches/main") else releases
+                    {"protected": True}
+                    if path.endswith(f"branches/{quote(RELEASE_BRANCH, safe='')}")
+                    else releases
                 )
 
             with (
@@ -71,6 +76,44 @@ class CandidateTests(unittest.TestCase):
                 self.assertRaises(ValueError),
             ):
                 control.select(sha)
+
+    def test_publication_requires_the_protected_release_branch(self):
+        for ref, protected, message in (
+            ("refs/heads/main", True, f"Publication requires {RELEASE_BRANCH}"),
+            (f"refs/heads/{RELEASE_BRANCH}", False, f"{RELEASE_BRANCH} must be protected"),
+        ):
+            with (
+                self.subTest(ref=ref),
+                patch.dict(
+                    os.environ, {"GITHUB_REPOSITORY": REPOSITORY, "GITHUB_REF": ref}
+                ),
+                patch.object(control, "gh", return_value={"protected": protected}),
+                patch.object(control, "git", side_effect=AssertionError(ref)),
+                self.assertRaisesRegex(ValueError, message),
+            ):
+                control.select("a" * 40)
+
+    def test_release_branch_protection_is_checked_by_name(self):
+        paths = []
+
+        def github_result(path):
+            paths.append(path)
+            return {"protected": True}
+
+        with (
+            patch.dict(
+                os.environ,
+                {
+                    "GITHUB_REPOSITORY": REPOSITORY,
+                    "GITHUB_REF": f"refs/heads/{RELEASE_BRANCH}",
+                },
+            ),
+            patch.object(control, "gh", side_effect=github_result),
+            patch.object(control, "git", side_effect=RuntimeError("past branch gate")),
+            self.assertRaisesRegex(RuntimeError, "past branch gate"),
+        ):
+            control.select("a" * 40)
+        self.assertEqual(paths, [f"repos/{REPOSITORY}/branches/release%2F2.x"])
 
     def test_noop_and_snapshot_transitions(self):
         for old, new in (
@@ -136,6 +179,23 @@ class CandidateTests(unittest.TestCase):
         with (
             patch.object(control.time, "monotonic", side_effect=[0, 10]),
             self.assertRaises(ValueError),
+        ):
+            control.wait_required("a" * 40, timeout=1)
+
+    def test_wait_ignores_ci_runs_from_other_branches(self):
+        run = {
+            "id": 1,
+            "head_sha": "a" * 40,
+            "head_branch": "main",
+            "status": "completed",
+            "conclusion": "success",
+            "html_url": "https://example.invalid/run",
+        }
+        with (
+            patch.object(control, "gh", return_value={"workflow_runs": [run]}),
+            patch.object(control.time, "monotonic", side_effect=[0, 0, 10]),
+            patch.object(control.time, "sleep"),
+            self.assertRaisesRegex(ValueError, "Timed out"),
         ):
             control.wait_required("a" * 40, timeout=1)
 

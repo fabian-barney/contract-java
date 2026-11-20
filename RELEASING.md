@@ -5,17 +5,18 @@ The parent `media.barney:contract-java`, `contract-core`, and
 Examples remain unpublished. The 2.x release line requires Java 21 bytecode
 and supports full JDK 21/25, Linux/Windows, and Spring Boot 4.0/4.1.
 Maven 3.9.16 is the minimum build version; the primary wrapper uses 3.10.0.
-See [MIGRATING.md](MIGRATING.md) for upgrading from 1.x. Stable version changes
-publish through the reviewed-main workflow described below.
+See [MIGRATING.md](MIGRATING.md) for upgrading from 1.x. Stable 2.x version
+changes publish from the protected `release/2.x` maintenance branch through the
+reviewed workflow described below.
 
 ## Release trigger
 
-This project-specific policy selects protected-main push candidates and unattended
+This project-specific policy selects protected `release/2.x` push candidates and unattended
 publication, extending the shared tag/dispatch release defaults. Signed tags are
 created inside the validated publication run. Environment restrictions and the
 complete required CI gate replace manual deployment approval.
 
-Prepare an issue-linked PR from current remote `main`. Set the root `revision`
+Prepare an issue-linked PR from current remote `release/2.x`. Set the root `revision`
 to a canonical stable `X.Y.Z` version above every published stable release,
 date its changelog section, and update installation examples and API promises.
 Finish a fresh review of the latest head, resolve conversations under repository
@@ -35,8 +36,8 @@ secrets and creates no tag or release.
 
 ## Repository configuration
 
-- Protect `main`; require `verify / required`, fresh review, and resolved
-  conversations without bypassing existing protections.
+- Protect `release/2.x` like `main`; require `verify / required`, fresh review,
+  and resolved conversations without bypassing existing protections.
 - The `release` environment permits protected branches and has no manual reviewer.
 - Keep `v*` tags immutable against deletion and movement.
 - Set Pages to **GitHub Actions**, and allow protected branches in `github-pages`.
@@ -82,7 +83,7 @@ GitHub has exactly fourteen assets:
 Build provenance covers every published Maven payload and both GitHub manifests.
 Separate CycloneDX attestations bind each library SBOM to its JAR digest and the
 parent SBOM to its POM digest. Verification enforces the repository, release
-workflow, protected main source ref, source SHA, subject digest, and SBOM content.
+workflow, protected `release/2.x` source ref, source SHA, subject digest, and SBOM content.
 Attestations live in GitHub's attestation API, preserving the fourteen-asset layout.
 
 The Portal API uploads the validated ZIP with automatic publication. Its
@@ -115,7 +116,7 @@ actual version and release SHA:
 gh attestation verify contract-core-VERSION.jar \
   --repo fabian-barney/contract-java \
   --signer-workflow fabian-barney/contract-java/.github/workflows/release.yml \
-  --source-ref refs/heads/main --source-digest RELEASE_SHA \
+  --source-ref refs/heads/release/2.x --source-digest RELEASE_SHA \
   --deny-self-hosted-runners
 ```
 

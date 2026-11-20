@@ -7,12 +7,14 @@ import re
 import subprocess
 import time
 import xml.etree.ElementTree as ET
+from urllib.parse import quote
 
 from release_common import (
     ARTIFACTS,
     CENTRAL,
     FINGERPRINT,
     NS,
+    RELEASE_BRANCH,
     REPOSITORY,
     JsonObject,
     fetch,
@@ -103,11 +105,13 @@ def select(sha: str) -> None:
         "Unexpected repository",
     )
     require(
-        os.environ.get("GITHUB_REF", "refs/heads/main") == "refs/heads/main",
-        "Publication requires main",
+        os.environ.get("GITHUB_REF", f"refs/heads/{RELEASE_BRANCH}")
+        == f"refs/heads/{RELEASE_BRANCH}",
+        f"Publication requires {RELEASE_BRANCH}",
     )
     require(
-        gh(f"repos/{REPOSITORY}/branches/main")["protected"], "main must be protected"
+        gh(f"repos/{REPOSITORY}/branches/{quote(RELEASE_BRANCH, safe='')}")["protected"],
+        f"{RELEASE_BRANCH} must be protected",
     )
     require(git("rev-parse", "HEAD") == sha, "Checkout does not match the push SHA")
     parent = git("rev-parse", f"{sha}^1")
@@ -189,7 +193,7 @@ def wait_required(sha: str, timeout: int = 5400) -> None:
         runs = [
             run
             for run in runs
-            if run["head_sha"] == sha and run["head_branch"] == "main"
+            if run["head_sha"] == sha and run["head_branch"] == RELEASE_BRANCH
         ]
         if runs:
             workflow = max(runs, key=lambda run: run["id"])
