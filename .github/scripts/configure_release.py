@@ -1,19 +1,25 @@
-"""Idempotent repository setup, run by a maintainer outside publication CI."""
+"""Idempotent repository setup, run by a maintainer outside publication CI.
 
-from release_common import REPOSITORY, gh, require
+Release branches take their protection from the classic ``release/**/*`` rule
+that mirrors ``main``. This script verifies that the 2.x release branch requires
+the CI aggregator, then configures the shared release settings.
+"""
+
+from urllib.parse import quote
+
+from release_common import RELEASE_BRANCH, REPOSITORY, gh, require
+
+REQUIRED_CHECK = "verify / required"
 
 
 def configure() -> None:
-    branch = gh(f"repos/{REPOSITORY}/branches/main")
-    require(branch["protected"], "main must already be protected")
-    protection = gh(
-        f"repos/{REPOSITORY}/branches/main/protection/required_status_checks"
-    )
-    contexts = sorted(set(protection["contexts"]) | {"verify / required"})
-    gh(
-        f"repos/{REPOSITORY}/branches/main/protection/required_status_checks",
-        "PATCH",
-        {"strict": True, "contexts": contexts},
+    branch = gh(f"repos/{REPOSITORY}/branches/{quote(RELEASE_BRANCH, safe='')}")
+    checks = branch.get("protection", {}).get("required_status_checks", {})
+    require(
+        branch["protected"]
+        and checks.get("enforcement_level") == "everyone"
+        and REQUIRED_CHECK in checks.get("contexts", []),
+        f"{RELEASE_BRANCH} must require {REQUIRED_CHECK} for everyone",
     )
     for environment in ("release", "github-pages"):
         gh(
@@ -47,7 +53,7 @@ def configure() -> None:
             },
         )
     print(
-        "Required aggregator, protected-branch environments, Actions Pages, and immutable tags configured."
+        "Release-branch checks verified; protected-branch environments, Actions Pages, and immutable tags configured."
     )
 
 
