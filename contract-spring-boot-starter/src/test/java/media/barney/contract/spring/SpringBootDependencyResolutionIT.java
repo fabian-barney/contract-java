@@ -55,9 +55,11 @@ class SpringBootDependencyResolutionIT {
                 pinnedVersion,
                 selectedVersion,
                 () -> String.format(
-                        "The build compiled and tested against Spring Boot %s, but the %s line is pinned to %s. "
-                                + "Set the version in spring.boot.%s.version in the root pom.xml, "
-                                + "not in the starter's spring.boot.version.",
+                        "The build compiled and tested against Spring Boot %s, but the %s line is pinned to %s "
+                                + "(spring.boot.%s.version in the root pom.xml). Put patch updates in that pin and "
+                                + "keep the starter's spring.boot.version a reference to it. A non-default line "
+                                + "needs its spring-boot-<line> profile, and DEFAULT_SPRING_BOOT_LINE must match "
+                                + "the starter's default line.",
                         selectedVersion, bootLine, pinnedVersion, bootLine.replace(".", "")));
     }
 
