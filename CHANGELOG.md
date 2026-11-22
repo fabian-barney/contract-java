@@ -7,7 +7,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
-## 2.1.0 - 2026-11-20
+## 2.1.1 - 2026-11-22
 
 ### Deprecated
 
@@ -24,10 +24,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ### Changed
 
 - Release the 2.x line from the protected `release/2.x` maintenance branch.
-  From 2.1.0 on, provenance and SBOM attestations of 2.x releases name
+  From 2.1.1 on, provenance and SBOM attestations of 2.x releases name
   `refs/heads/release/2.x` as their source ref, so verify them with
   `gh attestation verify ... --source-ref refs/heads/release/2.x`.
   Attestations of 2.0.0 name `refs/heads/main`.
+- Publish these changes as 2.1.1. Version 2.1.0 was tagged but never published
+  to Maven Central, so it has no artifacts.
 
 ## 2.0.0 - 2026-10-18
 
@@ -221,7 +223,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
-[2.1.0]: https://github.com/fabian-barney/contract-java/compare/v2.0.0...v2.1.0
+[2.1.1]: https://github.com/fabian-barney/contract-java/compare/v2.0.0...v2.1.1
 [2.0.0]: https://github.com/fabian-barney/contract-java/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/fabian-barney/contract-java/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/fabian-barney/contract-java/compare/v0.1.14...v1.0.0
@@ -239,4 +241,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 [0.1.3]: https://github.com/fabian-barney/contract-java/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/fabian-barney/contract-java/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/fabian-barney/contract-java/compare/v0.1.0...v0.1.1
-[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v2.1.0...release/2.x
+[Unreleased]: https://github.com/fabian-barney/contract-java/compare/v2.1.1...release/2.x
