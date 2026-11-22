@@ -1,5 +1,6 @@
 package media.barney.contract.spring;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -17,9 +18,14 @@ class SpringBootDependencyResolutionIT {
 
     private static final Duration PROCESS_TIMEOUT = Duration.ofMinutes(4);
     private static final String SPRING_BOOT_SMOKE_LINE_PROPERTY = "spring.boot.smoke.line";
+    private static final String DEFAULT_SPRING_BOOT_LINE = "4.2";
 
     @Test
     void resolvesStarterWithSupportedSpringBootLines(@TempDir Path tempDirectory) throws Exception {
+        String requestedSmokeLine = optionalProperty(SPRING_BOOT_SMOKE_LINE_PROPERTY);
+        assertBuildUsesPinnedSpringBootVersion(
+                requestedSmokeLine == null ? DEFAULT_SPRING_BOOT_LINE : requestedSmokeLine);
+
         Path localRepository = Files.createDirectories(tempDirectory.resolve("local-repository"));
         Path reactorRoot = Path.of(requiredProperty("reactor.root"));
         String contractVersion = requiredProperty("contract.version");
@@ -32,7 +38,6 @@ class SpringBootDependencyResolutionIT {
                 .resolve("target")
                 .resolve("contract-spring-boot-starter-" + contractVersion + ".jar"));
 
-        String requestedSmokeLine = optionalProperty(SPRING_BOOT_SMOKE_LINE_PROPERTY);
         if (requestedSmokeLine != null) {
             resolveSmokeProject(localRepository, requestedSmokeLine, springBootVersion(requestedSmokeLine));
             return;
@@ -41,6 +46,19 @@ class SpringBootDependencyResolutionIT {
         resolveSmokeProject(localRepository, "4.0", springBootVersion("4.0"));
         resolveSmokeProject(localRepository, "4.1", springBootVersion("4.1"));
         resolveSmokeProject(localRepository, "4.2", springBootVersion("4.2"));
+    }
+
+    private static void assertBuildUsesPinnedSpringBootVersion(String bootLine) {
+        String selectedVersion = requiredProperty("selected.spring.boot.version");
+        String pinnedVersion = springBootVersion(bootLine);
+        assertEquals(
+                pinnedVersion,
+                selectedVersion,
+                () -> String.format(
+                        "The build compiled and tested against Spring Boot %s, but the %s line is pinned to %s. "
+                                + "Set the version in spring.boot.%s.version in the root pom.xml, "
+                                + "not in the starter's spring.boot.version.",
+                        selectedVersion, bootLine, pinnedVersion, bootLine.replace(".", "")));
     }
 
     private static void installProjectArtifact(

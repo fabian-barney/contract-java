@@ -122,6 +122,7 @@
             <maven.dependency.plugin.version>${maven.dependency.plugin.version}</maven.dependency.plugin.version>
             <maven.install.plugin.version>${maven.install.plugin.version}</maven.install.plugin.version>
             <reactor.root>${maven.multiModuleProjectDirectory}</reactor.root>
+            <selected.spring.boot.version>${spring.boot.version}</selected.spring.boot.version>
             <spring.boot.40.version>${spring.boot.40.version}</spring.boot.40.version>
             <spring.boot.41.version>${spring.boot.41.version}</spring.boot.41.version>
             <spring.boot.42.version>${spring.boot.42.version}</spring.boot.42.version>
