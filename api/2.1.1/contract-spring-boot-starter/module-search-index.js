@@ -1,0 +1,1 @@
+moduleSearchIndex = [{"l":"media.barney.contract.spring.boot.starter"}];updateSearchResults();
