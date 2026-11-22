@@ -657,20 +657,43 @@ class EncryptedSigningTests(SigningKeyCase):
 
 
 class FakeReleases:
-    """In-memory releases API; drafts and their assets survive every rerun."""
+    """In-memory releases API; drafts and their assets survive every rerun.
 
-    def __init__(self):
+    With `lagging`, the release list omits writes until `settle()`, as GitHub's
+    list did in the #255 dry run right after a draft was created.
+    """
+
+    def __init__(self, lagging=False):
         self.records = []
         self.blobs = {}
         self.uploads = 0
         self.ids = iter(range(100, 10_000))
+        self.lagging = lagging
+        self.unsettled = set()
+
+    def settle(self):
+        self.unsettled.clear()
 
     def api(self, path, method="GET", data=None):
         releases = f"repos/{REPOSITORY}/releases"
         if (method, path) == ("GET", releases + "?per_page=100"):
-            return json.loads(json.dumps(self.records))
+            listed = [
+                dict(
+                    record,
+                    assets=[
+                        asset
+                        for asset in record["assets"]
+                        if asset["id"] not in self.unsettled
+                    ],
+                )
+                for record in self.records
+                if record["id"] not in self.unsettled
+            ]
+            return json.loads(json.dumps(listed))
         if (method, path) == ("POST", releases):
             self.records.append(dict(data, id=next(self.ids), assets=[]))
+            if self.lagging:
+                self.unsettled.add(self.records[-1]["id"])
             return json.loads(json.dumps(self.records[-1]))
         if method == "DELETE" and path.startswith(releases + "/assets/"):
             asset = int(path.rsplit("/", 1)[1])
@@ -689,6 +712,9 @@ class FakeReleases:
         self.blobs[asset["id"]] = archive.read_bytes()
         target = next(r for r in self.records if r["id"] == record["id"])
         target["assets"].append(asset)
+        if self.lagging:
+            self.unsettled.add(asset["id"])
+        return dict(asset)
 
     def download(self, asset):
         return self.blobs[asset["id"]]
@@ -777,6 +803,17 @@ class PayloadVaultTests(SigningKeyCase):
             [asset["name"] for asset in record["assets"]],
             [f"release-payload-{self.sha}.zip"],
         )
+
+    def test_retain_trusts_write_responses_while_the_release_list_lags(self):
+        self.github.lagging = True
+        sealed = self.build_and_retain()
+        self.assertEqual(self.github.uploads, 1)
+        self.assertEqual(len(self.github.records), 1)
+        self.github.settle()
+        self.fresh_runner()
+        vault.restore(dict(self.release, retry=True))
+        self.assertEqual(self.outputs, {"restored": "true", "needs-signing": "false"})
+        self.assertEqual(tree(self.root), sealed)
 
     def test_failure_before_tagging_reuses_the_vault_and_still_signs_the_tag(self):
         sealed = self.build_and_retain()

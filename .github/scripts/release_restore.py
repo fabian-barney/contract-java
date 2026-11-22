@@ -7,6 +7,7 @@ no workflow rerun discards them, unlike the Actions artifacts of a rerun job.
 
 import argparse
 import io
+import json
 import os
 import subprocess
 import zipfile
@@ -32,18 +33,21 @@ def vault_tag(sha: str) -> str:
     return "release-payload-" + sha
 
 
+def vault_identity(record: JsonObject, sha: str) -> JsonObject:
+    require(
+        record.get("tag_name") == vault_tag(sha)
+        and record.get("draft") is True
+        and f"source: {sha}" in (record.get("body") or ""),
+        "Payload vault identity mismatch",
+    )
+    return record
+
+
 def vault_record(sha: str) -> JsonObject | None:
     records = gh(f"repos/{REPOSITORY}/releases?per_page=100")
     matching = [record for record in records if record["tag_name"] == vault_tag(sha)]
     require(len(matching) <= 1, "Multiple payload vaults")
-    if not matching:
-        return None
-    record = matching[0]
-    require(
-        record["draft"] and f"source: {sha}" in (record["body"] or ""),
-        "Payload vault identity mismatch",
-    )
-    return record
+    return vault_identity(matching[0], sha) if matching else None
 
 
 def vault_asset(record: JsonObject, sha: str) -> JsonObject | None:
@@ -74,11 +78,11 @@ def download(asset: JsonObject) -> bytes:
     )
 
 
-def upload(record: JsonObject, archive: Path) -> None:
+def upload(record: JsonObject, archive: Path) -> JsonObject:
     token = os.environ.get("GH_TOKEN")
     require(token, "Missing GitHub token")
     # Upload by release ID: the vault has no tag for tag-based lookups.
-    fetch(
+    response = fetch(
         f"https://uploads.github.com/repos/{REPOSITORY}/releases/{int(record['id'])}"
         f"/assets?name={archive.name}",
         {
@@ -90,6 +94,8 @@ def upload(record: JsonObject, archive: Path) -> None:
         archive.read_bytes(),
         "POST",
     )
+    require(response, "Empty payload vault upload response")
+    return json.loads(response)
 
 
 def pack(release: Release) -> Path:
@@ -143,7 +149,8 @@ def retain(release: Release) -> None:
     sha = release["sha"]
     record = vault_record(sha)
     if record is None:
-        gh(
+        # The release list lags behind writes; trust the create response instead.
+        created = gh(
             f"repos/{REPOSITORY}/releases",
             "POST",
             {
@@ -158,8 +165,7 @@ def retain(release: Release) -> None:
                 "draft": True,
             },
         )
-        record = vault_record(sha)
-        require(record is not None, "Payload vault was not created")
+        record = vault_identity(created, sha)
     asset = vault_asset(record, sha)
     if asset is not None and asset.get("state") != "uploaded":
         # An interrupted upload leaves an unusable asset; only an untagged run has one.
@@ -167,10 +173,11 @@ def retain(release: Release) -> None:
         gh(f"repos/{REPOSITORY}/releases/assets/{asset['id']}", "DELETE")
         asset = None
     if asset is None:
-        upload(record, archive)
-        asset = sealed_asset(sha)
+        asset = upload(record, archive)
     require(
-        asset is not None and download(asset) == archive.read_bytes(),
+        asset.get("name") == archive.name
+        and asset.get("state") == "uploaded"
+        and download(asset) == archive.read_bytes(),
         "Payload vault differs from the sealed payload; never overwrite",
     )
     print(f"Sealed payload retained in draft vault {vault_tag(sha)}.")
