@@ -144,10 +144,13 @@ def maven_path(artifact: str, version: str) -> str:
     return f"media/barney/{artifact}/{version}/{artifact}-{version}"
 
 
-def candidate() -> Release:
-    path = Path(os.environ.get("RELEASE_CANDIDATE", "target/release-candidate.json"))
-    if not path.exists():
-        path = Path("target/release-payload/release-candidate.json")
+def candidate(path: Path | None = None) -> Release:
+    if path is None:
+        path = Path(
+            os.environ.get("RELEASE_CANDIDATE", "target/release-candidate.json")
+        )
+        if not path.exists():
+            path = Path("target/release-payload/release-candidate.json")
     value = json.loads(path.read_text(encoding="utf-8"))
     require(re.fullmatch(r"[0-9a-f]{40}", value["sha"]), "Invalid candidate source SHA")
     version_tuple(value["version"])
