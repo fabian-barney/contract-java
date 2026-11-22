@@ -47,12 +47,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Provide security fixes for the latest release only.
 - Update the Maven Wrapper distribution from 3.10.0 to 3.10.1.
 - Update the Flatten Maven plugin from 1.8.0 to 1.9.0.
-- Update the Spotless Maven plugin from 3.10.4 to 3.11.0 while retaining the pinned Palantir Java Format version.
-- Update the pinned setup-java action from 6.1.0 to 6.2.0 in CI and release workflows.
+- Update the Spotless Maven plugin from 3.10.4 to 3.12.0 while retaining the pinned Palantir Java Format version.
+- Update the pinned setup-java action from 6.1.0 to 6.3.0 in CI and release workflows, and keep
+  compiler annotations enabled with its now opt-in `problem-matcher` input.
 - Update Maven Surefire and Failsafe from 3.6.0 to 3.6.1.
 - Update Maven Enforcer to 3.7.0 and JaCoCo to 0.8.16.
-- Update the supported Spring Boot BOMs to 4.0.9 and 4.1.2.
-- Update Error Prone to 2.52.0 and NullAway to 0.14.3.
+- Update the supported Spring Boot BOMs to 4.0.10 and 4.1.3.
+- Update Error Prone to 2.53.0 and NullAway to 0.14.4.
+- Update the CRAP Java and Cognitive Java Maven plugins from 2.0.0 to 2.0.2.
 
 ## 2.1.1 - 2026-11-22
 
