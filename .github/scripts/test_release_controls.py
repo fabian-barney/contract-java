@@ -814,6 +814,40 @@ class PayloadVaultTests(SigningKeyCase):
         self.assertEqual(self.outputs, {"restored": "true", "needs-signing": "false"})
         self.assertEqual(tree(self.root), sealed)
 
+    def test_retain_rejects_a_mismatched_create_response(self):
+        self.seal_fixture(self.root, self.release)
+        create = self.github.api
+        for change in ({"draft": False}, {"body": "<!-- source: other -->"}):
+
+            def api(path, method="GET", data=None, change=change):
+                response = create(path, method, data)
+                return dict(response, **change) if method == "POST" else response
+
+            self.github.records = []
+            with (
+                self.subTest(change=change),
+                patch.object(vault, "gh", api),
+                self.assertRaisesRegex(ValueError, "identity mismatch"),
+            ):
+                vault.retain(self.release)
+        self.assertEqual(self.github.uploads, 0)
+
+    def test_retain_rejects_an_unfinished_or_misnamed_upload(self):
+        self.seal_fixture(self.root, self.release)
+        upload = self.github.upload
+        for change in ({"state": "open"}, {"name": "other.zip"}):
+
+            def changed(record, archive, change=change):
+                return dict(upload(record, archive), **change)
+
+            self.github.records = []
+            with (
+                self.subTest(change=change),
+                patch.object(vault, "upload", changed),
+                self.assertRaisesRegex(ValueError, "never overwrite"),
+            ):
+                vault.retain(self.release)
+
     def test_failure_before_tagging_reuses_the_vault_and_still_signs_the_tag(self):
         sealed = self.build_and_retain()
         self.fresh_runner()
