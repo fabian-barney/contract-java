@@ -8,33 +8,27 @@ import org.junit.jupiter.api.Test;
 
 class NonNegativeContractTest {
 
+    private static final GeneratedCheck NON_NEGATIVE = GeneratedCheck.nonNegative();
+
     @Test
     void acceptsPositiveNumbersAndSignedZero() {
-        assertTrue(ContractRuntime.isNonNegative(0));
-        assertTrue(ContractRuntime.isNonNegative(0.0d));
-        assertTrue(ContractRuntime.isNonNegative(-0.0d));
-        assertTrue(ContractRuntime.isNonNegative(Long.MAX_VALUE));
+        assertTrue(NON_NEGATIVE.accepts(0));
+        assertTrue(NON_NEGATIVE.accepts(0.0d));
+        assertTrue(NON_NEGATIVE.accepts(-0.0d));
+        assertTrue(NON_NEGATIVE.accepts(Long.MAX_VALUE));
 
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                -0.0d,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("nonNegativeDouble", Double.class)));
+        assertDoesNotThrow(() -> NON_NEGATIVE.requireParameter(-0.0d, "com.example.UserService.findUser", "limit"));
     }
 
     @Test
     void ignoresNullBoxedValues() {
-        assertTrue(ContractRuntime.isNonNegative(null));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("nonNegativeDouble", Double.class)));
+        assertTrue(NON_NEGATIVE.accepts(null));
+        assertDoesNotThrow(() -> NON_NEGATIVE.requireParameter(null, "com.example.UserService.findUser", "limit"));
     }
 
     @Test
     void rejectsNegativeValuesAndNan() {
-        assertFalse(ContractRuntime.isNonNegative(-1));
-        assertFalse(ContractRuntime.isNonNegative(Double.NaN));
+        assertFalse(NON_NEGATIVE.accepts(-1));
+        assertFalse(NON_NEGATIVE.accepts(Double.NaN));
     }
 }

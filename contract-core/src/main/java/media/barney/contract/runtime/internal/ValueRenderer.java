@@ -8,7 +8,7 @@ import java.util.Map;
 import media.barney.contract.DefaultMaskRenderer;
 import media.barney.contract.MaskRenderer;
 
-public final class ValueRenderer {
+final class ValueRenderer {
 
     private static final MaskRenderer DEFAULT_MASK_RENDERER = new DefaultMaskRenderer();
     private static final Map<Character, String> ESCAPES = Map.of(
@@ -20,7 +20,7 @@ public final class ValueRenderer {
 
     private ValueRenderer() {}
 
-    public static String render(Object value, Class<? extends MaskRenderer> maskRenderer) {
+    static String render(Object value, Class<? extends MaskRenderer> maskRenderer) {
         if (maskRenderer != null) {
             return renderMasked(value, maskRenderer);
         }

@@ -10,31 +10,29 @@ import org.junit.jupiter.api.Test;
 
 class NotEmptyContractTest {
 
+    private static final GeneratedCheck NOT_EMPTY = GeneratedCheck.notEmpty();
+
     @Test
     void supportsStringsCollectionsMapsAndArrays() {
-        assertTrue(ContractRuntime.isNotEmpty("text"));
-        assertTrue(ContractRuntime.isNotEmpty(new StringBuilder("text")));
-        assertTrue(ContractRuntime.isNotEmpty(List.of("a")));
-        assertTrue(ContractRuntime.isNotEmpty(Map.of("a", "b")));
-        assertTrue(ContractRuntime.isNotEmpty(new String[] {"a"}));
+        assertTrue(NOT_EMPTY.accepts("text"));
+        assertTrue(NOT_EMPTY.accepts(new StringBuilder("text")));
+        assertTrue(NOT_EMPTY.accepts(List.of("a")));
+        assertTrue(NOT_EMPTY.accepts(Map.of("a", "b")));
+        assertTrue(NOT_EMPTY.accepts(new String[] {"a"}));
     }
 
     @Test
     void rejectsEmptyValuesAndUnsupportedTypes() {
-        assertFalse(ContractRuntime.isNotEmpty(""));
-        assertFalse(ContractRuntime.isNotEmpty(List.of()));
-        assertFalse(ContractRuntime.isNotEmpty(Map.of()));
-        assertFalse(ContractRuntime.isNotEmpty(new String[0]));
-        assertFalse(ContractRuntime.isNotEmpty(42));
+        assertFalse(NOT_EMPTY.accepts(""));
+        assertFalse(NOT_EMPTY.accepts(List.of()));
+        assertFalse(NOT_EMPTY.accepts(Map.of()));
+        assertFalse(NOT_EMPTY.accepts(new String[0]));
+        assertFalse(NOT_EMPTY.accepts(42));
     }
 
     @Test
     void ignoresNullReferenceValues() {
-        assertTrue(ContractRuntime.isNotEmpty(null));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "tenant",
-                BuiltInContractTestSupport.parameterAnnotations("notEmptyString", String.class)));
+        assertTrue(NOT_EMPTY.accepts(null));
+        assertDoesNotThrow(() -> NOT_EMPTY.requireParameter(null, "com.example.UserService.findUser", "tenant"));
     }
 }

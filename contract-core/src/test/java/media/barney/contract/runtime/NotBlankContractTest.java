@@ -9,27 +9,25 @@ import org.junit.jupiter.api.Test;
 
 class NotBlankContractTest {
 
+    private static final GeneratedCheck NOT_BLANK = GeneratedCheck.notBlank();
+
     @Test
     void requiresVisibleCharacters() {
-        assertTrue(ContractRuntime.isNotBlank("tenant"));
-        assertTrue(ContractRuntime.isNotBlank(new StringBuilder("tenant")));
-        assertFalse(ContractRuntime.isNotBlank(""));
-        assertFalse(ContractRuntime.isNotBlank(" \t\n"));
+        assertTrue(NOT_BLANK.accepts("tenant"));
+        assertTrue(NOT_BLANK.accepts(new StringBuilder("tenant")));
+        assertFalse(NOT_BLANK.accepts(""));
+        assertFalse(NOT_BLANK.accepts(" \t\n"));
     }
 
     @Test
     void rejectsUnsupportedTypes() {
-        assertFalse(ContractRuntime.isNotBlank(List.of("tenant")));
-        assertFalse(ContractRuntime.isNotBlank(42));
+        assertFalse(NOT_BLANK.accepts(List.of("tenant")));
+        assertFalse(NOT_BLANK.accepts(42));
     }
 
     @Test
     void ignoresNullReferenceValues() {
-        assertTrue(ContractRuntime.isNotBlank(null));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "tenant",
-                BuiltInContractTestSupport.parameterAnnotations("notBlankString", String.class)));
+        assertTrue(NOT_BLANK.accepts(null));
+        assertDoesNotThrow(() -> NOT_BLANK.requireParameter(null, "com.example.UserService.findUser", "tenant"));
     }
 }

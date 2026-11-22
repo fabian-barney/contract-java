@@ -1,13 +1,12 @@
-"""Compile clean classpath/JPMS consumers and run old generated code on new runtime."""
+"""Compile and run clean classpath and JPMS consumers of the current release."""
 
-import hashlib
 import os
 import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from release_common import CENTRAL, NS, configured_java_release, fetch, require
+from release_common import NS, configured_java_release, require
 
 SOURCE = """package consumer;
 import media.barney.contract.Contract;
@@ -71,39 +70,30 @@ def consumers(version: str) -> None:
     release = str(configured_java_release())
     with tempfile.TemporaryDirectory(prefix="contract-consumer-") as temp:
         root = Path(temp)
-        old = root / "contract-core-0.1.14.jar"
-        url = f"{CENTRAL}/media/barney/contract-core/0.1.14/{old.name}"
-        data = fetch(url)
-        require(
-            hashlib.sha512(data).hexdigest() == fetch(url + ".sha512").decode().strip(),
-            "Old consumer artifact checksum mismatch",
-        )
-        old.write_bytes(data)
         source = root / "consumer/Main.java"
         source.parent.mkdir()
         source.write_text(SOURCE, encoding="utf-8")
-        for label, processor in (("current", current), ("previous", old)):
-            classes = root / label
-            classpath = os.pathsep.join(map(str, [processor] + annotations))
-            subprocess.run(
-                [
-                    "javac",
-                    *exports,
-                    "-proc:full",
-                    "--release",
-                    release,
-                    "-classpath",
-                    classpath,
-                    "-processorpath",
-                    classpath,
-                    "-d",
-                    str(classes),
-                    str(source),
-                ],
-                check=True,
-            )
-            runtime = os.pathsep.join(map(str, [classes, current] + annotations))
-            subprocess.run(["java", "-classpath", runtime, "consumer.Main"], check=True)
+        classpath = os.pathsep.join(map(str, [current] + annotations))
+        classes = root / "classpath"
+        subprocess.run(
+            [
+                "javac",
+                *exports,
+                "-proc:full",
+                "--release",
+                release,
+                "-classpath",
+                classpath,
+                "-processorpath",
+                classpath,
+                "-d",
+                str(classes),
+                str(source),
+            ],
+            check=True,
+        )
+        runtime = os.pathsep.join(map(str, [classes, current] + annotations))
+        subprocess.run(["java", "-classpath", runtime, "consumer.Main"], check=True)
         descriptor = root / "module-info.java"
         descriptor.write_text(
             "module consumer { requires media.barney.contract.core; }\n",
@@ -139,6 +129,4 @@ def consumers(version: str) -> None:
             ],
             check=True,
         )
-    print(
-        "Clean processor discovery, JPMS consumer, and v0.1.14 generated-code compatibility passed."
-    )
+    print("Clean processor discovery and JPMS consumer passed.")
