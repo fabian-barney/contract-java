@@ -817,7 +817,11 @@ class PayloadVaultTests(SigningKeyCase):
     def test_retain_rejects_a_mismatched_create_response(self):
         self.seal_fixture(self.root, self.release)
         create = self.github.api
-        for change in ({"draft": False}, {"body": "<!-- source: other -->"}):
+        for change in (
+            {"draft": False},
+            {"body": "<!-- source: other -->"},
+            {"tag_name": "untagged-fixture"},
+        ):
 
             def api(path, method="GET", data=None, change=change):
                 response = create(path, method, data)
