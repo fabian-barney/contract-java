@@ -34,8 +34,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   behavior-tests, and dependency-resolution-tests the starter against 4.0.x,
   4.1.x, and 4.2.x. 4.2.x is the default build line, so the published starter
   POM declares the versions managed by the pinned Spring Boot 4.2.x release.
-  Applications on 4.0.x or 4.1.x that import their Spring Boot BOM or use the
-  Boot parent still get the versions of their own line.
+  Maven applications on 4.0.x or 4.1.x that import their Spring Boot BOM or use
+  the Boot parent still get the versions of their own line.
 
 ### Removed
 
