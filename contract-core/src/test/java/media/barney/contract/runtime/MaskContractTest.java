@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import media.barney.contract.DefaultMaskRenderer;
 import org.junit.jupiter.api.Test;
 
 class MaskContractTest {
@@ -12,10 +13,9 @@ class MaskContractTest {
     void defaultMaskingSuppressesRawValues() {
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> ContractRuntime.requireReturn(
-                        "",
-                        "com.example.TokenService.issue",
-                        BuiltInContractTestSupport.methodAnnotations("maskedNotBlank")));
+                () -> GeneratedCheck.notBlank()
+                        .masked(DefaultMaskRenderer.class)
+                        .requireReturn("", "com.example.TokenService.issue"));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "
@@ -28,11 +28,9 @@ class MaskContractTest {
     void customMaskRendererAppliesCustomRepresentationWithoutLeakingRawValue() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        "secret-token",
-                        "com.example.AccountService.login",
-                        "password",
-                        BuiltInContractTestSupport.parameterAnnotations("sensitivePattern", String.class)));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(BuiltInContractTestSupport.TextMaskRenderer.class)
+                        .requireParameter("secret-token", "com.example.AccountService.login", "password"));
 
         assertEquals(
                 "Parameter 'password' of method 'com.example.AccountService.login' "
@@ -45,16 +43,14 @@ class MaskContractTest {
     void maskRendererExceptionsFallBackButErrorsPropagate() {
         IllegalStateException throwingMask = assertThrows(
                 IllegalStateException.class,
-                () -> ContractRuntime.requireReturn(
-                        "raw-secret",
-                        "com.example.TokenService.issue",
-                        BuiltInContractTestSupport.methodAnnotations("throwingMask")));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(BuiltInContractTestSupport.ThrowingMaskRenderer.class)
+                        .requireReturn("raw-secret", "com.example.TokenService.issue"));
         LinkageError linkageMask = assertThrows(
                 LinkageError.class,
-                () -> ContractRuntime.requireReturn(
-                        "raw-secret",
-                        "com.example.TokenService.issue",
-                        BuiltInContractTestSupport.methodAnnotations("linkageMask")));
+                () -> GeneratedCheck.pattern("[0-9]+")
+                        .masked(BuiltInContractTestSupport.LinkageErrorMaskRenderer.class)
+                        .requireReturn("raw-secret", "com.example.TokenService.issue"));
 
         assertEquals(
                 "Postcondition of method 'com.example.TokenService.issue' violated: "

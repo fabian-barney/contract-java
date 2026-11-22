@@ -11,49 +11,34 @@ import org.junit.jupiter.api.Test;
 
 class PositiveContractTest {
 
+    private static final GeneratedCheck POSITIVE = GeneratedCheck.positive();
+
     @Test
     void supportsPrimitiveAndBoxedNumbers() {
-        assertTrue(ContractRuntime.isPositive(1));
-        assertTrue(ContractRuntime.isPositive(Long.MAX_VALUE));
-        assertTrue(ContractRuntime.isPositive(1.5f));
-        assertTrue(ContractRuntime.isPositive(new BigDecimal("1.5")));
+        assertTrue(POSITIVE.accepts(1));
+        assertTrue(POSITIVE.accepts(Long.MAX_VALUE));
+        assertTrue(POSITIVE.accepts(1.5f));
+        assertTrue(POSITIVE.accepts(new BigDecimal("1.5")));
 
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                1,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("positiveInt", int.class)));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                1,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("positiveInteger", Integer.class)));
+        assertDoesNotThrow(() -> POSITIVE.requireParameter(1, "com.example.UserService.findUser", "limit"));
     }
 
     @Test
     void ignoresNullBoxedValues() {
-        assertTrue(ContractRuntime.isPositive(null));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("positiveInteger", Integer.class)));
+        assertTrue(POSITIVE.accepts(null));
+        assertDoesNotThrow(() -> POSITIVE.requireParameter(null, "com.example.UserService.findUser", "limit"));
     }
 
     @Test
     void rejectsZeroNegativeNanAndNegativeZero() {
-        assertFalse(ContractRuntime.isPositive(0));
-        assertFalse(ContractRuntime.isPositive(-1));
-        assertFalse(ContractRuntime.isPositive(Double.NaN));
-        assertFalse(ContractRuntime.isPositive(-0.0d));
+        assertFalse(POSITIVE.accepts(0));
+        assertFalse(POSITIVE.accepts(-1));
+        assertFalse(POSITIVE.accepts(Double.NaN));
+        assertFalse(POSITIVE.accepts(-0.0d));
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        0,
-                        "com.example.UserService.findUser",
-                        "limit",
-                        BuiltInContractTestSupport.parameterAnnotations("positiveInt", int.class)));
+                () -> POSITIVE.requireParameter(0, "com.example.UserService.findUser", "limit"));
 
         assertTrue(exception.getMessage().contains("must be positive"));
     }
@@ -62,11 +47,8 @@ class PositiveContractTest {
     void customMessagesKeepValueRendering() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ContractRuntime.requireParameter(
-                        BigDecimal.ZERO,
-                        "com.example.AccountService.transfer",
-                        "amount",
-                        BuiltInContractTestSupport.parameterAnnotations("amount", BigDecimal.class)));
+                () -> POSITIVE.withMessage("transfer amount must be positive")
+                        .requireParameter(BigDecimal.ZERO, "com.example.AccountService.transfer", "amount"));
 
         assertEquals(
                 "Parameter 'amount' of method 'com.example.AccountService.transfer': "

@@ -8,32 +8,26 @@ import org.junit.jupiter.api.Test;
 
 class NegativeContractTest {
 
+    private static final GeneratedCheck NEGATIVE = GeneratedCheck.negative();
+
     @Test
     void supportsPrimitiveAndBoxedNumbers() {
-        assertTrue(ContractRuntime.isNegative(-1));
-        assertTrue(ContractRuntime.isNegative(Long.MIN_VALUE));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                -1.0d,
-                "com.example.UserService.deleteUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("negativeDouble", double.class)));
+        assertTrue(NEGATIVE.accepts(-1));
+        assertTrue(NEGATIVE.accepts(Long.MIN_VALUE));
+        assertDoesNotThrow(() -> NEGATIVE.requireParameter(-1.0d, "com.example.UserService.deleteUser", "limit"));
     }
 
     @Test
     void ignoresNullBoxedValues() {
-        assertTrue(ContractRuntime.isNegative(null));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.deleteUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("negativeBoxed", Double.class)));
+        assertTrue(NEGATIVE.accepts(null));
+        assertDoesNotThrow(() -> NEGATIVE.requireParameter(null, "com.example.UserService.deleteUser", "limit"));
     }
 
     @Test
     void rejectsZeroPositiveNanAndNegativeZero() {
-        assertFalse(ContractRuntime.isNegative(0));
-        assertFalse(ContractRuntime.isNegative(1));
-        assertFalse(ContractRuntime.isNegative(Double.NaN));
-        assertFalse(ContractRuntime.isNegative(-0.0d));
+        assertFalse(NEGATIVE.accepts(0));
+        assertFalse(NEGATIVE.accepts(1));
+        assertFalse(NEGATIVE.accepts(Double.NaN));
+        assertFalse(NEGATIVE.accepts(-0.0d));
     }
 }

@@ -10,42 +10,37 @@ import org.junit.jupiter.api.Test;
 
 class InRangeContractTest {
 
+    private static final GeneratedCheck EXCLUSIVE_UPPER = GeneratedCheck.inRange(0, 2, true, false);
+
     @Test
     void supportsIntegralDecimalAndFloatingPointValues() {
-        assertTrue(ContractRuntime.isInRange(BigDecimal.ONE, 0, 2, true, false));
-        assertTrue(ContractRuntime.isInRange(BigInteger.ONE, 0, 2, true, false));
-        assertTrue(ContractRuntime.isInRange(1.5d, 0, 2, true, false));
-        assertTrue(ContractRuntime.isInRange(1.5f, 0, 2, true, false));
-        assertTrue(ContractRuntime.isInRange(Long.MAX_VALUE, Long.MAX_VALUE - 1, Long.MAX_VALUE, false, true));
+        assertTrue(EXCLUSIVE_UPPER.accepts(BigDecimal.ONE));
+        assertTrue(EXCLUSIVE_UPPER.accepts(BigInteger.ONE));
+        assertTrue(EXCLUSIVE_UPPER.accepts(1.5d));
+        assertTrue(EXCLUSIVE_UPPER.accepts(1.5f));
+        assertTrue(GeneratedCheck.inRange(Long.MAX_VALUE - 1, Long.MAX_VALUE, false, true)
+                .accepts(Long.MAX_VALUE));
     }
 
     @Test
     void honorsInclusiveAndExclusiveBoundsForSignedZero() {
-        assertTrue(ContractRuntime.isInRange(-0.0d, 0, 2, true, false));
-        assertTrue(ContractRuntime.isInRange(0.0d, 0, 2, true, false));
-        assertFalse(ContractRuntime.isInRange(-0.0d, 0, 2, false, false));
-        assertFalse(ContractRuntime.isInRange(2.0d, 0, 2, true, false));
+        assertTrue(EXCLUSIVE_UPPER.accepts(-0.0d));
+        assertTrue(EXCLUSIVE_UPPER.accepts(0.0d));
+        assertFalse(GeneratedCheck.inRange(0, 2, false, false).accepts(-0.0d));
+        assertFalse(EXCLUSIVE_UPPER.accepts(2.0d));
 
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                -0.0d,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("rangeExclusiveUpper", Double.class)));
+        assertDoesNotThrow(() -> EXCLUSIVE_UPPER.requireParameter(-0.0d, "com.example.UserService.findUser", "limit"));
     }
 
     @Test
     void rejectsNanAndUnsupportedValues() {
-        assertFalse(ContractRuntime.isInRange(Double.NaN, 0, 2, true, false));
-        assertFalse(ContractRuntime.isInRange("1", 0, 2, true, false));
+        assertFalse(EXCLUSIVE_UPPER.accepts(Double.NaN));
+        assertFalse(EXCLUSIVE_UPPER.accepts("1"));
     }
 
     @Test
     void ignoresNullBoxedValues() {
-        assertTrue(ContractRuntime.isInRange(null, 0, 2, true, false));
-        assertDoesNotThrow(() -> ContractRuntime.requireParameter(
-                null,
-                "com.example.UserService.findUser",
-                "limit",
-                BuiltInContractTestSupport.parameterAnnotations("rangeExclusiveUpper", Double.class)));
+        assertTrue(EXCLUSIVE_UPPER.accepts(null));
+        assertDoesNotThrow(() -> EXCLUSIVE_UPPER.requireParameter(null, "com.example.UserService.findUser", "limit"));
     }
 }

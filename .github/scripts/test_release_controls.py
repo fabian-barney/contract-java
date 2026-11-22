@@ -352,6 +352,45 @@ class PayloadTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Unresolved consumer dependency"):
                 consumer.annotation_paths(pom, root)
 
+    def test_consumers_use_only_current_release_artifacts(self):
+        commands = []
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            current = root / "contract-core/target/contract-core-3.0.0.jar"
+            current.parent.mkdir(parents=True)
+            current.write_bytes(b"current")
+            annotations = [root / "apiguardian-api.jar", root / "jspecify.jar"]
+            for path in annotations:
+                path.write_bytes(b"annotations")
+            directory = os.getcwd()
+            os.chdir(root)
+            try:
+                with (
+                    patch.object(consumer, "annotation_paths", return_value=annotations),
+                    patch.object(consumer, "configured_java_release", return_value=25),
+                    patch.object(
+                        consumer.subprocess,
+                        "run",
+                        side_effect=lambda command, check: commands.append(command),
+                    ),
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    consumer.consumers("3.0.0")
+            finally:
+                os.chdir(directory)
+            allowed = {str(current.resolve()), *map(str, annotations)}
+        self.assertEqual(
+            [command[0] for command in commands], ["javac", "java", "javac", "java"]
+        )
+        jars = {
+            entry
+            for command in commands
+            for argument in command
+            for entry in argument.split(os.pathsep)
+            if entry.endswith(".jar")
+        }
+        self.assertEqual(jars, allowed)
+
     def test_unresolved_pom_fails(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "artifact.pom"
