@@ -51,8 +51,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     public static void requireParameter(
             @Nullable Object value, String methodName, String parameterName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
@@ -82,8 +82,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     public static void requireReturn(@Nullable Object value, String methodName, Annotation... annotations) {
         ContractEvaluation evaluation = ContractAnnotations.evaluate(value, annotations);
 
@@ -549,8 +549,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isNotEmpty(@Nullable Object value) {
         return ContractChecks.isNotEmpty(value);
@@ -567,8 +567,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isNotBlank(@Nullable Object value) {
         return ContractChecks.isNotBlank(value);
@@ -585,8 +585,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isPositive(@Nullable Object value) {
         return ContractChecks.isPositive(value);
@@ -603,8 +603,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isNegative(@Nullable Object value) {
         return ContractChecks.isNegative(value);
@@ -621,8 +621,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isNonNegative(@Nullable Object value) {
         return ContractChecks.isNonNegative(value);
@@ -639,8 +639,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isNonPositive(@Nullable Object value) {
         return ContractChecks.isNonPositive(value);
@@ -661,8 +661,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean isInRange(
             @Nullable Object value, long min, long max, boolean minInclusive, boolean maxInclusive) {
@@ -682,8 +682,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean hasSize(@Nullable Object value, int min, int max) {
         return ContractChecks.hasSize(value, min, max);
@@ -701,8 +701,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static boolean matchesPattern(@Nullable Object value, String regexp) {
         return ContractChecks.matchesPattern(value, regexp);
@@ -720,8 +720,8 @@ public final class ContractRuntime {
      *     {@code media.barney.contract.Contract} annotations and let the
      *     annotation processor generate the checks.
      */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @API(status = API.Status.DEPRECATED, since = "2.1.0")
+    @Deprecated(since = "2.1.1", forRemoval = true)
+    @API(status = API.Status.DEPRECATED, since = "2.1.1")
     @SuppressWarnings("InlineMeSuggester")
     public static String renderValue(@Nullable Object value, @Nullable Class<? extends MaskRenderer> maskRenderer) {
         return ValueRenderer.render(value, maskRenderer);

@@ -122,7 +122,7 @@ gh attestation verify contract-core-VERSION.jar \
 ```
 
 Repeat with `--predicate-type https://cyclonedx.org/bom` to verify the bound SBOM.
-Releases from 2.1.0 on name `refs/heads/release/2.x` as their source ref;
+Releases from 2.1.1 on name `refs/heads/release/2.x` as their source ref;
 attestations of 2.0.0 name `refs/heads/main`, so verify 2.0.0 with
 `--source-ref refs/heads/main`.
 The release workflow additionally compares the attested SBOM with the downloaded
