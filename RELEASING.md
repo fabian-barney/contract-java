@@ -118,9 +118,9 @@ repository layout, its prebuilt Central ZIP, Javadoc archives, and GitHub assets
 as `release-payload-SHA.zip`. That archive is the only asset of the draft vault
 release `release-payload-SHA`, which is never published. Draft assets do not
 expire, and no workflow rerun discards them. The Javadoc and finalization jobs,
-and every rerun, restore the payload from the vault and verify its signed source
-identity and every digest before using its bytes. Finalization deletes the vault
-once the GitHub release is public.
+and every rerun that finds a completed vault upload, restore the payload from
+the vault and verify its signed source identity and every digest before using
+its bytes. Finalization deletes the vault once the GitHub release is public.
 
 The signed annotated `vX.Y.Z` tag points to the candidate SHA. The same workflow
 continues after its push: a `GITHUB_TOKEN` tag push does not start another
@@ -181,16 +181,17 @@ JSON and checks signatures against the pinned fingerprint.
 ## Recovery and next development version
 
 Rerun the original release run. **Re-run failed jobs** and **Re-run all jobs**
-both keep the draft vault. When the vault exists, the publication job restores
-the payload from it, verifies it, and skips the build. It then reuses the exact
-signed tag and draft, compares existing assets, and resumes the recorded Central
-deployment. Prefer **Re-run failed jobs** once a job has succeeded, so that its
-work is not repeated. Reruns never overwrite different uploaded bytes.
+both keep the draft vault. When the vault holds a completed upload, the
+publication job restores the payload from it, verifies it, and skips the build.
+It then reuses the exact signed tag and draft, compares existing assets, and
+resumes the recorded Central deployment. Prefer **Re-run failed jobs** once a
+job has succeeded, so that its work is not repeated. Reruns never overwrite
+different uploaded bytes.
 
-A tag without a complete vault is a hard stop. Without a tag, a rerun builds
-again if no vault exists and replaces an interrupted vault upload. Never
-publish, edit, or delete the vault draft by hand while the release is
-incomplete.
+A tag without a completed vault upload is a hard stop. Without a tag, a rerun
+builds again unless the vault holds a completed upload, and replaces an
+interrupted one. Never publish, edit, or delete the vault draft by hand while
+the release is incomplete.
 
 If publication and Javadoc succeeded and only finalization failed, recover the
 original draft metadata and use **Re-run failed jobs** on that same run. If the

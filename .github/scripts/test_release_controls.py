@@ -787,13 +787,12 @@ class PayloadVaultTests(SigningKeyCase):
         # The signed tag is pushed, then Central publication fails.
         self.fresh_runner()
         rerun = dict(self.release, retry=True)
-        with patch.object(payload, "seal", side_effect=AssertionError("rebuilt")):
-            vault.restore(rerun)
-            self.assertEqual(
-                self.outputs, {"restored": "true", "needs-signing": "false"}
-            )
-            self.assertEqual(tree(self.root), sealed)
-            vault.retain(rerun)
+        vault.restore(rerun)
+        # restored=true skips the build and seal steps; RecoveryWorkflowTests
+        # checks that gating in release.yml.
+        self.assertEqual(self.outputs, {"restored": "true", "needs-signing": "false"})
+        self.assertEqual(tree(self.root), sealed)
+        vault.retain(rerun)
         self.assertEqual(self.github.uploads, 1)
         [record] = self.github.records
         self.assertEqual(record["tag_name"], "release-payload-" + self.sha)
