@@ -20,10 +20,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   annotation-based `requireParameter(Object, String, String, Annotation...)`
   and `requireReturn(Object, String, Annotation...)`, `renderValue`, and the
   `isNotEmpty`, `isNotBlank`, `isPositive`, `isNegative`, `isNonNegative`,
-  `isNonPositive`, `isInRange`, `hasSize`, and `matchesPattern` helpers. No
-  released processor emitted calls to them. They have no public replacement:
-  declare contracts with the `media.barney.contract.Contract` annotations and
-  let the annotation processor generate the checks.
+  `isNonPositive`, `isInRange`, `hasSize`, and `matchesPattern` helpers, which
+  2.1.1 deprecated for removal. No released processor emitted calls to them.
+  They have no public replacement: declare contracts with the
+  `media.barney.contract.Contract` annotations and let the annotation
+  processor generate the checks.
 
 ### Added
 
