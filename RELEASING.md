@@ -170,6 +170,8 @@ gh attestation verify contract-core-VERSION.jar \
 ```
 
 Repeat with `--predicate-type https://cyclonedx.org/bom` to verify the bound SBOM.
+2.x maintenance releases from 2.1.1 on publish from the protected `release/2.x`
+branch, so verify them with `--source-ref refs/heads/release/2.x`.
 The release workflow additionally compares the attested SBOM with the downloaded
 JSON and checks signatures against the pinned fingerprint.
 
