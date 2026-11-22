@@ -3,7 +3,7 @@
 The parent `media.barney:contract-java`, `contract-core`, and
 `contract-spring-boot-starter` publish together to Maven Central and GitHub.
 Examples remain unpublished. Published libraries use Java 25 bytecode, and
-builds support full JDK 25, Linux/Windows, and Spring Boot 4.0/4.1.
+builds support full JDK 25, Linux/Windows, and Spring Boot 4.0/4.1/4.2.
 Maven 3.9.16 is the minimum build version. Stable version changes publish
 through the reviewed-main workflow described below.
 

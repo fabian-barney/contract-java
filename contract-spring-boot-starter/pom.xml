@@ -23,7 +23,7 @@
   </scm>
 
   <properties>
-    <spring.boot.version>${spring.boot.41.version}</spring.boot.version>
+    <spring.boot.version>${spring.boot.42.version}</spring.boot.version>
   </properties>
 
   <dependencyManagement>
@@ -122,8 +122,10 @@
             <maven.dependency.plugin.version>${maven.dependency.plugin.version}</maven.dependency.plugin.version>
             <maven.install.plugin.version>${maven.install.plugin.version}</maven.install.plugin.version>
             <reactor.root>${maven.multiModuleProjectDirectory}</reactor.root>
+            <selected.spring.boot.version>${spring.boot.version}</selected.spring.boot.version>
             <spring.boot.40.version>${spring.boot.40.version}</spring.boot.40.version>
             <spring.boot.41.version>${spring.boot.41.version}</spring.boot.41.version>
+            <spring.boot.42.version>${spring.boot.42.version}</spring.boot.42.version>
           </systemPropertyVariables>
         </configuration>
         <executions>
@@ -150,6 +152,18 @@
       </activation>
       <properties>
         <spring.boot.version>${spring.boot.40.version}</spring.boot.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>spring-boot-41</id>
+      <activation>
+        <property>
+          <name>spring.boot.smoke.line</name>
+          <value>4.1</value>
+        </property>
+      </activation>
+      <properties>
+        <spring.boot.version>${spring.boot.41.version}</spring.boot.version>
       </properties>
     </profile>
   </profiles>
