@@ -10,6 +10,11 @@ updates:
     reviewers:
       - fabian-barney
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: org.springframework.boot:spring-boot-dependencies
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
     groups:
       build-plugins:
         patterns:

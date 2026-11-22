@@ -40,6 +40,7 @@ class SpringBootDependencyResolutionIT {
 
         resolveSmokeProject(localRepository, "4.0", springBootVersion("4.0"));
         resolveSmokeProject(localRepository, "4.1", springBootVersion("4.1"));
+        resolveSmokeProject(localRepository, "4.2", springBootVersion("4.2"));
     }
 
     private static void installProjectArtifact(
@@ -210,9 +211,10 @@ class SpringBootDependencyResolutionIT {
         return switch (bootLine) {
             case "4.0" -> requiredProperty("spring.boot.40.version");
             case "4.1" -> requiredProperty("spring.boot.41.version");
+            case "4.2" -> requiredProperty("spring.boot.42.version");
             default ->
                 throw new IllegalArgumentException(String.format(
-                        "Unsupported Spring Boot smoke-test line '%s'. Supported lines: 4.0, 4.1", bootLine));
+                        "Unsupported Spring Boot smoke-test line '%s'. Supported lines: 4.0, 4.1, 4.2", bootLine));
         };
     }
 
