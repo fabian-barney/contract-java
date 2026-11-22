@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Fixed
+
+- Keep the sealed release payload recoverable when a release run is rerun.
+  Release runs retain it in a never-published draft release instead of an
+  Actions artifact, which **Re-run all jobs** discarded.
+
 ## 2.1.1 - 2026-11-22
 
 ### Deprecated

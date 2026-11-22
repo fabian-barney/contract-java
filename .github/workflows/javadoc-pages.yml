@@ -29,16 +29,13 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
-        with:
-          name: release-payload-${{ github.sha }}
-          path: target/release-payload
-      - name: Preserve site and extract retained Javadoc
+      - name: Restore payload, preserve site, and extract retained Javadoc
         run: |
           export GNUPGHOME="$RUNNER_TEMP/pages-verify-key"
           echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
           install -d -m 700 "$GNUPGHOME"
           gpg --batch --import .github/release-signing-key.asc
+          python .github/scripts/release_restore.py retrieve
           python .github/scripts/release_pages.py
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
