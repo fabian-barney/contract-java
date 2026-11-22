@@ -459,17 +459,18 @@ Lombok onto supported method, constructor, or parameter targets are enforced.
 
 ## Spring Boot
 
-`contract-spring-boot-starter` supports Spring Boot `4.0.x` and `4.1.x`.
+`contract-spring-boot-starter` supports Spring Boot `4.0.x`, `4.1.x`, and
+`4.2.x`.
 
 The compatibility table follows the
 [support policy](RELEASING.md#support-policy). CI compiles and runs behavior
 tests against each listed Spring Boot line on every supported JDK, in addition
 to isolated dependency-resolution checks.
 
-| JDK | Spring Boot `4.0.x` | Spring Boot `4.1.x` |
-| --- | --- | --- |
-| 25 | Tested and supported | Tested and supported |
-| Other Java releases | Unverified | Unverified |
+| JDK | Spring Boot `4.0.x` | Spring Boot `4.1.x` | Spring Boot `4.2.x` |
+| --- | --- | --- | --- |
+| 25 | Tested and supported | Tested and supported | Tested and supported |
+| Other Java releases | Unverified | Unverified | Unverified |
 
 Building and running the annotation processor requires a full JDK 25.
 Published library bytecode targets Java 25. Use current security patches within

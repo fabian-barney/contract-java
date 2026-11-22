@@ -10,6 +10,17 @@ updates:
     reviewers:
       - fabian-barney
     open-pull-requests-limit: 10
+    ignore:
+      # Dependabot tracks only the default Spring Boot line, the one the
+      # starter's BOM import resolves to. Its patch PRs must set the line's pin
+      # in the root pom.xml (such as spring.boot.42.version); the starter's
+      # spring.boot.version stays a reference, and SpringBootDependencyResolutionIT
+      # fails if the two differ. The other supported lines' pins are updated by
+      # hand, and new lines are adopted through issues.
+      - dependency-name: org.springframework.boot:spring-boot-dependencies
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
     groups:
       build-plugins:
         patterns:

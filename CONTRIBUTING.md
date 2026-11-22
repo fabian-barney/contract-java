@@ -89,20 +89,30 @@ directories.
 `contract-spring-boot-starter` runs a Failsafe integration smoke test during
 `verify`. It packages the current reactor artifacts, installs them into an
 isolated temporary Maven repository, and resolves small dependency projects
-against the supported Spring Boot `4.0.x` and `4.1.x` BOMs. Nested Maven processes
-use the same installation as the reactor, including in minimum-version checks.
+against the supported Spring Boot `4.0.x`, `4.1.x`, and `4.2.x` BOMs. Nested Maven
+processes use the same installation as the reactor, including in minimum-version
+checks.
 
 The default build compiles and runs starter behavior tests against the default
-Boot line, `4.1.x`. Select the `4.0.x` line for compilation, behavior tests, and
-its resolution fixture:
+Boot line, `4.2.x`. Select the `4.0.x` or `4.1.x` line for compilation, behavior
+tests, and its resolution fixture:
 
 ```sh
 ./mvnw -B -ntp -Dspring.boot.smoke.line=4.0 spotless:check verify
 ```
 
-Use `-Dspring.boot.smoke.line=4.1` for the explicit 4.1 matrix case. The JUnit
-BOM takes precedence over every Boot BOM for the complete JUnit family.
-The starter-local Boot profile preserves the parent's default quality gates.
+Use `-Dspring.boot.smoke.line=4.1` for the `4.1.x` line and
+`-Dspring.boot.smoke.line=4.2` for the explicit 4.2 matrix case.
+
+Each line's Boot BOM is pinned in the root `pom.xml` by a property named after
+the line without its dot, such as `spring.boot.42.version`. The smoke test fails
+when the build's Boot version differs from the selected line's pin. Dependabot
+proposes patch updates for the default line only; the other lines' pins are
+updated by hand.
+
+The JUnit BOM takes precedence over every Boot BOM for the complete JUnit
+family. The starter-local Boot profiles (`spring-boot-40`, `spring-boot-41`)
+preserve the parent's default quality gates.
 
 Run only the starter and its dependencies with:
 
