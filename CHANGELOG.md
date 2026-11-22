@@ -43,6 +43,30 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Update the supported Spring Boot BOMs to 4.0.9 and 4.1.2.
 - Update Error Prone to 2.52.0 and NullAway to 0.14.3.
 
+## 2.1.1 - 2026-11-22
+
+### Deprecated
+
+- Deprecate, for removal in 3.0.0, the `ContractRuntime` members that
+  generated code does not call: the annotation-based
+  `requireParameter(Object, String, String, Annotation...)` and
+  `requireReturn(Object, String, Annotation...)`, `renderValue`, and the
+  `isNotEmpty`, `isNotBlank`, `isPositive`, `isNegative`, `isNonNegative`,
+  `isNonPositive`, `isInRange`, `hasSize`, and `matchesPattern` helpers. No
+  released processor emitted calls to them, and they have no public
+  replacement: declare contracts with the `media.barney.contract.Contract`
+  annotations and let the annotation processor generate the checks.
+
+### Changed
+
+- Release the 2.x line from the protected `release/2.x` maintenance branch.
+  From 2.1.1 on, provenance and SBOM attestations of 2.x releases name
+  `refs/heads/release/2.x` as their source ref, so verify them with
+  `gh attestation verify ... --source-ref refs/heads/release/2.x`.
+  Attestations of 2.0.0 name `refs/heads/main`.
+- Publish these changes as 2.1.1. Version 2.1.0 was tagged but never published
+  to Maven Central, so it has no artifacts.
+
 ## 2.0.0 - 2026-10-18
 
 ### Breaking changes
@@ -235,6 +259,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   generated-code bridge behavior, internal packages, and pre-`1.0.0`
   compatibility expectations.
 
+[2.1.1]: https://github.com/fabian-barney/contract-java/compare/v2.0.0...v2.1.1
 [2.0.0]: https://github.com/fabian-barney/contract-java/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/fabian-barney/contract-java/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/fabian-barney/contract-java/compare/v0.1.14...v1.0.0
