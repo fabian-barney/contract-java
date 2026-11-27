@@ -57,7 +57,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   JDK LTS, and Maven support follows upstream end of life with a hard cut, and
   every removal from the supported matrix requires a major release.
 - Provide security fixes for the latest release only.
-- Update the Maven Wrapper distribution from 3.10.0 to 3.10.1.
+- Update the Maven Wrapper distribution from 3.10.0 to 3.10.2.
 - Update the Flatten Maven plugin from 1.8.0 to 1.9.0.
 - Update the Spotless Maven plugin from 3.10.4 to 3.12.0 while retaining the pinned Palantir Java Format version.
 - Update the pinned setup-java action from 6.1.0 to 6.3.0 in CI and release workflows, and keep
