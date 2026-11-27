@@ -194,6 +194,8 @@ Use the Spring Boot starter in Boot applications:
 </dependency>
 ```
 
+Gradle builds need Gradle 9.1 or newer.
+
 Gradle Kotlin DSL:
 
 ```kotlin
@@ -453,9 +455,8 @@ lombok.copyableAnnotations += media.barney.contract.Contract.Size
 lombok.copyableAnnotations += media.barney.contract.Contract.Pattern
 ```
 
-Field declarations are metadata and are not directly enforced in version 1.
-Contracts copied by
-Lombok onto supported method, constructor, or parameter targets are enforced.
+Field declarations are metadata and are not enforced directly. Contracts copied
+by Lombok onto supported method, constructor, or parameter targets are enforced.
 
 ## Spring Boot
 
