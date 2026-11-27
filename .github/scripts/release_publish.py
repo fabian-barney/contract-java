@@ -27,6 +27,7 @@ from release_common import (
 )
 from release_control import verify_tag
 from release_payload import verify
+from release_restore import discard
 
 ROOT = Path("target/release-payload")
 PORTAL = "https://central.sonatype.com/api/v1/publisher"
@@ -346,11 +347,14 @@ def finalize(release: Release) -> None:
         "Versioned Javadoc source mismatch",
     )
     record = release_record(release)
-    update_record(
+    published = update_record(
         record,
         release,
         {"draft": False, "make_latest": "true"},
     )
+    require(not published["draft"], "Release is still a draft")
+    # Recovery is complete only now; the public release supersedes the vault.
+    discard(release)
     print(
         f"Verified release: https://github.com/{REPOSITORY}/releases/tag/{release['tag']}"
     )
