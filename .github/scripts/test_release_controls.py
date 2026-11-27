@@ -471,6 +471,28 @@ class PublicationIdentityTests(unittest.TestCase):
         self.assertEqual(self.record["assets"], [{"id": 11, "name": "retained.jar"}])
 
 
+    def test_finalization_keeps_the_vault_while_the_release_is_a_draft(self):
+        page = f'<html data-source-sha="{self.release["sha"]}"></html>'.encode()
+
+        def still_draft(path, method, data):
+            return dict(self.metadata_api(path, method, data), draft=True)
+
+        with (
+            patch.object(publish, "verify"),
+            patch.object(publish, "verify_tag"),
+            patch.object(publish, "central_downloads"),
+            patch.object(publish, "github_assets"),
+            patch.object(publish, "attestations"),
+            patch.object(publish, "fetch", return_value=page),
+            patch.object(publish, "release_record", return_value=self.record),
+            patch.object(publish, "gh", side_effect=still_draft),
+            patch.object(publish, "discard") as discard,
+            self.assertRaisesRegex(ValueError, "still a draft"),
+        ):
+            publish.finalize(self.release)
+        discard.assert_not_called()
+
+
 class PayloadTests(unittest.TestCase):
     def test_main_jars_require_java_21_bytecode(self):
         valid = b"\xca\xfe\xba\xbe\x00\x00\x00\x41"
@@ -988,8 +1010,16 @@ class PayloadVaultTests(SigningKeyCase):
         vault.retrieve(self.sha)
         self.assertEqual(tree(self.root), sealed)
         shutil.rmtree(self.root)
+        other = "b" * 40
         with self.assertRaisesRegex(ValueError, "vault is missing"):
-            vault.retrieve("b" * 40)
+            vault.retrieve(other)
+        # A vault named for another commit must not yield this commit's payload.
+        [record] = self.github.records
+        record["tag_name"] = "release-payload-" + other
+        record["body"] = f"<!-- source: {other} -->"
+        record["assets"][0]["name"] = f"release-payload-{other}.zip"
+        with self.assertRaisesRegex(ValueError, "source mismatch"):
+            vault.retrieve(other)
 
     def test_tag_without_vault_is_a_hard_stop(self):
         with self.assertRaisesRegex(ValueError, "do not rebuild"):
@@ -1012,7 +1042,6 @@ class PayloadVaultTests(SigningKeyCase):
         self.assertEqual(self.github.uploads, 1)
 
     def test_interrupted_upload_is_replaced_only_before_tagging(self):
-        self.seal_fixture(self.root, self.release)
         self.github.api(
             f"repos/{REPOSITORY}/releases",
             "POST",
@@ -1024,6 +1053,12 @@ class PayloadVaultTests(SigningKeyCase):
         )
         partial = {"id": 1, "name": f"release-payload-{self.sha}.zip"}
         self.github.records[0]["assets"].append(dict(partial, state="starter"))
+        self.github.blobs[partial["id"]] = b"truncated upload"
+        with self.assertRaisesRegex(ValueError, "do not rebuild"):
+            vault.restore(dict(self.release, retry=True))
+        vault.restore(self.release)
+        self.assertEqual(self.outputs, {"restored": "false", "needs-signing": "true"})
+        self.seal_fixture(self.root, self.release)
         with self.assertRaisesRegex(ValueError, "Incomplete payload vault"):
             vault.retain(dict(self.release, retry=True))
         vault.retain(self.release)
