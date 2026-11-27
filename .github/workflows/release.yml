@@ -90,9 +90,9 @@ jobs:
           install -d -m 700 "$GNUPGHOME"
           gpg --batch --import .github/release-signing-key.asc
           python .github/scripts/release_control.py candidate "$GITHUB_SHA"
-      - name: Restore original payload on retries
+      - name: Restore sealed payload from its draft vault
         id: restore
-        run: python .github/scripts/release_restore.py
+        run: python .github/scripts/release_restore.py restore
       - name: Import and test encrypted private key before building or tagging
         if: steps.restore.outputs.needs-signing == 'true'
         env:
@@ -114,14 +114,8 @@ jobs:
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         run: python .github/scripts/release_payload.py seal
-      - name: Retain immutable payload before publication
-        if: steps.restore.outputs.restored != 'true'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
-        with:
-          name: release-payload-${{ github.sha }}
-          path: target/release-payload
-          if-no-files-found: error
-          retention-days: 90
+      - name: Retain sealed payload in a draft vault before tagging
+        run: python .github/scripts/release_restore.py retain
       - name: Create, verify, and push signed annotated tag
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
@@ -185,7 +179,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: read
       attestations: read
     env:
       GH_TOKEN: ${{ github.token }}
@@ -194,16 +187,13 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
-        with:
-          name: release-payload-${{ github.sha }}
-          path: target/release-payload
-      - name: Verify public release before finalization
+      - name: Verify public release, finalize, and delete the draft vault
         run: |
           export GNUPGHOME="$RUNNER_TEMP/verify-key"
           echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
           install -d -m 700 "$GNUPGHOME"
           gpg --batch --import .github/release-signing-key.asc
+          python .github/scripts/release_restore.py retrieve
           python .github/scripts/release_publish.py finalize
       - name: Clean verification keyring
         if: always()

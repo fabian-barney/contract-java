@@ -67,9 +67,12 @@ JAR includes the project license, notice, and third-party inventory.
 
 Before tagging or upload, CI retains a signed manifest, the complete signed Maven
 repository layout, its prebuilt Central ZIP, Javadoc archives, and GitHub assets
-in the immutable `release-payload-SHA` Actions artifact (90-day retention).
-Copy that artifact to durable storage for recovery beyond Actions retention.
-Reruns verify its signed source identity and every digest before using its bytes.
+as `release-payload-SHA.zip`. That archive is the only asset of the draft vault
+release `release-payload-SHA`, which is never published. Draft assets do not
+expire, and no workflow rerun discards them. The Javadoc and finalization jobs,
+and every rerun that finds a completed vault upload, restore the payload from
+the vault and verify its signed source identity and every digest before using
+its bytes. Finalization deletes the vault once the GitHub release is public.
 
 The signed annotated `vX.Y.Z` tag points to the candidate SHA. The same workflow
 continues after its push: a `GITHUB_TOKEN` tag push does not start another
@@ -130,10 +133,18 @@ JSON and checks signatures against the pinned fingerprint.
 
 ## Recovery and next development version
 
-Use **Re-run all jobs** on the original release run. Reruns restore only that
-run's retained payload, verify it, reuse the exact signed tag and draft, compare
-existing assets, and resume the recorded Central deployment. They never overwrite
-different uploaded bytes. A tag without available retained bytes is a hard stop.
+Rerun the original release run. **Re-run failed jobs** and **Re-run all jobs**
+both keep the draft vault. When the vault holds a completed upload, the
+publication job restores the payload from it, verifies it, and skips the build.
+It then reuses the exact signed tag and draft, compares existing assets, and
+resumes the recorded Central deployment. Prefer **Re-run failed jobs** once a
+job has succeeded, so that its work is not repeated. Reruns never overwrite
+different uploaded bytes.
+
+A tag without a completed vault upload is a hard stop. Without a tag, a rerun
+builds again unless the vault holds a completed upload, and replaces an
+interrupted one. Never publish, edit, or delete the vault draft by hand while
+the release is incomplete.
 
 If publication and Javadoc succeeded and only finalization failed, recover the
 original draft metadata and use **Re-run failed jobs** on that same run. If the
@@ -150,8 +161,8 @@ deployment or delete the original history.
 Before public publication, retry only the same commit and verified payload. After
 Central publication, recovery may complete verification, Javadoc, or metadata
 using the original bytes. Code or payload changes require a new patch version.
-Preserve tags, public artifacts, and the draft as a partial-release record until
-recovery completes. Never retarget a tag or silently replace assets.
+Preserve tags, public artifacts, the draft, and the vault as a partial-release
+record until recovery completes. Never retarget a tag or silently replace assets.
 
 After the complete public release is verified, open a dedicated `X.Y.(Z+1)-SNAPSHOT`
 PR. Its merge publishes nothing. Gradle Plugin Portal and private registries are
