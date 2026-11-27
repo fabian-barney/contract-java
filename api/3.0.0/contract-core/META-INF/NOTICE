@@ -1,0 +1,5 @@
+contract-java
+Copyright 2026 Fabian Barney
+
+Licensed under the Apache License, Version 2.0.
+Third-party dependencies are separate Maven artifacts; see THIRD-PARTY-LICENSES.md.
